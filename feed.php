@@ -1,10 +1,60 @@
+<!-- This page displays a feed of all the uploaded content from users--> 
+
 <?php
   session_start();  //Check the user is logged in;
 
-  $conn = new mqsqli("localhost", "root", "", "projectx_db");
+  //connect to the db
+  $conn = new mysqli("localhost", "root", "", "projectx_db");
   if($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
   }
 
-  //Fetch videos from newest to oldest (LIFO)
+  //Fetch all videos from newest to oldest (LIFO)
+  $sql = "SELECT v.id, v.video_path, v.title, v.created_at, u.username 
+  from videos v
+  JOIN users u on v.user_id = u.id 
+  ORDER BY v.created_at DESC";
+  //The "JOIN" gives the foreigner key of the user's name from the user's table
+
+  $result = $conn->query($sql);
+  ?>
   
+
+  
+ <!DOCTYPE html>
+ <html>
+
+  <head>
+    <title>Feed</title>
+  </head>
+  
+  <body>
+    <h1>Feed<h1> 
+
+    <?php
+    if($result-> num_rows >0) {          
+      //Display each video - Read each line
+      while($row = $result->fetch_assoc()) {
+        //shows the video
+        echo "<div style = 'border:1px solid #ccc;
+                margin-bottom;
+                padding:10px;'>";
+        echo "<h3>" . $row['title'] . "</h3>";
+        echo "<p>Uploaded by: " .  $row['username'] . " at " . $row['created_at'] . "</p>";
+        
+        //shows the video
+        echo "<video width='400' controls>
+            <source src = ' " . $row['video_path'] . " ' type = 'video/mp4' >
+            Your browser does not support the video tag.
+            </video> ";
+            echo "</div>";   
+      } 
+    } else {
+      echo "Feed is Empty.";
+    }
+    $conn->close();
+    ?>
+    
+  </body>
+
+</html>

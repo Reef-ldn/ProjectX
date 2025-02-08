@@ -1,4 +1,4 @@
-<!-- This allows the user to upload a video--> 
+<!-- This allows the user to upload a video of their highlights--> 
  <?php
  session_start();
  //Ensures the user is logged in before allowing them to upload content
@@ -21,15 +21,15 @@
     <h1>Upload a Video<h1> 
     
     <!--Form to allow users to upload a video -->
-    <form action = "upload_video.php" method="POST" entype="multipart/form-data">
-      <label>Video Title:</label> <br>
+    <form action = "upload_video.php" method="POST" enctype="multipart/form-data">
+      <label> Video Title: </label> <br>
       <input type = "text" name = "title" required> <br><br>
 
       <!--Only allow files of type video-->
       <label>Select Video:</label> <br>
       <input type = "file" name = "myvideo" accept="video/*" required> <br><br>
 
-      <button type = "submit" name="subit">Upload</button>
+      <button type = "submit" name="submit">Upload</button>
     </form>
 
   </body>
@@ -40,40 +40,43 @@
 
 
 <?php
-  if(isset($_POST['submit'])){      
+  if(isset($_POST['submit'])){      //When 'submit' is pressed
     //Get data from the form
-    $title = $_POST['title'];
+    $title = $_POST['title'];       
     $user_id =  $_SESSION['user_id']; // the logged-in user's ID
 
     //Check if there is a file
-    if(isset($_FILES['myvideo']) && S_FILES['myvideo']['error']==0){
+    //Basically checks what the user inputted and store their video files in a temporary folder
+    if(isset($_FILES['myvideo']) && $_FILES['myvideo']['error'] == 0) {   
       $videoName = $_FILES['myvideo']['name'];       //Original File name
-      $videoTemp = $_FILES['myvideo']['temp_name'];  //Temporary location on the server
+      $videoTmp = $_FILES['myvideo']['tmp_name'];    //Temporary location on the server
       $destination = "uploads/" . $videoName;        //Where the video is being put
 
-      //Move the file from the temp to uploads/ folder
-      if(!move_uploaded_file($videoTemp,$destination)) {
+      //Moves the file from the temp folder to my uploads folder
+      if(!move_uploaded_file($videoTmp,$destination)) {
         die("Error moving the uploaded file.");
       }
 
-      //Store a record in the 'videos' table
+      //Store a record in the 'videos' database table
       $conn = new mysqli("localhost", "root", "", "projectx_db");
       if($conn->connect_error){
         die("Connection Failed: " . $conn->connect_error);
       }
 
       //Insert into the DB
-      $SQL = "INSERT INTO videos (user_id, video_path, title, created_at) 
-              VALUES ('$user_id', '$destination' , '$title', NOW())";
+      $sql = "INSERT INTO videos (user_id, video_path, title, created_at) 
+              VALUES ('$user_id', '$destination' , '$title', NOW())";   
+      //Uploads who posted the video, what the vid address is and when it was posted
       if($conn->query($sql) === TRUE ) {
         echo "Video Uploaded Successfully!";
       } else {
-        echo "Database Error: " .$conn->error;
+        echo "Database Error: " . $conn->error;
       }
+
       $conn->close();
-      } else{
-        echo "No file seleted or an upload error occured!";
-      }
+    } else {
+      echo "No file selected or an upload error occured!";
+    }
 
   }
 ?>
