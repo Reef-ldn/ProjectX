@@ -42,18 +42,18 @@
 <?php
   if(isset($_POST['submit'])){      //When 'submit' is pressed
     //Get data from the form
-    $title = $_POST['title'];       
-    $user_id =  $_SESSION['user_id']; // the logged-in user's ID
+    $videoTitle = $_POST['title'];       
+    $playerID =  $_SESSION['user_id']; // the logged-in player's user ID
 
     //Check if there is a file
     //Basically checks what the user inputted and store their video files in a temporary folder
     if(isset($_FILES['myvideo']) && $_FILES['myvideo']['error'] == 0) {   
-      $videoName = $_FILES['myvideo']['name'];       //Original File name
+      $videoOriginalName = $_FILES['myvideo']['name'];       //Original File name
       $videoTmp = $_FILES['myvideo']['tmp_name'];    //Temporary location on the server
-      $destination = "uploads/" . $videoName;        //Where the video is being put
+      $uploadPath = "uploads/" . $videoOriginalName;        //Where the video is being put
 
       //Moves the file from the temp folder to my uploads folder
-      if(!move_uploaded_file($videoTmp,$destination)) {
+      if(!move_uploaded_file($videoTmp,$uploadPath)) {
         die("Error moving the uploaded file.");
       }
 
@@ -65,7 +65,7 @@
 
       //Insert into the DB
       $sql = "INSERT INTO videos (user_id, video_path, title, created_at) 
-              VALUES ('$user_id', '$destination' , '$title', NOW())";   
+              VALUES ('$playerID', '$uploadPath' , '$videoTitle', NOW())";   
       //Uploads who posted the video, what the vid address is and when it was posted
       if($conn->query($sql) === TRUE ) {
         echo "Video Uploaded Successfully!";
