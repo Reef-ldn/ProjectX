@@ -10,11 +10,18 @@
   }
 
   //Fetch all videos from newest to oldest (LIFO)
-  $sql = "SELECT v.id, v.video_path, v.title, v.created_at, u.username 
+  $sql = "SELECT v.id, v.video_path, v.title, v.created_at, u.username,
+  (SELECT COUNT(*) FROM likes l 
+  where l.video_id = v.id
+  ) AS like_count 
   from videos v
   JOIN users u on v.user_id = u.id 
-  ORDER BY v.created_at DESC";
+  ORDER BY v.created_at DESC"
+  ;
   //The "JOIN" gives the foreigner key of the user's name from the user's table
+  //The select count is a sub query of likes and acts as a like counter.
+      //for each row in 'videos', the 'likes' table is also checked to see how many rows the video id and count it
+      //This count result is the 'like_count'
 
   $result = $conn->query($sql);
   ?>
@@ -49,10 +56,13 @@
             </video> ";
             echo "</div>";   
         
+        //Displaying the Like count
+        echo "<p>Likes: " . $row ['like_count'] . "</p>"; //Show the like count next to the video (How many likes are in the 'like_count' section of that likes column)
+
         //Like Button 
         echo "<a href='video_likes.php?video_id=" . $row['id'] . "'>Like</a>";    //Clicking this button will call the video_likes script
 
-      
+        
       } 
     } else {
       echo "Feed is Empty.";
