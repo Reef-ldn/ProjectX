@@ -6,7 +6,7 @@
   //connect to the db
   $conn = new mysqli("localhost", "root", "", "projectx_db");
   if($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("Failed to connect to the database: " . $conn->connect_error);
   }
 
   //Fetch all videos from newest to oldest (LIFO)
@@ -48,6 +48,11 @@
             Your browser does not support the video tag.
             </video> ";
             echo "</div>";   
+        
+        //Like Button 
+        echo "<a href='video_likes.php?video_id=" . $row['id'] . "'>Like</a>";    //Clicking this button will call the video_likes script
+
+      
       } 
     } else {
       echo "Feed is Empty.";

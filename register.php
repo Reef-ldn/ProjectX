@@ -18,7 +18,7 @@ if(isset($_POST['submit'])) {       //checks if the form was submitted through t
   $conn = new mysqli("localhost", "root", "", "projectx_db");
   //Checks connection to the database
   if($conn->connect_error){
-    die("Connection failed: " . $conn->connect_error);    //stops everything if there's an error
+    die("Failed to connect to the database: " . $conn->connect_error);    //stops everything if there's an error
   }
 
   //Hashing the password

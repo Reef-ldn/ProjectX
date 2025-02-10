@@ -18,7 +18,7 @@ if(isset($_POST['submit'])) {   //checks if the login button was pressed
   $conn = new mysqli("localhost", "root", "", "projectx_db");
   //Checks the db is actually connected
   if($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("Failed to connect to the database: " . $conn->connect_error);
   }
 
   //Finds the user by email

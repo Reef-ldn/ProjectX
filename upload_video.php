@@ -60,7 +60,7 @@
       //Store a record in the 'videos' database table
       $conn = new mysqli("localhost", "root", "", "projectx_db");
       if($conn->connect_error){
-        die("Connection Failed: " . $conn->connect_error);
+        die("Failed to connect to the database: " . $conn->connect_error);
       }
 
       //Insert into the DB
