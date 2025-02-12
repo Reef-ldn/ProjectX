@@ -24,11 +24,11 @@
       //This count result is the 'like_count'
 
   $result = $conn->query($sql);
-  ?>
+?>
   
 
   
- <!DOCTYPE html>
+<!DOCTYPE html>
  <html>
 
   <head>
@@ -60,9 +60,30 @@
         echo "<p>Likes: " . $row ['like_count'] . "</p>"; //Show the like count next to the video (How many likes are in the 'like_count' section of that likes column)
 
         //Like Button 
-        echo "<a href='video_likes.php?video_id=" . $row['id'] . "'>Like</a>";    //Clicking this button will call the video_likes script
+        echo "<a href='likes.php?video_id=" . $row['id'] . "'>Like</a>";    //Clicking this button will call the 'likes.php' script
 
-        
+        //The Comments Form
+        echo "<form action = 'comments.php'    method = 'POST'>" ;
+        echo "<input type='hidden' name='video_id'  value='" . $row['id'] . "' /> ";
+        echo "<textarea name = 'comment_text'   placeholder ='Write a comment here...' > </textarea> <br>";
+        echo "<button type = 'submit' > Comment </button> " ; 
+        echo "</form>";
+
+        //Displaying the commentts
+        $videoID = $row['id']; //The current video
+        $commentSql = "SELECT c.comment_text, c.created_at, u.username
+                        FROM comments c
+                        JOIN users u ON c.user_id = u.id
+                        WHERE c.video_id = '$videoID'
+                        ORDER BY c.created_at ASC";
+
+        $commentResult = $conn->query($commentSql);
+
+        while($cRow = $commentResult->fetch_assoc()) {
+          echo "<p> <b>" . $cRow['username'] . ":</b> " . $cRow['comment_text'] . 
+                " <i>(" . $cRow['created_at'] . ")</i></p>";
+        }
+
       } 
     } else {
       echo "Feed is Empty.";
