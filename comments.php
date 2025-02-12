@@ -23,14 +23,20 @@
 }
 
  //Insert into the comments table in the db
- $sql = "INSERT INTO comments (video_id, user_id, comment_text, created_at)
-         VALUES ('$video_id' , '$user_id' , '$comment_text' , NOW() )" ;   
+$stmt = $conn-> prepare("INSERT INTO comments (video_id, user_id, comment_text, created_at)
+         VALUES (?, ?, ? , NOW())") ;   //Use prepare and placeholders to allow the user to type apostrophes
 
- if($conn->query($sql) === TRUE) {    //queries the database
+//there's 2 ints (vid_id and user id) and 1 string ?(comment_text), so the format string is iis (i = int, s = string)
+$stmt->bind_param("iis", $video_id, $user_id, $comment_text);
+
+//execute statement
+ if($stmt->execute()) {    //queries the database
    echo "Comment posted successfully! " ;
  } else {
-   echo "Error, could not post your comment: " . $conn->error; 
+   echo "Error, could not post your comment: " . $stmt->error; 
  }
+
+ $stmt->close();    //close statement
  $conn->close();     //done communicating with the db
 
  //redirect back to the feed
