@@ -48,7 +48,12 @@
         echo "<div style = 'border:1px solid #ccc;
                 margin-bottom:10px;
                 padding:10px;'>";
-        //echo "<h3>" . $row['title'] . "</h3>";
+
+        //Show the title (If there is one)
+        if(!empty($row['title'])) {
+          echo"<h3>" . $row['title'] . "</h3>";
+        }
+
         echo "<p>Uploaded by: " .  $row['username'] . " at " . $row['created_at'] . "</p>";
         
         //If it's a text post
