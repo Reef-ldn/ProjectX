@@ -11,7 +11,7 @@
 
 
  //Getting the video's ID
- $video_id = $_GET['video_id'] ?? 0;   
+ $post_id = $_GET['post_id'] ?? 0;   
 
  //Connect to the DB
  $user_id = $_SESSION['user_id'];
@@ -21,8 +21,8 @@
  }
 
  //Insert a new row in the 'likes' table
- $sql = "INSERT INTO likes (user_id, video_id, created_at)
-        VALUES ('$user_id' , '$video_id' , NOW() )" ; 
+ $sql = "INSERT INTO likes (user_id, post_id, created_at)
+        VALUES ('$user_id' , '$post_id' , NOW() )" ; 
  if($conn->query($sql) === TRUE ) {    //If the like is successful
    echo "Liked successfully!";
  } else {    

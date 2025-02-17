@@ -10,8 +10,8 @@
  //Get the user's ID from the session
  $user_id = $_SESSION['user_id'];
 
- //Getting the video_id and comment_text from the database (through POST)
- $video_id = $_POST['video_id'];
+ //Getting the post_id and comment_text from the database (through POST)
+ $post_id = $_POST['post_id'];
  $comment_text = $_POST['comment_text'];
  //$user_id = $_POST['user_id'];
 
@@ -23,11 +23,11 @@
 }
 
  //Insert into the comments table in the db
-$stmt = $conn-> prepare("INSERT INTO comments (video_id, user_id, comment_text, created_at)
+$stmt = $conn-> prepare("INSERT INTO comments (post_id, user_id, comment_text, created_at)
          VALUES (?, ?, ? , NOW())") ;   //Use prepare and placeholders to allow the user to type apostrophes
 
 //there's 2 ints (vid_id and user id) and 1 string ?(comment_text), so the format string is iis (i = int, s = string)
-$stmt->bind_param("iis", $video_id, $user_id, $comment_text);
+$stmt->bind_param("iis", $post_id, $user_id, $comment_text);
 
 //execute statement
  if($stmt->execute()) {    //queries the database
