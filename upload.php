@@ -102,7 +102,7 @@ if(isset($_POST['submit_post'])) {    //if the post button is pressed.
   //title = string (s)
   //file_path = string or null (s) - Pass a string if not null
   //text_content = string(s)
-  $stmt->bind_param("isss", $user_id, $post_type, $title, $file_path, $text_content); //"isss" represents the above
+  $stmt->bind_param("issss", $user_id, $post_type, $title, $file_path, $text_content); //"isss" represents the above
   if($stmt->execute()) {          //if the statement is executed successfully
     echo "Post uploaded successfully!";
   } else {
