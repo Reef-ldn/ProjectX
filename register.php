@@ -25,16 +25,35 @@ if(isset($_POST['submit'])) {       //checks if the form was submitted through t
   $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
   //Inserts the new user into the 'users' table as a column
+  $user_type = 'player';    //for now this will be set to player for the sake of the MVP
   $sql = 
-  "INSERT INTO users (username, email, password, created_at)
-  VALUES ('$username', '$email', '$hashed_password', NOW())";
+  "INSERT INTO users (username, email, password, created_at, user_type)
+  VALUES ('$username', '$email', '$hashed_password', NOW(), '$user_type')";
+  $result = $conn->query($sql);
+
+  //check if the insertion worked
+  if($result == TRUE) {
+    //grab the new user id
+    $newUserId = $conn->insert_id;    //the newly created user's id
+
+     //If the user_type is 'player', insert a row in the 'players' table in the db
+     if($user_type == ' player') {
+      $pSql = "INSERT INTO players (user_id, height, weight, age, goals, assists)
+              VALUES ('$newUserId', 0 ,0 , 0, 0, 0)";
+      $conn->query($pSql);
+     }
+
+      //Gives Feedback to the user
+      //if($conn->query($sql) === TRUE){    // "if the sql command works then...."
+      echo "Registration Successful!";
+    } else {
+        echo "Error: " . $conn->error;
+    }
+ 
+
+ 
   
-  //Gives Feedback to the user
-  if($conn->query($sql) === TRUE){    // "if the sql command works then...."
-    echo "Registration Successful!";
-  } else {
-    echo "Error: " . $conn->error;
-  }
+
 
   $conn->close();   //closes the database connection
 }
