@@ -37,7 +37,7 @@ if(isset($_POST['submit'])) {       //checks if the form was submitted through t
     $newUserId = $conn->insert_id;    //the newly created user's id
 
      //If the user_type is 'player', insert a row in the 'players' table in the db
-     if($user_type == ' player') {
+     if($user_type == 'player') {
       $playerSql = "INSERT INTO players (user_id, height, weight, age, goals, assists)
               VALUES ('$newUserId', 0 ,0 , 0, 0, 0)";
       $conn->query($playerSql);
