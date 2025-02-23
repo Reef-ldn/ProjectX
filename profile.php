@@ -41,16 +41,25 @@
     </head>
   
     <body>
-      <h1>Profile Page<h1> 
+      <h1>Profile Page</h1> 
 
       <p>Username: <?php echo $userRow['username']; ?> </p>   <!--Display the username-->
       <p>Type: <?php echo $userRow['user_type']; ?> </p>      <!--Display the user type-->
+
+      
+
 
       <?php if($userRow['user_type'] == 'player'): ?>
         <h2>Player Info</h2>
 
         <!--Display the player's info-->
         <?php if($plData):   ?>
+
+          
+          <?php if($_SESSION['user_id'] == $profileUserId && $userRow['user_type'] == 'player'): ?>
+            <a href = 'edit_profile.php'>Edit Profile</a>
+          <?php endif; ?>
+      
           <!--If there is a row in 'players' with this info -->
           <p>Height: <?php echo $plData['height']; ?> cm </p>                         <!-- height-->
           <p>Weight: <?php echo $plData['weight']; ?> kg </p>                         <!-- weight-->

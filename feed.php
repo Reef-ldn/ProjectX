@@ -38,7 +38,7 @@
   </head>
   
   <body>
-    <h1>Feed<h1> 
+    <h1>Feed</h1> 
 
     <?php
     if($result-> num_rows >0) {          

@@ -18,7 +18,7 @@
   </head>
   
   <body>
-    <h1>Upload Content<h1> 
+    <h1>Upload Content</h1> 
     
     <!--Form to allow users to upload media -->
     <form action = "upload.php" method="POST" enctype="multipart/form-data">
