@@ -76,6 +76,9 @@
 
         echo "</div>";   
 
+  
+        //link to view the profile
+        //<a href="profile.php?user_id=<?php echo$row['id'];
         
         //Displaying the Like count
         echo "<p>Likes: " . $row ['like_count'] . "</p>"; //Show the like count next to the video (How many likes are in the 'like_count' section of that likes column)
@@ -112,6 +115,7 @@
     $conn->close();
     ?>
     
+  
   </body>
 
 </html>

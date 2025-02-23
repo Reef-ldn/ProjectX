@@ -38,9 +38,9 @@ if(isset($_POST['submit'])) {       //checks if the form was submitted through t
 
      //If the user_type is 'player', insert a row in the 'players' table in the db
      if($user_type == ' player') {
-      $pSql = "INSERT INTO players (user_id, height, weight, age, goals, assists)
+      $playerSql = "INSERT INTO players (user_id, height, weight, age, goals, assists)
               VALUES ('$newUserId', 0 ,0 , 0, 0, 0)";
-      $conn->query($pSql);
+      $conn->query($playerSql);
      }
 
       //Gives Feedback to the user
