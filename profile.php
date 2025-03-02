@@ -3,8 +3,13 @@
 <!--Backend to handle the profile data-->
 <?php
   session_start();
-  //read the user_id from the url
+  //The user's account that we are on (user_id taken from the url)
   $profileUserId = $_GET['user_id'] ?? 0;   
+
+  //The user that is currently logged in
+  $loggedUserId = $_SESSION['user_id'] ?? 0;
+
+  //connect to the db
   $conn = new mysqli("localhost", "root", "", "projectx_db");    //connect to db
   if($conn->connect_error) {      //check connection
     die("Failed to connect to the database: " . $conn->connect_error);
@@ -30,6 +35,15 @@
     }
   }
 
+  //Check if the logged in user is following the user that we are viewing
+  $sqlCheck = "SELECT * FROM follows
+                WHERE follower_id = '$loggedUserId'
+                AND followed_id = '$profileUserId' ";
+  $checkResult = $conn->query($sqlCheck);
+  $isFollowing = ($checkResult->num_rows > 0); //This is true if the user is already following them
+
+
+  
 ?>
 
 <!--Front-end to display the profile-->
@@ -46,9 +60,24 @@
       <p>Username: <?php echo $userRow['username']; ?> </p>   <!--Display the username-->
       <p>Type: <?php echo $userRow['user_type']; ?> </p>      <!--Display the user type-->
 
-      
+
+      <?php echo "<p>DEBUG: Logged in user = $loggedUserId,  Viewing profile user = $profileUserId</p>"; ?>
+
+      <!--Display a 'Follow User' Button, if the profile being viewed if not the same as the logged in user-->
+      <?php if($loggedUserId != $profileUserId) { 
+        //show the follow or unfollow Button
+        if($isFollowing) {
+          //Show an "unfollow" link
+          echo "<a href = 'follow_user.php?followed_id=$profileUserId&action=unfollow'>Unfollow</a> ";
+        } else {
+          //Show a "Follow" link
+            echo "<a href = 'follow_user.php?followed_id=$profileUserId&action=follow'>Follow</a> ";
+        }
+      }
+      ?>
 
 
+      <!--If the user is a player, display player related details-->
       <?php if($userRow['user_type'] == 'player'): ?>
         <h2>Player Info</h2>
 
