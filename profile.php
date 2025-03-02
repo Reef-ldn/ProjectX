@@ -43,7 +43,21 @@
   $isFollowing = ($checkResult->num_rows > 0); //This is true if the user is already following them
 
 
+  //Followers COunt (How many people follow this user)
+  $sqlFollowers = "SELECT COUNT(*) AS followers_count
+                    FROM follows
+                    WHERE followed_id = '$profileUserId' ";
+  $resFollowers = $conn->query($sqlFollowers);
+  $rowFollowers = $resFollowers ->fetch_assoc();
+  $followersCount = $rowFollowers['followers_count'];
   
+  //Following Count (How many people this user follows)
+  $sqlFollowing = "SELECT COUNT(*) AS following_count
+                   FROM follows
+                   WHERE follower_id = '$profileUserId' ";
+  $resFollowing = $conn->query($sqlFollowing);
+  $rowFollowing = $resFollowing ->fetch_assoc();
+  $followingCount = $rowFollowing['following_count'];
 ?>
 
 <!--Front-end to display the profile-->
@@ -61,9 +75,12 @@
       <p>Type: <?php echo $userRow['user_type']; ?> </p>      <!--Display the user type-->
 
 
-      <?php echo "<p>DEBUG: Logged in user = $loggedUserId,  Viewing profile user = $profileUserId</p>"; ?>
+      <!--Display the amount of Followers and followings-->
+      <?php echo "<p>Following: $followingCount</p>"; ?>
+      <?php echo "<p>Followers: $followersCount</p>"; ?>
 
-      <!--Display a 'Follow User' Button, if the profile being viewed if not the same as the logged in user-->
+
+      <!--Display a 'Follow User' Button, if the profile being viewed if not the same as the logged in user -->
       <?php if($loggedUserId != $profileUserId) { 
         //show the follow or unfollow Button
         if($isFollowing) {
