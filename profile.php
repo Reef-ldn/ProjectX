@@ -43,7 +43,7 @@
   $isFollowing = ($checkResult->num_rows > 0); //This is true if the user is already following them
 
 
-  //Followers COunt (How many people follow this user)
+  //Followers Count (How many people follow this user)
   $sqlFollowers = "SELECT COUNT(*) AS followers_count
                     FROM follows
                     WHERE followed_id = '$profileUserId' ";
@@ -80,7 +80,7 @@
       <?php echo "<p>Followers: $followersCount</p>"; ?>
 
 
-      <!--Display a 'Follow User' Button, if the profile being viewed if not the same as the logged in user -->
+      <!--Display a 'Follow User' Button, if the profile being viewed is not the same as the logged in user -->
       <?php if($loggedUserId != $profileUserId) { 
         //show the follow or unfollow Button
         if($isFollowing) {
@@ -92,6 +92,24 @@
         }
       }
       ?>
+
+      <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
+      <?php if($loggedUserId != $profileUserId): ?>
+        <!--Form to allow users to send a message-->
+
+        <h3>Message This User:</h3>
+        <form action = "send_message.php" method="POST">
+          <!-- hidden input to specify who is being messaged-->
+          <input type = "hidden" name = "receiver_id" value = "<?php echo $profileUserId; ?>" >
+
+          <label> Your Message: </label> <br>
+          <textarea name="content" rows="3" cols="40"></textarea> <br><br>
+
+          <button type = "submit">Send</button>
+        </form>
+
+      <?php endif;?>
+      
 
 
       <!--If the user is a player, display player related details-->
@@ -130,6 +148,8 @@
           <p> No information was found for user <?php echo $profileUserId; ?> .  </p>
         <?php endif; ?>
       <?php endif; ?>
+
+
     </body>
 
 </html>
