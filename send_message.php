@@ -11,8 +11,8 @@
   $sender_id = $_SESSION['user_id'];          //The ID of the user that sent the text
 
   //Get data from the form
-  $receiver_id = $_SESSION['receiver_id'];    //The ID of the user that received the text
-  $content = $_SESSION['content'];            //The content of the text
+  $receiver_id = $_POST['receiver_id' ?? 0];    //The ID of the user that received the text
+  $content = $_POST['content'] ?? '';            //The content of the text
 
   //Connect to the db
   $conn = new mysqli("localhost", "root", "", "projectx_db");
