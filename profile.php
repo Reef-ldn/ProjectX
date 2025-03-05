@@ -93,6 +93,8 @@
       }
       ?>
 
+      
+
       <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
       <?php if($loggedUserId != $profileUserId): ?>
         <!--Form to allow users to send a message-->
@@ -109,6 +111,16 @@
         </form>
 
       <?php endif;?>
+
+      <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
+      <?php if($loggedUserId != $profileUserId): ?>
+        <!--Form to allow users to send a message-->
+
+        <h3>Message This User:</h3>
+        <a href="conversation.php?other_id=<?php echo $profileUserId; ?>">Send Private Message</a>
+
+      <?php endif;?>
+      
       
 
 

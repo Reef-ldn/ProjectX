@@ -11,7 +11,7 @@
   $sender_id = $_SESSION['user_id'];          //The ID of the user that sent the text
 
   //Get data from the form
-  $receiver_id = $_POST['receiver_id' ?? 0];    //The ID of the user that received the text
+  $receiver_id = $_POST['receiver_id'] ?? 0;    //The ID of the user that received the text
   $content = $_POST['content'] ?? '';            //The content of the text
 
   //Connect to the db
@@ -26,7 +26,7 @@
   $conn->query($sql);
   
   //Redirect back to the inbox
-  header("Location: inbox.php");
+  header("Location: conversation.php?other_id=$receiver_id");
   exit; 
 
  ?>

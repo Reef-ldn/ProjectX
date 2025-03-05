@@ -3,7 +3,7 @@
 <?php
   session_start();
 
-  //Check if the user is logged in before allowing them to view their message history
+  //Check if the user is logged in before allowing them to view their sent messages
   if(!isset($_SESSION['user_id'])) {
     die("You must be logged in.");   //If they're not logged in, kill the sesssion
   }
@@ -33,11 +33,11 @@
   <html>
 
     <head>
-      <title>My Inbox</title>
+      <title>Sent Messages</title>
     </head>
   
     <body>
-      <h1>Inbox</h1> 
+      <h1>Sent messages</h1> 
       <?php
         //Loop through the messages
         if($result && $result->num_rows > 0) {
