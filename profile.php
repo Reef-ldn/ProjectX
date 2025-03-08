@@ -2,167 +2,193 @@
 
 <!--Backend to handle the profile data-->
 <?php
-  session_start();
-  //The user's account that we are on (user_id taken from the url)
-  $profileUserId = $_GET['user_id'] ?? 0;   
+session_start();
+//The user's account that we are on (user_id taken from the url)
+$profileUserId = $_GET['user_id'] ?? 0;
 
-  //The user that is currently logged in
-  $loggedUserId = $_SESSION['user_id'] ?? 0;
+//The user that is currently logged in
+$loggedUserId = $_SESSION['user_id'] ?? 0;
 
-  //connect to the db
-  $conn = new mysqli("localhost", "root", "", "projectx_db");    //connect to db
-  if($conn->connect_error) {      //check connection
-    die("Failed to connect to the database: " . $conn->connect_error);
+//connect to the db
+$conn = new mysqli("localhost", "root", "", "projectx_db");    //connect to db
+if ($conn->connect_error) {      //check connection
+  die("Failed to connect to the database: " . $conn->connect_error);
+}
+
+//fetch from the 'users' table
+$userSql = "SELECT username, user_type FROM users WHERE id = '$profileUserId' ";
+$userResult = $conn->query($userSql);
+if ($userResult->num_rows == 0) {         //If no user has this ID, no user is found.
+  die("No user found.");
+}
+$userRow = $userResult->fetch_assoc();
+
+//If the user type is 'player', fetch from the 'players' table too
+if ($userRow['user_type'] == 'player') {
+  //Select all players from the players table with the same user ID
+  $plSql = "SELECT * FROM players WHERE user_id = '$profileUserId' ";
+  $plResult = $conn->query($plSql);   //store this info in a result variable
+  if ($plResult && $plResult->num_rows > 0) {
+    $plData = $plResult->fetch_assoc();
+  } else {
+    $plData = null;
   }
+}
 
-  //fetch from the 'users' table
-  $userSql = "SELECT username, user_type FROM users WHERE id = '$profileUserId' " ;
-  $userResult = $conn->query($userSql);
-  if($userResult->num_rows == 0 ) {         //If no user has this ID, no user is found.
-    die("No user found.");
-  }
-  $userRow = $userResult->fetch_assoc();
-
-  //If the user type is 'player', fetch from the 'players' table too
-  if($userRow['user_type'] == 'player') {
-    //Select all players from the players table with the same user ID
-    $plSql = "SELECT * FROM players WHERE user_id = '$profileUserId' "; 
-    $plResult = $conn->query($plSql);   //store this info in a result variable
-    if($plResult && $plResult->num_rows>0){
-      $plData = $plResult->fetch_assoc();
-    } else{
-      $plData = null;
-    }
-  }
-
-  //Check if the logged in user is following the user that we are viewing
-  $sqlCheck = "SELECT * FROM follows
+//Check if the logged in user is following the user that we are viewing
+$sqlCheck = "SELECT * FROM follows
                 WHERE follower_id = '$loggedUserId'
                 AND followed_id = '$profileUserId' ";
-  $checkResult = $conn->query($sqlCheck);
-  $isFollowing = ($checkResult->num_rows > 0); //This is true if the user is already following them
+$checkResult = $conn->query($sqlCheck);
+$isFollowing = ($checkResult->num_rows > 0); //This is true if the user is already following them
 
 
-  //Followers Count (How many people follow this user)
-  $sqlFollowers = "SELECT COUNT(*) AS followers_count
+//Followers Count (How many people follow this user)
+$sqlFollowers = "SELECT COUNT(*) AS followers_count
                     FROM follows
                     WHERE followed_id = '$profileUserId' ";
-  $resFollowers = $conn->query($sqlFollowers);
-  $rowFollowers = $resFollowers ->fetch_assoc();
-  $followersCount = $rowFollowers['followers_count'];
-  
-  //Following Count (How many people this user follows)
-  $sqlFollowing = "SELECT COUNT(*) AS following_count
+$resFollowers = $conn->query($sqlFollowers);
+$rowFollowers = $resFollowers->fetch_assoc();
+$followersCount = $rowFollowers['followers_count'];
+
+//Following Count (How many people this user follows)
+$sqlFollowing = "SELECT COUNT(*) AS following_count
                    FROM follows
                    WHERE follower_id = '$profileUserId' ";
-  $resFollowing = $conn->query($sqlFollowing);
-  $rowFollowing = $resFollowing ->fetch_assoc();
-  $followingCount = $rowFollowing['following_count'];
+$resFollowing = $conn->query($sqlFollowing);
+$rowFollowing = $resFollowing->fetch_assoc();
+$followingCount = $rowFollowing['following_count'];
 ?>
 
 <!--Front-end to display the profile-->
 <!DOCTYPE html>
-  <html>
+<html>
 
-    <head>
-      <title>Profile</title>
-    </head>
-  
-    <body>
-      <h1>Profile Page</h1> 
+<head>
+  <meta charset="UTF-8">
+  <title>Profile</title>
 
-      <p>Username: <?php echo $userRow['username']; ?> </p>   <!--Display the username-->
-      <p>Type: <?php echo $userRow['user_type']; ?> </p>      <!--Display the user type-->
+  <!--Bootstrap CSS-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
 
+<body>
+  <!--Nav Bar-->
+  <nav class="navbar navbar-expand-lg navbar-dark br-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" hreef="#">My Project</a>
+      <!--Nav code will go here-->
+    </div>
+  </nav>
+
+
+  <!--Main Body Container-->
+  <div class="container my-4">
+    <h1 class="mb-3">Profile Page</h1>
+
+    <!--Top Section for username-->
+    <div class="card p-3">
+      <p>Username: <?php echo $userRow['username']; ?> </p> <!--Display the username-->
+      <p>Type: <?php echo $userRow['user_type']; ?> </p> <!--Display the user type-->
 
       <!--Display the amount of Followers and followings-->
       <?php echo "<p>Following: $followingCount</p>"; ?>
       <?php echo "<p>Followers: $followersCount</p>"; ?>
 
 
+
       <!--Display a 'Follow User' Button, if the profile being viewed is not the same as the logged in user -->
-      <?php if($loggedUserId != $profileUserId) { 
+      <?php if ($loggedUserId != $profileUserId) {
         //show the follow or unfollow Button
-        if($isFollowing) {
+        if ($isFollowing) {
           //Show an "unfollow" link
           echo "<a href = 'follow_user.php?followed_id=$profileUserId&action=unfollow'>Unfollow</a> ";
         } else {
           //Show a "Follow" link
-            echo "<a href = 'follow_user.php?followed_id=$profileUserId&action=follow'>Follow</a> ";
+          echo "<a href = 'follow_user.php?followed_id=$profileUserId&action=follow'>Follow</a> ";
         }
       }
       ?>
-
-      
-
-      <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
-      <?php if($loggedUserId != $profileUserId): ?>
-        <!--Form to allow users to send a message-->
-
-        <h3>Message This User:</h3>
-        <form action = "send_message.php" method="POST">
-          <!-- hidden input to specify who is being messaged-->
-          <input type = "hidden" name = "receiver_id" value = "<?php echo $profileUserId; ?>" >
-
-          <label> Your Message: </label> <br>
-          <textarea name="content" rows="3" cols="40"></textarea> <br><br>
-
-          <button type = "submit">Send</button>
-        </form>
-
-      <?php endif;?>
-
-      <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
-      <?php if($loggedUserId != $profileUserId): ?>
-        <!--Form to allow users to send a message-->
-
-        <h3>Message This User:</h3>
-        <a href="conversation.php?other_id=<?php echo $profileUserId; ?>">Send Private Message</a>
-
-      <?php endif;?>
-      
-      
+    </div>
+  
 
 
-      <!--If the user is a player, display player related details-->
-      <?php if($userRow['user_type'] == 'player'): ?>
-        <h2>Player Info</h2>
 
-        <!--Display the player's info-->
-        <?php if($plData):   ?>
+  <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
+  <?php if ($loggedUserId != $profileUserId): ?>
+    <!--Form to allow users to send a message-->
 
-          
-          <?php if($_SESSION['user_id'] == $profileUserId && $userRow['user_type'] == 'player'): ?>
-            <a href = 'edit_profile.php'>Edit Profile</a>
-          <?php endif; ?>
-      
-          <!--If there is a row in 'players' with this info -->
-          <p>Height: <?php echo $plData['height']; ?> cm </p>                         <!-- height-->
-          <p>Weight: <?php echo $plData['weight']; ?> kg </p>                         <!-- weight-->
-          <p>Preferred Position: <?php echo $plData['preferred_position']; ?> </p>    <!-- Preferred Position-->
-          <p>Preferred Foot: <?php echo $plData['preferred_foot']; ?> </p>            <!-- preferred foot-->
-          <p>Goals: <?php echo $plData['goals']; ?> </p>                              <!-- goals-->
-          <p>Assists: <?php echo $plData['assists']; ?>  </p>                         <!-- assists-->
-          <p>MOTM: <?php echo $plData['motm']; ?>  </p>                             <!-- motm-->
-          <p>POTM: <?php echo $plData['potm']; ?>  </p>                             <!-- potm-->
-          <p>Awards: <?php echo $plData['awards']; ?>  </p>                         <!-- awards-->
-          <p>Country: <?php echo $plData['country']; ?>  </p>                       <!-- country-->
-          <p>Current League: <?php echo $plData['current_league']; ?>  </p>         <!-- current league-->
-          <p>Current Team: <?php echo $plData['current_team']; ?>  </p>             <!-- current team-->
-          
-          <!--If the user has a profile pic uploaded, display this too
-          <?php if(!empty($plData['profile_pic'])): ?>
-            <img src="<?php echo $plData['profile_pic']; ?>" width="200" />
-          <?php endif; ?>
-          
+    <h3>Message This User:</h3>
+    <form action="send_message.php" method="POST">
+      <!-- hidden input to specify who is being messaged-->
+      <input type="hidden" name="receiver_id" value="<?php echo $profileUserId; ?>">
 
-        <?php else: ?>    
-          <p> No information was found for user <?php echo $profileUserId; ?> .  </p>
-        <?php endif; ?>
+      <label> Your Message: </label> <br>
+      <textarea name="content" rows="3" cols="40"></textarea> <br><br>
+
+      <button type="submit">Send</button>
+    </form>
+
+  <?php endif; ?>
+
+  <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
+  <?php if ($loggedUserId != $profileUserId): ?>
+    <!--Form to allow users to send a message-->
+
+    <h3>Message This User:</h3>
+    <a href="conversation.php?other_id=<?php echo $profileUserId; ?>">Send Private Message</a>
+
+  <?php endif; ?>
+
+
+
+
+  <!--If the user is a player, display player related details-->
+  <?php if ($userRow['user_type'] == 'player'): ?>
+    <h2>Player Info</h2>
+
+    <!--Display the player's info-->
+    <?php if ($plData): ?>
+
+
+      <?php if ($_SESSION['user_id'] == $profileUserId && $userRow['user_type'] == 'player'): ?>
+        <a href='edit_profile.php'>Edit Profile</a>
+      <?php endif; ?>
+
+      <!--If there is a row in 'players' with this info -->
+      <p>Height: <?php echo $plData['height']; ?> cm </p> <!-- height-->
+      <p>Weight: <?php echo $plData['weight']; ?> kg </p> <!-- weight-->
+      <p>Preferred Position: <?php echo $plData['preferred_position']; ?> </p> <!-- Preferred Position-->
+      <p>Preferred Foot: <?php echo $plData['preferred_foot']; ?> </p> <!-- preferred foot-->
+      <p>Goals: <?php echo $plData['goals']; ?> </p> <!-- goals-->
+      <p>Assists: <?php echo $plData['assists']; ?> </p> <!-- assists-->
+      <p>MOTM: <?php echo $plData['motm']; ?> </p> <!-- motm-->
+      <p>POTM: <?php echo $plData['potm']; ?> </p> <!-- potm-->
+      <p>Awards: <?php echo $plData['awards']; ?> </p> <!-- awards-->
+      <p>Country: <?php echo $plData['country']; ?> </p> <!-- country-->
+      <p>Current League: <?php echo $plData['current_league']; ?> </p> <!-- current league-->
+      <p>Current Team: <?php echo $plData['current_team']; ?> </p> <!-- current team-->
+
+      <!--If the user has a profile pic uploaded, display this too-->
+      <?php if (!empty($plData['profile_pic'])): ?>
+        <img src="<?php echo $plData['profile_pic']; ?>" width="200" />
       <?php endif; ?>
 
 
-    </body>
+    <?php else: ?>
+      <p> No information was found for user <?php echo $profileUserId; ?> . </p>
+    <?php endif; ?>
+  <?php endif; ?>
+
+  </div>
+
+  <!--Bootstrap JavaScript-->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
+
+</body>
 
 </html>
 <?php
