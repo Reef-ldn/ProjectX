@@ -62,29 +62,87 @@ $followingCount = $rowFollowing['following_count'];
 
 <!--Front-end to display the profile-->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <title>Profile</title>
 
-  <!--Bootstrap CSS-->
+  <!--Bootstrap CSS CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
 <body>
-  <!--Nav Bar-->
-  <nav class="navbar navbar-expand-lg navbar-dark br-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" hreef="#">My Project</a>
-      <!--Nav code will go here-->
-    </div>
-  </nav>
 
+  <!--Navbar start-->
+  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" > <!--Dark Background-->
+    <div class="container-fluid">
+      <!--Left - Logo + Project Name-->
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="me-2">
+        Next XI
+      </a>
+
+      <!--Toggler for small screens-->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span> <!--Toggler Icon-->
+      </button>
+
+      <!--Collapsible Div for the nav links and user dropdown-->
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!--Middle:Nav Links (centered using mx-auto)-->
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+
+          <!--Nav Links-->
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Feed</a> <!--Current Page-->
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Upload</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Settings</a>
+          </li>
+
+        </ul>
+
+        <!--Right Side: Search + Profile Pic Dropdown-->
+        <div class="d-flex align-items-center">
+          <!--Search Bar-->
+          <form class="d-flex me-3" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+
+          <!--Profile Pic Dropdown-->
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <!-- The user’s profile pic -->
+              <img src="https://via.placeholder.com/32" alt="Profile" width="32" height="32" class="rounded-circle">
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <!-- "dropdown-menu-end" to align the menu to the right side -->
+              <li><a class="dropdown-item" href="#">My Profile</a></li>
+              <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li><a class="dropdown-item" href="#">Help/Support</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="#">Log Out</a></li>
+            </ul>
+          </div>
+
+        </div> <!--end d-flex align-items-center-->
+      </div> <!--End collaps-->
+    </div> <!--End container-fluid-->
+  </nav>
+  <!--Navbar End-->
 
   <!--Main Body Container-->
-  <div class="container my-4">
+  <div class="container mt-5 pt-4">
     <h1 class="mb-3">Profile Page</h1>
 
     <!--Top Section for username-->
@@ -92,10 +150,14 @@ $followingCount = $rowFollowing['following_count'];
       <p>Username: <?php echo $userRow['username']; ?> </p> <!--Display the username-->
       <p>Type: <?php echo $userRow['user_type']; ?> </p> <!--Display the user type-->
 
-      <!--Display the amount of Followers and followings-->
-      <?php echo "<p>Following: $followingCount</p>"; ?>
-      <?php echo "<p>Followers: $followersCount</p>"; ?>
+      <!--Container to move elements to the right of the page-->
+      <div class="d-flex flex-row-reverse">
 
+        <!--Display the amount of Followers and followings-->
+        <?php echo "<p>Following: $followingCount</p>"; ?>
+        <?php echo "<p>Followers: $followersCount</p>"; ?>
+
+      </div>
 
 
       <!--Display a 'Follow User' Button, if the profile being viewed is not the same as the logged in user -->
@@ -111,75 +173,75 @@ $followingCount = $rowFollowing['following_count'];
       }
       ?>
     </div>
-  
-
-
-
-  <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
-  <?php if ($loggedUserId != $profileUserId): ?>
-    <!--Form to allow users to send a message-->
-
-    <h3>Message This User:</h3>
-    <form action="send_message.php" method="POST">
-      <!-- hidden input to specify who is being messaged-->
-      <input type="hidden" name="receiver_id" value="<?php echo $profileUserId; ?>">
-
-      <label> Your Message: </label> <br>
-      <textarea name="content" rows="3" cols="40"></textarea> <br><br>
-
-      <button type="submit">Send</button>
-    </form>
-
-  <?php endif; ?>
-
-  <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
-  <?php if ($loggedUserId != $profileUserId): ?>
-    <!--Form to allow users to send a message-->
-
-    <h3>Message This User:</h3>
-    <a href="conversation.php?other_id=<?php echo $profileUserId; ?>">Send Private Message</a>
-
-  <?php endif; ?>
 
 
 
 
-  <!--If the user is a player, display player related details-->
-  <?php if ($userRow['user_type'] == 'player'): ?>
-    <h2>Player Info</h2>
+    <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
+    <?php if ($loggedUserId != $profileUserId): ?>
+      <!--Form to allow users to send a message-->
 
-    <!--Display the player's info-->
-    <?php if ($plData): ?>
+      <h3>Message This User:</h3>
+      <form action="send_message.php" method="POST">
+        <!-- hidden input to specify who is being messaged-->
+        <input type="hidden" name="receiver_id" value="<?php echo $profileUserId; ?>">
 
+        <label> Your Message: </label> <br>
+        <textarea name="content" rows="3" cols="40"></textarea> <br><br>
 
-      <?php if ($_SESSION['user_id'] == $profileUserId && $userRow['user_type'] == 'player'): ?>
-        <a href='edit_profile.php'>Edit Profile</a>
-      <?php endif; ?>
+        <button type="submit">Send</button>
+      </form>
 
-      <!--If there is a row in 'players' with this info -->
-      <p>Height: <?php echo $plData['height']; ?> cm </p> <!-- height-->
-      <p>Weight: <?php echo $plData['weight']; ?> kg </p> <!-- weight-->
-      <p>Preferred Position: <?php echo $plData['preferred_position']; ?> </p> <!-- Preferred Position-->
-      <p>Preferred Foot: <?php echo $plData['preferred_foot']; ?> </p> <!-- preferred foot-->
-      <p>Goals: <?php echo $plData['goals']; ?> </p> <!-- goals-->
-      <p>Assists: <?php echo $plData['assists']; ?> </p> <!-- assists-->
-      <p>MOTM: <?php echo $plData['motm']; ?> </p> <!-- motm-->
-      <p>POTM: <?php echo $plData['potm']; ?> </p> <!-- potm-->
-      <p>Awards: <?php echo $plData['awards']; ?> </p> <!-- awards-->
-      <p>Country: <?php echo $plData['country']; ?> </p> <!-- country-->
-      <p>Current League: <?php echo $plData['current_league']; ?> </p> <!-- current league-->
-      <p>Current Team: <?php echo $plData['current_team']; ?> </p> <!-- current team-->
-
-      <!--If the user has a profile pic uploaded, display this too-->
-      <?php if (!empty($plData['profile_pic'])): ?>
-        <img src="<?php echo $plData['profile_pic']; ?>" width="200" />
-      <?php endif; ?>
-
-
-    <?php else: ?>
-      <p> No information was found for user <?php echo $profileUserId; ?> . </p>
     <?php endif; ?>
-  <?php endif; ?>
+
+    <!--Display a 'send Message' form if the profile being viewd is not the same as the logged in user-->
+    <?php if ($loggedUserId != $profileUserId): ?>
+      <!--Form to allow users to send a message-->
+
+      <h3>Message This User:</h3>
+      <a href="conversation.php?other_id=<?php echo $profileUserId; ?>">Send Private Message</a>
+
+    <?php endif; ?>
+
+
+
+
+    <!--If the user is a player, display player related details-->
+    <?php if ($userRow['user_type'] == 'player'): ?>
+      <h2>Player Info</h2>
+
+      <!--Display the player's info-->
+      <?php if ($plData): ?>
+
+
+        <?php if ($_SESSION['user_id'] == $profileUserId && $userRow['user_type'] == 'player'): ?>
+          <a href='edit_profile.php'>Edit Profile</a>
+        <?php endif; ?>
+
+        <!--If there is a row in 'players' with this info -->
+        <p>Height: <?php echo $plData['height']; ?> cm </p> <!-- height-->
+        <p>Weight: <?php echo $plData['weight']; ?> kg </p> <!-- weight-->
+        <p>Preferred Position: <?php echo $plData['preferred_position']; ?> </p> <!-- Preferred Position-->
+        <p>Preferred Foot: <?php echo $plData['preferred_foot']; ?> </p> <!-- preferred foot-->
+        <p>Goals: <?php echo $plData['goals']; ?> </p> <!-- goals-->
+        <p>Assists: <?php echo $plData['assists']; ?> </p> <!-- assists-->
+        <p>MOTM: <?php echo $plData['motm']; ?> </p> <!-- motm-->
+        <p>POTM: <?php echo $plData['potm']; ?> </p> <!-- potm-->
+        <p>Awards: <?php echo $plData['awards']; ?> </p> <!-- awards-->
+        <p>Country: <?php echo $plData['country']; ?> </p> <!-- country-->
+        <p>Current League: <?php echo $plData['current_league']; ?> </p> <!-- current league-->
+        <p>Current Team: <?php echo $plData['current_team']; ?> </p> <!-- current team-->
+
+        <!--If the user has a profile pic uploaded, display this too-->
+        <?php if (!empty($plData['profile_pic'])): ?>
+          <img src="<?php echo $plData['profile_pic']; ?>" width="200" />
+        <?php endif; ?>
+
+
+      <?php else: ?>
+        <p> No information was found for user <?php echo $profileUserId; ?> . </p>
+      <?php endif; ?>
+    <?php endif; ?>
 
   </div>
 
