@@ -49,6 +49,3 @@ exit;
 
 
 ?>
-
-<!--To see 'who follows me' = SELECT followed_id FROM follows WHERE follower_id='follower_id'-->
-<!--To see 'who I follow' = SELECT follower_id FROM follows WHERE followed_id='$my_id'-->

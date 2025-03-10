@@ -258,8 +258,14 @@ $result = $conn->query($sql);
 
 
                 <!-- Like count -->
-                <p class="mb-1"><strong><?php echo $row['like_count']; ?> likes</strong></p>
-
+                <?php
+                $likeCount = $row['like_count'];
+                if ($likeCount == 1) {
+                  echo "<p><strong>1 like</strong></p>";
+                } else {
+                  echo "<p><strong>{$likeCount} likes</strong></p>";
+                }
+                ?>
                 <!-- Caption -->
                 <?php if (!empty($row['text_content']) && $row['post_type'] != 'text'): ?>
                   <p>
