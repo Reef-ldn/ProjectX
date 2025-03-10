@@ -120,14 +120,29 @@ $result = $conn->query($sql);
   <!--Main Content Area-->
   <div class="container pt-5 mt-5">
     <div class="row">
-      <!--Left or Center Column: 8/12 columns-->
-      <div class="col-md-8">
+      <!--Left or Center Column: 6/12 columns-->
+      <div class="offset-md-2 col-md-7">
 
         <!--Feed logic (php), each post in a card-->
         <?php
-        if ($result->num_rows > 0) {
+        if ($result && $result->num_rows > 0) {
           //Display each post - Read each line
           while ($row = $result->fetch_assoc()) {
+            // Variables
+            $postID = $row['id'];
+            $userID = $_SESSION['user_id'];
+            // Check if this user already liked
+            $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$userID'";
+            $likeCheckResult = $conn->query($likeCheckSql);
+            $alreadyLiked = ($likeCheckResult->num_rows > 0);
+
+            // Also, fetch comments
+            $commentSql = "SELECT c.comment_text, c.created_at, u.username
+                         FROM comments c
+                         JOIN users u ON c.user_id = u.id
+                         WHERE c.post_id = '$postID'
+                         ORDER BY c.created_at ASC";
+            $commentRes = $conn->query($commentSql);
             ?>
             <div class="card mb-4">
               <!--Card Body-->
@@ -177,10 +192,14 @@ $result = $conn->query($sql);
                     <?php if ($row['post_type'] == "image"): ?>
                       <img src="<?php echo $row['file_path']; ?>" class="img-fluid" alt="Post Image">
                     <?php elseif ($row['post_type'] == "video"): ?>
-                      <video class="img-fluid" controls>
-                        <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
-                        Your browser does not support the video tag.
-                      </video>
+                      <div style="max-width: 300px; max-height: 350px; margin: 0 auto; overflow: hidden;">
+                        <video style="object-fit: contain; width: 100%; height: 100%;" controls>
+                          <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+
+
                     <?php elseif ($row['post_type'] == "text"): ?>
                       <p><?php echo $row['text_content']; ?></p>
                     <?php endif; ?>
@@ -189,14 +208,29 @@ $result = $conn->query($sql);
 
                 <!-- Buttons row (like, comment, share) -->
                 <div class="d-flex align-items-center mb-2">
+
                   <!-- Like Heart Icon -->
-                  <button class="btn btn-link text-decoration-none me-3">
-                    <i class="bi bi-heart"></i> <!-- outline heart, becomes "bi-heart-fill" when liked -->
-                  </button>
+                  <?php
+                  if ($alreadyLiked) {
+                    // filled heart
+                    echo '<a href="toggle_like.php?post_id=' . $postID . '&action=unlike" 
+                         class="btn btn-link me-3 text-danger">
+                         <i class="bi bi-heart-fill"></i>
+                       </a>';
+                  } else {
+                    // outline heart
+                    echo '<a href="toggle_like.php?post_id=' . $postID . '&action=like" 
+                         class="btn btn-link me-3">
+                         <i class="bi bi-heart"></i>
+                       </a>';
+                  }
+                  ?>
+
                   <!-- Comment icon -->
                   <button class="btn btn-link text-decoration-none me-3">
                     <i class="bi bi-chat-right-dots"></i>
                   </button>
+
                   <!--Share Icon-->
                   <button class="btn btn-link text-decoration-none me-3">
                     <i class="bi bi-send"></i> </button>
@@ -218,11 +252,22 @@ $result = $conn->query($sql);
                 <hr>
                 <div class="mb-2">
                   <!-- fetch comments and loop-->
+                  <?php
+                  if ($commentRes && $commentRes->num_rows > 0) {
+                    while ($cRow = $commentRes->fetch_assoc()) {
+                      echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' . $cRow['created_at'] . ')</i></p>';
+                    }
+                  } else {
+                    echo '<small class="text-muted">No comments yet.</small><br><br>';
+                  }
+                  ?>
                   <small class="text-muted">Comments go here...</small>
                 </div>
-                <form class="d-flex">
-                  <input class="form-control me-2" type="text" placeholder="Add a comment...">
-                  <button class="btn btn-sm btn-primary">Post</button>
+                <!--Comments Form-->
+                <form class="d-flex" action="comments.php" method="POST">
+                  <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
+                  <input class="form-control me-2" type="text" name="comment_text" placeholder="Add a comment...">
+                  <button class="btn btn-sm btn-primary" type="submit">Comment</button>
                 </form>
 
               </div> <!-- end card-body -->
@@ -233,93 +278,31 @@ $result = $conn->query($sql);
         } else {
           echo "<p>No posts found in feed.</p>";
         }
+        $conn->close();
         ?>
-      </div> <!-- end col-md-8 -->
-
-    </div>
+      </div> <!-- end col-md-7 -->
 
 
-  </div>
+      <!-- Right Column: col-md-4 for "Trending" or anything else -->
+      <div class="col-md-3">
+        <div class="bg-light p-3 mb-5">
+          <h5>Trending</h5>
+          <p>Trending posts / recommended users</p>
+        </div>
+        <div class="bg-light p-3 mb-4">
+          <h5>People you may know</h5>
+          <p>User 1</p>
+          <p>User 2</p>
+          <p>User 3</p>
+        </div>
+        <div class="bg-light p-3">
+          <h5>Another Section</h5>
+          <p>Some additional widget or ads, etc.</p>
+        </div>
+      </div> <!-- end col-md-4 -->
+    </div> <!-- end row -->
+  </div> <!-- end container -->
 
-  </div>
-
-
-
-  <?php
-  if ($result->num_rows > 0) {
-    //Display each post - Read each line
-    while ($row = $result->fetch_assoc()) {
-      //creates the video box
-      echo "<div style = 'border:1px solid #ccc;
-                margin-bottom:10px;
-                padding:10px;'>";
-
-      //Show the title (If there is one)
-      if (!empty($row['title'])) {
-        echo "<h3>" . $row['title'] . "</h3>";
-      }
-
-      echo "<p>Uploaded by: " . $row['username'] . " at " . $row['created_at'] . "</p>";
-
-      //If it's a text post
-      if ($row['post_type'] == "text") {
-        echo "<p>" . $row['text_content'] . "</p>";
-      }
-      //if it's an image post
-      else if ($row['post_type'] == "image") {
-        echo "<p>" . $row['text_content'] . "</p>"; //uses text_content as a caption (2 birds with 1 stone)
-        echo "<img src='" . $row['file_path'] . "' width='400'/>";
-      }
-      //if it's a video
-      else if ($row['post_type'] == "video") {
-        echo "<p>" . $row['text_content'] . "</p>"; //uses text_content as a caption
-        echo "<video width='400' controls> 
-                <source src = ' " . $row['file_path'] . " ' type = 'video/mp4' >
-                Your browser does not support the video tag.
-                </video> ";
-      }
-
-      echo "</div>";
-
-
-      //link to view the profile
-      //<a href="profile.php?user_id=<?php echo$row['id'];
-  
-      //Displaying the Like count
-      echo "<p>Likes: " . $row['like_count'] . "</p>"; //Show the like count next to the video (How many likes are in the 'like_count' section of that likes column)
-  
-      //Like Button 
-      echo "<a href='likes.php?post_id=" . $row['id'] . "'>Like</a>";    //Clicking this button will call the 'likes.php' script
-  
-      //The Comments Form
-      echo "<form action = 'comments.php'    method = 'POST'>";
-      echo "<input type='hidden' name='post_id'  value='" . $row['id'] . "' /> ";
-      echo "<textarea name = 'comment_text'   placeholder ='Write a comment here...' > </textarea> <br>";
-      echo "<button type = 'submit' > Comment </button> ";
-      echo "</form>";
-
-      //Displaying the commentts
-      $postID = $row['id']; //The current post
-      $commentSql = "SELECT c.comment_text, c.created_at, u.username
-                        FROM comments c
-                        JOIN users u ON c.user_id = u.id
-                        WHERE c.post_id = '$postID'
-                        ORDER BY c.created_at ASC";
-
-      $commentResult = $conn->query($commentSql);
-
-      while ($cRow = $commentResult->fetch_assoc()) {
-        echo "<p> <b>" . $cRow['username'] . ":</b> " . $cRow['comment_text'] .
-          " <i>(" . $cRow['created_at'] . ")</i></p>";
-      }
-
-    }
-  } else {
-    echo "Feed is Empty.";
-  }
-  $conn->close();
-  ?>
-  </div>
   <!--Bootstrap JavaScript-->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
