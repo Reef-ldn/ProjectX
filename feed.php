@@ -13,7 +13,7 @@ if ($conn->connect_error) {
 
 
 //Fetch all videos from newest to oldest (LIFO)
-$sql = "SELECT p.id, p.post_type, p.file_path, p.text_content, p.created_at, u.username,
+$sql = "SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.created_at, u.id AS user_owner_id, u.username,
           (SELECT COUNT(*) FROM likes l where l.post_id = p.id) AS like_count
           from posts p
           JOIN users u ON p.user_id = u.id 
@@ -129,14 +129,22 @@ $result = $conn->query($sql);
           //Display each post - Read each line
           while ($row = $result->fetch_assoc()) {
             // Variables
-            $postID = $row['id'];
+            $postID = $row['postID'];
             $userID = $_SESSION['user_id'];
+            $loggedUserID = $_SESSION['user_id'];
+            $postOwnerID = $row['user_owner_id'];
+
             // Check if this user already liked
             $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$userID'";
             $likeCheckResult = $conn->query($likeCheckSql);
             $alreadyLiked = ($likeCheckResult->num_rows > 0);
 
-            // Also, fetch comments
+            //check if the user already follows the user
+            $checkFollowSql = "SELECT * FROM follows WHERE follower_id='$loggedUserID' AND followed_id='$postOwnerID'";
+            $followRes = $conn->query($checkFollowSql);
+            $alreadyFollows = ($followRes->num_rows > 0);
+
+            // fetch comments
             $commentSql = "SELECT c.comment_text, c.created_at, u.username
                          FROM comments c
                          JOIN users u ON c.user_id = u.id
@@ -176,8 +184,15 @@ $result = $conn->query($sql);
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li><a class="dropdown-item" href="#">Save Post</a></li>
                       <li><a class="dropdown-item" href="#">Report</a></li>
-                      <li><a class="dropdown-item" href="#">Follow/Unfollow</a></li>
-                      <li><a class="dropdown-item" href="#">View Profile</a></li>
+                      <?php
+                      if ($alreadyFollows) {
+                        echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=unfollow">Unfollow</a></li>';
+                      } else {
+                        echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=follow">Follow</a></li>';
+                      }
+                      ?>
+                      <!--<li><a class="dropdown-item" href="#">Follow/Unfollow</a></li>-->
+                      <li><a class="dropdown-item" href="profile.php?user_id='.$postOwnerID.'">View Profile</a></li>
                       <li>
                         <hr class="dropdown-divider">
                       </li>
@@ -228,7 +243,9 @@ $result = $conn->query($sql);
 
                   <!-- Comment icon -->
                   <button class="btn btn-link text-decoration-none me-3">
-                    <i class="bi bi-chat-right-dots"></i>
+                    <a href="view_comments.php?post_id='.$postID.'">
+                      <i class="bi bi-chat-right-dots"></i>
+                    </a>
                   </button>
 
                   <!--Share Icon-->
@@ -261,7 +278,7 @@ $result = $conn->query($sql);
                     echo '<small class="text-muted">No comments yet.</small><br><br>';
                   }
                   ?>
-                  <small class="text-muted">Comments go here...</small>
+                  <!--<small class="text-muted">Comments go here...</small>-->
                 </div>
                 <!--Comments Form-->
                 <form class="d-flex" action="comments.php" method="POST">

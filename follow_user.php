@@ -22,7 +22,7 @@ if ($conn->connect_error) {
 if ($action == 'follow') {
   //Check if they already follow that user (matching row in the follows table)
   $sqlCheck = "SELECT * FROM follows 
-                  WHERE follower_id='$follower_id '
+                  WHERE follower_id='$follower_id'
                   AND followed_id='$followed_id' ";
   $res = $conn->query($sqlCheck);
 
