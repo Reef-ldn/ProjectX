@@ -184,13 +184,16 @@ $result = $conn->query($sql);
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li><a class="dropdown-item" href="#">Save Post</a></li>
                       <li><a class="dropdown-item" href="#">Report</a></li>
-                      <?php
-                      if ($alreadyFollows) {
-                        echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=unfollow">Unfollow</a></li>';
-                      } else {
-                        echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=follow">Follow</a></li>';
-                      }
-                      ?>
+                      <!--Only show follow/unfollow if the postowner isnt the same as the logged in user-->
+                      <?php if ($postOwnerID != $loggedUserID): ?>
+                        <?php
+                        if ($alreadyFollows) {
+                          echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=unfollow">Unfollow</a></li>';
+                        } else {
+                          echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=follow">Follow</a></li>';
+                        }
+                        ?>
+                      <?php endif; ?>
                       <!--<li><a class="dropdown-item" href="#">Follow/Unfollow</a></li>-->
                       <li><a class="dropdown-item" href="profile.php?user_id='.$postOwnerID.'">View Profile</a></li>
                       <li>
