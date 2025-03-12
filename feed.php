@@ -14,7 +14,8 @@ if ($conn->connect_error) {
 
 //Fetch all videos from newest to oldest (LIFO)
 $sql = "SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.created_at, u.id AS user_owner_id, u.username,
-          (SELECT COUNT(*) FROM likes l where l.post_id = p.id) AS like_count
+          (SELECT COUNT(*) FROM likes l where l.post_id = p.id) AS like_count,
+          (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
           from posts p
           JOIN users u ON p.user_id = u.id 
           ORDER BY p.created_at DESC"
@@ -129,7 +130,7 @@ $result = $conn->query($sql);
           //Display each post - Read each line
           while ($row = $result->fetch_assoc()) {
             // Variables
-            $postID =  $row['postID'];
+            $postID = $row['postID'];
             $userID = $_SESSION['user_id'];
             $loggedUserID = $_SESSION['user_id'];
             $postOwnerID = $row['user_owner_id'];
@@ -149,7 +150,8 @@ $result = $conn->query($sql);
                          FROM comments c
                          JOIN users u ON c.user_id = u.id
                          WHERE c.post_id = '$postID'
-                         ORDER BY c.created_at ASC";
+                         ORDER BY c.created_at ASC
+                         LIMIT 2";
             $commentRes = $conn->query($commentSql);
             ?>
             <div class="card mb-4">
@@ -195,7 +197,8 @@ $result = $conn->query($sql);
                         ?>
                       <?php endif; ?>
                       <!--<li><a class="dropdown-item" href="#">Follow/Unfollow</a></li>-->
-                      <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $postOwnerID; ?>">View Profile</a></li>
+                      <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $postOwnerID; ?>">View Profile</a>
+                      </li>
                       <li>
                         <hr class="dropdown-divider">
                       </li>
@@ -215,7 +218,7 @@ $result = $conn->query($sql);
                           <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
                           Your browser does not support the video tag.
                         </video>
-                        
+
                       </div>
 
 
@@ -247,7 +250,7 @@ $result = $conn->query($sql);
 
                   <!-- Comment icon -->
                   <button class="btn btn-link text-decoration-none me-3">
-                    <a href="view_comments.php?post_id=<?php echo $postID;?>.">
+                    <a href="view_comments.php?post_id=<?php echo $postID; ?>.">
                       <i class="bi bi-chat-right-dots"></i>
                     </a>
                   </button>
@@ -287,6 +290,13 @@ $result = $conn->query($sql);
                   } else {
                     echo '<small class="text-muted">No comments yet.</small><br><br>';
                   }
+                  
+
+                  $commentCount = $row['comment_count'];
+                  if ($commentCount > 2) {
+                    echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                  }
+
                   ?>
                   <!--<small class="text-muted">Comments go here...</small>-->
                 </div>
