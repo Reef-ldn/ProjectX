@@ -4,7 +4,7 @@
 <?php
 session_start();
 //The user's account that we are on (user_id taken from the url)
-$profileUserId = $_GET['user_id'] ?? 0;
+$profileUserId = (int)$_GET['user_id'] ?? 0;
 
 //The user that is currently logged in
 $loggedUserId = $_SESSION['user_id'] ?? 0;

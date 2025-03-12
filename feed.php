@@ -129,7 +129,7 @@ $result = $conn->query($sql);
           //Display each post - Read each line
           while ($row = $result->fetch_assoc()) {
             // Variables
-            $postID = $row['postID'];
+            $postID =  $row['postID'];
             $userID = $_SESSION['user_id'];
             $loggedUserID = $_SESSION['user_id'];
             $postOwnerID = $row['user_owner_id'];
@@ -195,7 +195,7 @@ $result = $conn->query($sql);
                         ?>
                       <?php endif; ?>
                       <!--<li><a class="dropdown-item" href="#">Follow/Unfollow</a></li>-->
-                      <li><a class="dropdown-item" href="profile.php?user_id='.$postOwnerID.'">View Profile</a></li>
+                      <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $postOwnerID; ?>">View Profile</a></li>
                       <li>
                         <hr class="dropdown-divider">
                       </li>
@@ -215,6 +215,7 @@ $result = $conn->query($sql);
                           <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
                           Your browser does not support the video tag.
                         </video>
+                        
                       </div>
 
 
@@ -246,7 +247,7 @@ $result = $conn->query($sql);
 
                   <!-- Comment icon -->
                   <button class="btn btn-link text-decoration-none me-3">
-                    <a href="view_comments.php?post_id='.$postID.'">
+                    <a href="view_comments.php?post_id=<?php echo $postID;?>.">
                       <i class="bi bi-chat-right-dots"></i>
                     </a>
                   </button>
