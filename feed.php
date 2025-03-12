@@ -290,8 +290,9 @@ $result = $conn->query($sql);
                   } else {
                     echo '<small class="text-muted">No comments yet.</small><br><br>';
                   }
-                  
 
+
+                  //Only display 2 comments and hide the rest under a "View all comments" hyperlink
                   $commentCount = $row['comment_count'];
                   if ($commentCount > 2) {
                     echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
