@@ -81,7 +81,7 @@ $commentRes = $conn->query($commentSql);
 
 <!-- Comment submission form -->
 <h3>Leave a Comment</h3>
-<form action="post_comment.php" method="POST">
+<form action="comments.php" method="POST">
   <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
   <textarea name="comment_text" class="form-control mb-2" placeholder="Write a comment..."></textarea>
   <button type="submit" class="btn btn-primary">Post Comment</button>
