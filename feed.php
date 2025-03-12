@@ -55,7 +55,7 @@ $result = $conn->query($sql);
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"> <!--Dark Background-->
     <div class="container-fluid">
       <!--Left - Logo + Project Name-->
-      <a class="navbar-brand d-flex align-items-center" href="#">
+      <a class="navbar-brand d-flex align-items-center" href="feed.php">
         <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="me-2">
         Next XI
       </a>
@@ -73,10 +73,10 @@ $result = $conn->query($sql);
 
           <!--Nav Links-->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Feed</a> <!--Current Page-->
+            <a class="nav-link active" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Upload</a>
+            <a class="nav-link" href="upload.php">Upload</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Settings</a>
@@ -107,7 +107,7 @@ $result = $conn->query($sql);
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Log Out</a></li>
+              <li><a class="dropdown-item" href="logout.php" form action="logout.php">Log Out</a></li>
             </ul>
           </div>
 
@@ -131,19 +131,26 @@ $result = $conn->query($sql);
           while ($row = $result->fetch_assoc()) {
             // Variables
             $postID = $row['postID'];
-            $userID = $_SESSION['user_id'];
-            $loggedUserID = $_SESSION['user_id'];
+            $userID = $_SESSION['user_id'] ?? 0;
+            $loggedUserID = $_SESSION['user_id'] ?? 0;
             $postOwnerID = $row['user_owner_id'];
 
-            // Check if this user already liked
-            $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$userID'";
-            $likeCheckResult = $conn->query($likeCheckSql);
-            $alreadyLiked = ($likeCheckResult->num_rows > 0);
+            $alreadyLiked = false;
+            $alreadyFollows = false;
 
-            //check if the user already follows the user
-            $checkFollowSql = "SELECT * FROM follows WHERE follower_id='$loggedUserID' AND followed_id='$postOwnerID'";
-            $followRes = $conn->query($checkFollowSql);
-            $alreadyFollows = ($followRes->num_rows > 0);
+            if ($userID > 0) {
+              // Check if this user already liked
+              $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$userID'";
+              $likeCheckResult = $conn->query($likeCheckSql);
+              $alreadyLiked = ($likeCheckResult->num_rows > 0);
+            }
+
+            if ($loggedUserID > 0) {
+              //check if the user already follows the user
+              $checkFollowSql = "SELECT * FROM follows WHERE follower_id='$loggedUserID' AND followed_id='$postOwnerID'";
+              $followRes = $conn->query($checkFollowSql);
+              $alreadyFollows = ($followRes->num_rows > 0);
+            }
 
             // fetch comments
             $commentSql = "SELECT c.comment_text, c.created_at, u.username
@@ -260,7 +267,6 @@ $result = $conn->query($sql);
                     <i class="bi bi-send"></i> </button>
                 </div>
 
-
                 <!-- Like count -->
                 <?php
                 $likeCount = $row['like_count'];
@@ -270,6 +276,7 @@ $result = $conn->query($sql);
                   echo "<p><strong>{$likeCount} likes</strong></p>";
                 }
                 ?>
+
                 <!-- Caption -->
                 <?php if (!empty($row['text_content']) && $row['post_type'] != 'text'): ?>
                   <p>
