@@ -114,68 +114,72 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
   <style>
-    /*Banner*/
-    .profile-banner {
-      position: relative;
-      background-image: url('<?php echo $bannerPic; ?>');
-      background-size: cover;
-      background-position: center;
-      height: 150px;
-      margin-bottom: 50px;
-    }
-
-    /*  black box in the top-right for stats (posts, likes, followers, following) */
-    .top-right-stats {
-      position: absolute;
-      top: 80px;
-      right: 50px;
-      background-color: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-align: center;
-      min-width: 200px;
-    }
-
-    .top-right-stats h5 {
-      margin: 0 0 5px 0;
-      font-size: 16px;
-    }
-
-    /* profile pic on top of banner */
-    .profile-pic-wrapper {
-      position: absolute;
-      bottom: -60px;
-      left: 40px;
+    .profile-pic {
       width: 120px;
       height: 120px;
+      border-style: solid;
+      border-width: 4px;
       border-radius: 50%;
-      overflow: hidden;
-      border: 4px solid #fff;
-    }
-
-    .profile-pic-wrapper img {
-      width: 100%;
-      height: 100%;
+      border-color: #009e42;
       object-fit: cover;
     }
 
-    /*  spacing after banner  */
-    .profile-content {
-      margin-top: 60px;
+    .handle {
+      font-size: 22px;
+      opacity: 70%;
+    }
+
+    .current-team {
+      font-size: 19px;
+      padding-left: 18px;
+    }
+
+    .position {
+      font-size: 16px;
+      font-weight: 600;
+      padding-left: 38px;
+
+    }
+
+    /*  black box in the top-right (posts, likes, followers, following) */
+    .info-box {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .info-box .info-stat {
+      flex: 1;
+      text-align: center;
+      /*padding: 0px 0px 10px 15px;*/
+      padding: 0px 30px 0px 30px;
+    }
+
+    /*The Actual numbers */
+    .info-box h5 {
+      margin: 0 0 1px 0;
+      font-size: 30px;
+      font-weight: 400;
+    }
+
+    /*Small Text in black box */
+    .info-box small {
+      font-size: 15px;
+      font-weight: 100;
     }
 
     /*  green rows */
     .stats-row {
-      background-color:rgb(4, 145, 63);
+      background-color: rgb(4, 145, 63);
       color: #fff;
       padding: 12px;
       margin-bottom: 8px;
       border-radius: 8px;
-    }
-
-    .stats-row h4 {
-      margin: 0;
     }
 
     .stats-row .stats-label {
@@ -273,103 +277,80 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
   <!--Navbar End-->
 
   <!--Main Body Container-->
-  <div class = "container mt-5">
+  <div class="container mt-5">
 
 
-  <!-- Row #1: Profile Pic (left) + Name/Handle/Team/Position (center) + Follow button (right) -->
-  <div class="row align-items-center mb-4">
-    <!-- Left col: big round pic -->
-    <div class="col-auto text-center">
-      <img 
-        src="<" 
-        alt="Profile Picture" 
-        class="profile-pic"
-      >
-      
-    </div>
-
-    <!-- Middle col: user info -->
-    <div class="col">
-      <!-- Display user’s name -->
-      <h2 class="mb-1">
-        <?php echo $userRow['username'] ?? 'Player Name'; ?>
-      </h2>
-      <!-- A smaller “handle” or "@" next to the name if you prefer -->
-      <small class="text-muted">
-        @<?php echo strtolower($userRow['username'] ?? 'player'); ?>
-      </small>
-      <br>
-      <!-- The player's current team -->
-      <small>
-        <?php echo $plData['current_team'] ?? 'No Team'; ?>
-      </small>
-      <br>
-      <!-- The player's preferred position -->
-      <small>
-        <?php echo $plData['preferred_position'] ?? 'Position'; ?>
-      </small>
-    </div>
-
-    <!-- Right col: Follow button -->
-    <div class="col-auto text-end">
-      <button class="btn btn-success btn-lg">FOLLOW</button>
-    </div>
-  </div>
-
-
-     <!--Banner-->
-  <div class="profile-banner" position: relative;>
-
-    <!--Black box (posts/likes/followers/following)-->
-    <div class="top-right-stats d-flex justify-content-around text-center align-items-center p-2"  >
-      <!--  Posts -->
-      <div class="text-center mx-3">
-        <h5 style="margin: 0; font-size: 20px;"><?php echo $postCount; ?></h5>
-        <small style="font-size: 15px;">Posts</small>
-      </div>
-      <!--Likes -->
-      <div class="text-center mx-3">
-        <h5 style="margin: 0; font-size: 20px;"><?php echo $likeCount; ?></h5>
-        <small style="font-size: 15px;">Likes</small>
-      </div>
-      <!--  Followers -->
-      <div class="text-center mx-3">
-        <h5 style="margin: 0; font-size: 20px;"><?php echo $followersCount ?></h5>
-        <small style="font-size: 15px;">Followers</small>
-      </div>
-      <!--Following -->
-      <div class="text-center mx-3">
-        <h5 style="margin: 0; font-size: 20px;"><?php echo $followingCount ?></h5>
-        <small style="font-size: 15px;">Following</small>
-      </div>
-    </div>
-
-    <!--Profile Pic-->
-    <div class="profile-pic-wrapper">
-      <!-- The user’s chosen profile pic -->
-      <img src="<?php echo $profilePic; ?>" alt="Profile Picture">
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="container profile-content">
-    <!-- Name + position -->
-    <div class="row mb-3">
-      <!--Player Name-->
-      <div class="col-md-8">
-        <h2><?php echo $userRow['username'] ?: 'Player Name'; ?></h2>
-        <!--Position-->
-        <h5 class="text-muted"> <?php echo $plData['preferred_position'] ?: 'Position'; ?></h5>
+    <!-- Row #1: Profile Pic + Name/Handle/Team/Position-->
+    <div class="row align-items-center mb-4">
+      <!-- Left col: big round pic -->
+      <div class="col-auto text-center">
+        <img src="<?php echo $profilePic; ?>" alt="Profile Picture" class="profile-pic">
       </div>
 
-      <!--Follow Button-->
-      <div class="col-md-4 text-md-end">
-        <!-- if not the same user, show follow/unfollow, else show "Edit profile" -->
-        <button class="btn btn-success btn-lg">FOLLOW</button>
+      <!-- Middle col: user info -->
+      <div class="col">
+        <!-- Display user’s name -->
+        <h2 class="mb-1">
+          <?php echo $userRow['username'] ?? 'Player Name'; ?>
+
+          <!-- The user's handle -->
+          <small class="handle">@<?php echo strtolower($userRow['username'] ?? 'player'); ?></small>
+          <br>
+        </h2>
+
+        <!-- The player's current team -->
+        <small class="current-team"><?php echo $plData['current_team'] ?? 'No Team'; ?></small>
+        <br>
+        <!-- The player's preferred position -->
+        <small class="position"><?php echo $plData['preferred_position'] ?? 'Position'; ?></small>
+      </div>
+
+      <!-- Right col: black info box + follow button  -->
+      <div class="col-auto d-flex flex-column align-items-end ">
+
+        <!-- Black Info box -->
+        <div class="info-box mb-3">
+          <div class="info-stat">
+            <h5><?php echo $postCount; ?></h5>
+            <small>Posts</small>
+          </div>
+
+          <div class="info-stat">
+            <h5><?php echo $followersCount; ?></h5>
+            <small>Followers</small>
+          </div>
+          <div class="info-stat">
+            <h5><?php echo $followingCount; ?></h5>
+            <small>Following</small>
+          </div>
+          <div class="info-stat">
+            <h5><?php echo $likeCount; ?></h5>
+            <small>Likes</small>
+          </div>
+        </div>
+
+        <!-- Follow button -->
+        <?php if ($loggedUserId != $profileUserId): ?>
+          <?php if ($isFollowing): ?>
+            <a href="follow_user.php?followed_id=<?php echo $profileUserId; ?>&action=unfollow"
+              class="btn btn-outline-danger btn-lg">
+              Unfollow
+            </a>
+          <?php else: ?>
+            <a href="follow_user.php?followed_id=<?php echo $profileUserId; ?>&action=follow"
+              class="btn btn-success btn-lg">
+              Follow
+            </a>
+          <?php endif; ?>
+        <?php else: ?>
+          <!-- If it's the same user as the one logged in, "Edit Profile" -->
+          <a href="edit_profile.php" class="btn btn-primary btn-lg">Edit Profile</a>
+        <?php endif; ?>
       </div>
     </div>
 
-    <!-- Row for height, weight, foot, country (the green row) -->
+
+    <!-- Green Stats Row 1-->
     <div class="row stats-row mb-3 text-center">
       <!--Height-->
       <div class="col-6 col-md-3">
@@ -393,9 +374,9 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
       </div>
     </div>
 
-    <!-- Row 2 for Matches, G/A, Goals, etc. also green -->
+    <!-- Green Stats Row 2 -->
     <div class="row stats-row mb-3 text-center">
-      <!--Mathces-->
+      <!--Matches-->
       <div class="col-6 col-md-2">
         <h4><?php echo $plData['matches'] ?? '0'; ?></h4>
         <div class="stats-label">Matches</div>
@@ -481,31 +462,39 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
 
 
     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Nexts</button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Media</button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Highlights</button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Likes</button>
-  </li>
-  
-</ul>
-<div class="tab-content" id="pills-tabContent">
-  <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">...</div>
-  <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">...</div>
-  <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">...</div>
-  <div class="tab-pane fade" id="pills-disabled" role="tabpanel" aria-labelledby="pills-disabled-tab" tabindex="0">...</div>
-</div>
-</div>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
+          type="button" role="tab" aria-controls="pills-home" aria-selected="true">Nexts</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile"
+          type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Media</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact"
+          type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Highlights</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact"
+          type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Likes</button>
+      </li>
+
+    </ul>
+    <div class="tab-content" id="pills-tabContent">
+      <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab"
+        tabindex="0">...</div>
+      <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+        ...</div>
+      <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+        ...</div>
+      <div class="tab-pane fade" id="pills-disabled" role="tabpanel" aria-labelledby="pills-disabled-tab" tabindex="0">
+        ...</div>
+    </div>
+  </div>
   </div><!-- /container -->
 
 
-  
+
 
 
 
