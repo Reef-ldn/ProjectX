@@ -182,6 +182,18 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
       border-radius: 8px;
     }
 
+    .green-stats-h1 {
+      text-align: center;
+      margin-bottom: 5px;
+
+    }
+
+    /* Divider */
+    hr.solid {
+      border-top: 3px solid;
+      border-style: solid;
+    }
+
     .stats-row .stats-label {
       font-size: 15px;
       opacity: 0.8;
@@ -279,9 +291,8 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
   <!--Main Body Container-->
   <div class="container mt-5">
 
-
     <!-- Row #1: Profile Pic + Name/Handle/Team/Position-->
-    <div class="row align-items-center mb-4">
+    <div class="row align-items-center mb-2">
       <!-- Left col: big round pic -->
       <div class="col-auto text-center">
         <img src="<?php echo $profilePic; ?>" alt="Profile Picture" class="profile-pic">
@@ -349,33 +360,37 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
       </div>
     </div>
 
-
     <!-- Green Stats Row 1-->
-    <div class="row stats-row mb-3 text-center">
+    <div class="row stats-row text-center mb-3 mt-3">
+     
       <!--Height-->
-      <div class="col-6 col-md-3">
+      <div class="col-4 col-md-3">
         <h4><?php echo ($plData['height'] ?? 0) . 'cm'; ?></h4>
         <div class="stats-label">Height</div>
       </div>
       <!--Weight-->
-      <div class="col-6 col-md-3">
+      <div class="col-4 col-md-3">
         <h4><?php echo ($plData['weight'] ?? 0) . 'kg'; ?></h4>
         <div class="stats-label">Weight</div>
       </div>
       <!--Preferred Foot-->
-      <div class="col-6 col-md-3">
+      <div class="col-4 col-md-3">
         <h4><?php echo ($plData['preferred_foot'] ?? 'Right'); ?></h4>
         <div class="stats-label">Foot</div>
       </div>
       <!--Country-->
-      <div class="col-6 col-md-3">
+      <div class="col-4 col-md-3">
         <h4><?php echo ($plData['country'] ?? 'England'); ?></h4>
         <div class="stats-label">Country</div>
       </div>
     </div>
 
     <!-- Green Stats Row 2 -->
-    <div class="row stats-row mb-3 text-center">
+    <div class="row stats-row text-center">
+      <h3 class="green-stats-h1">
+        Stats:
+      </h3>
+      <hr class="solid"> <!--Divider-->
       <!--Matches-->
       <div class="col-6 col-md-2">
         <h4><?php echo $plData['matches'] ?? '0'; ?></h4>
@@ -408,9 +423,8 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
       </div>
     </div>
 
-
     <!-- Sub-Nav for Profile Options -->
-    <div class="sub-nav-tabs mb-3">
+    <div class="sub-nav-tabs mt-3">
       <ul class="nav nav-pills">
         <!--Posts-->
         <li class="nav-item"> <a class="nav-link active" data-bs-toggle="tab" href="#tab-posts">Posts</a></li>
