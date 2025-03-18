@@ -85,6 +85,22 @@
   <body>
     <h1>Edit Player Profile</h1>
 
+    
+  <!--Form to allow a user to upload a profile picture and banner of their choice-->
+  <h2>Upload Profile & Banner</h2>
+  <form action="upload_profile_pic.php" method="POST" enctype="multipart/form-data">
+    <div>
+      <label>Profile Picture:</label>
+      <input type="file" name="profile_pic" accept="image/*">
+    </div>
+    <div>
+      <label>Banner Image:</label>
+      <input type="file" name="banner_pic" accept="image/*">
+    </div>
+    <button type="submit" name="submit">Confirm</button>
+  </form>
+
+
     <?php if($playerData): ?>
       <form action="edit_profile.php" method="POST">
         <!--Height-->
