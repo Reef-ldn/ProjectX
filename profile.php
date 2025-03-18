@@ -96,6 +96,50 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
 
 
 
+$user_id = $profileUserId; // the user whose profile we are viewing
+
+// Fetch all posts
+$sqlAllPosts = "SELECT 
+  p.id AS postID,
+  p.post_type,
+  p.file_path,
+  p.text_content,
+  p.created_at,
+  p.is_highlight,
+  u.id AS user_owner_id,
+  u.username,
+  u.name,
+  (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
+  (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
+FROM posts p
+JOIN users u ON p.user_id = u.id
+WHERE p.user_id = '$profileUserId'  /* only that user's posts */
+ORDER BY p.created_at DESC";
+$resAllPosts = $conn->query($sqlAllPosts);
+
+// Fetch media ( images and videos)
+$sqlMedia = "SELECT * FROM posts
+         WHERE user_id = '$user_id'
+          AND post_type IN ('image','video')
+         ORDER BY created_at DESC";
+$resMedia = $conn->query($sqlMedia);
+
+//Fetch "highlights"
+$sqlHighlights = "SELECT * FROM posts
+              WHERE user_id = '$profileUserId'
+              AND is_highlight = 1
+              ORDER BY created_at DESC";
+$resHighlights = $conn->query($sqlHighlights);
+
+//. Fetch likes (posts the user Liked)
+$sqlLikes = " SELECT p.*
+              FROM likes l
+              JOIN posts p ON l.post_id = p.id
+              WHERE l.user_id = '$user_id'
+              ORDER BY p.created_at DESC
+            ";
+$resLikesTab = $conn->query($sqlLikes);
+
 ?>
 
 <!--Front-end to display the profile-->
@@ -302,7 +346,7 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
       <div class="col">
         <!-- Display user’s name -->
         <h2 class="mb-1">
-          <?php echo $userRow['username'] ?? 'Player Name'; ?>
+          <?php echo $userRow['name'] ?? 'Player Name'; ?>
 
           <!-- The user's handle -->
           <small class="handle">@<?php echo strtolower($userRow['username'] ?? 'player'); ?></small>
@@ -362,7 +406,7 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
 
     <!-- Green Stats Row 1-->
     <div class="row stats-row text-center mb-3 mt-3">
-     
+
       <!--Height-->
       <div class="col-4 col-md-3">
         <h4><?php echo ($plData['height'] ?? 0) . 'cm'; ?></h4>
@@ -433,7 +477,7 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
         <!--Highlights-->
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-highlights">Highlights</a></li>
         <!--Reposts-->
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-reposts">Reposts</a></li>
+        <!-- <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-reposts">Reposts</a></li> -->
         <!--Likes-->
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-likes">Likes</a></li>
       </ul>
@@ -444,68 +488,233 @@ $bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg'
       <!-- Posts Tab -->
       <div class="tab-pane fade show active" id="tab-posts">
         <h4>Posts</h4>
-        <!-- Show the user's posts -->
-        <div class="card mb-3">
-          <div class="card-body">
-            <p>Example user post content here...</p>
-            <!-- Maybe an image or video, etc. -->
+        <?php
+        if ($resAllPosts && $resAllPosts->num_rows > 0) {
+          while ($row = $resAllPosts->fetch_assoc()) {
+            // parse needed variables
+            $postID = $row['postID'];
+            $postOwnerID = $row['user_owner_id'];
+            $likeCount = $row['like_count'];
+            $commentCount = $row['comment_count'];
+
+            // check if current (logged-in) user liked/follows
+            $alreadyLiked = false;
+            $alreadyFollows = false;
+
+            // if logged in
+            if ($loggedUserId > 0) {
+              // check like
+              $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$loggedUserId'";
+              $likeCheckRes = $conn->query($likeCheckSql);
+              $alreadyLiked = ($likeCheckRes->num_rows > 0);
+
+              // check follow
+              if ($postOwnerID != $loggedUserId) {
+                $followCheckSql = "SELECT * FROM follows WHERE follower_id='$loggedUserId' AND followed_id='$postOwnerID'";
+                $followCheckRes = $conn->query($followCheckSql);
+                $alreadyFollows = ($followCheckRes->num_rows > 0);
+              }
+            }
+            ?>
+
+            <!--  same card HTML as main feed: -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <!-- top row: user info + 3 dots -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center">
+                    <img src="https://via.placeholder.com/40" alt="Profile" width="40" height="40"
+                      class="rounded-circle me-2">
+                    <div>
+                      <strong><?php echo $row['username']; ?></strong>
+                      <span class="text-muted">@<?php echo strtolower($row['username']); ?></span><br>
+                      <small class="text-muted">
+                        Posted on <?php echo date('d M, y H:i', strtotime($row['created_at'])); ?>
+                      </small>
+                    </div>
+                  </div>
+
+                  <!-- 3-dot dropdown -->
+                  <div class="dropdown">
+                    <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                      <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="#">Save Post</a></li>
+                      <li><a class="dropdown-item" href="#">Report</a></li>
+                      <?php if ($postOwnerID != $loggedUserId): ?>
+                        <?php if ($alreadyFollows): ?>
+                          <li><a class="dropdown-item"
+                              href="follow_user.php?followed_id=<?php echo $postOwnerID; ?>&action=unfollow">Unfollow</a></li>
+                        <?php else: ?>
+                          <li><a class="dropdown-item"
+                              href="follow_user.php?followed_id=<?php echo $postOwnerID; ?>&action=follow">Follow</a></li>
+                        <?php endif; ?>
+                      <?php endif; ?>
+                      <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $postOwnerID; ?>">View Profile</a>
+                      </li>
+                      <li>
+                        <hr class="dropdown-divider">
+                      </li>
+                      <li><a class="dropdown-item" href="#">Cancel</a></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Middle: post content -->
+                <div style="max-width: 800px;" class="mb-3">
+                  <?php if ($row['post_type'] === 'image'): ?>
+                    <img src="<?php echo $row['file_path']; ?>" class="img-fluid" alt="Post Image">
+                  <?php elseif ($row['post_type'] === 'video'): ?>
+                    <div style="max-width: 300px; max-height: 350px; margin: 0 auto; overflow: hidden;">
+                      <video style="object-fit: contain; width: 100%; height: 100%;" controls>
+                        <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
+                      </video>
+                    </div>
+                  <?php elseif ($row['post_type'] === 'text'): ?>
+                    <p><?php echo $row['text_content']; ?></p>
+                  <?php endif; ?>
+                </div>
+
+                <!-- Buttons row -->
+                <div class="d-flex align-items-center mb-2">
+                  <?php if ($alreadyLiked): ?>
+                    <a href="toggle_like.php?post_id=<?php echo $postID; ?>&action=unlike"
+                      class="btn btn-link me-3 text-danger">
+                      <i class="bi bi-heart-fill"></i>
+                    </a>
+                  <?php else: ?>
+                    <a href="toggle_like.php?post_id=<?php echo $postID; ?>&action=like" class="btn btn-link me-3">
+                      <i class="bi bi-heart"></i>
+                    </a>
+                  <?php endif; ?>
+
+                  <!-- Comment icon (view all comments page) -->
+                  <button class="btn btn-link text-decoration-none me-3">
+                    <a href="view_comments.php?post_id=<?php echo $postID; ?>">
+                      <i class="bi bi-chat-right-dots"></i>
+                    </a>
+                  </button>
+
+                  <!-- Share Icon, if you want it -->
+                  <button class="btn btn-link text-decoration-none me-3">
+                    <i class="bi bi-send"></i>
+                  </button>
+                </div>
+
+                <!-- Like Count -->
+                <?php if ($likeCount == 1): ?>
+                  <p><strong>1 like</strong></p>
+                <?php else: ?>
+                  <p><strong><?php echo $likeCount; ?> likes</strong></p>
+                <?php endif; ?>
+
+                <!-- If there's a text_content that is a caption (for images/videos) -->
+                <?php if (!empty($row['text_content']) && $row['post_type'] != 'text'): ?>
+                  <p>
+                    <strong><?php echo strtolower($row['username']); ?> </strong>
+                    <?php echo $row['text_content']; ?>
+                  </p>
+                <?php endif; ?>
+
+                <!-- Comments area (show 2 comments, link to see more if $commentCount>2) -->
+                <hr>
+                <div class="mb-2">
+                  <?php
+                  // fetch the first 2 comments
+                  $commentSql = "SELECT c.comment_text, c.created_at, u.username
+                             FROM comments c
+                             JOIN users u ON c.user_id = u.id
+                             WHERE c.post_id = '$postID'
+                             ORDER BY c.created_at ASC
+                             LIMIT 2";
+                  $commentRes = $conn->query($commentSql);
+
+                  if ($commentRes && $commentRes->num_rows > 0) {
+                    while ($cRow = $commentRes->fetch_assoc()) {
+                      echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' .
+                        $cRow['created_at'] . ')</i></p>';
+                    }
+                  } else {
+                    echo '<small class="text-muted">No comments yet.</small><br><br>';
+                  }
+
+                  if ($commentCount > 2) {
+                    echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                  }
+                  ?>
+                </div>
+
+                <!-- Add a new comment form -->
+                <form class="d-flex" action="comments.php" method="POST">
+                  <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
+                  <input class="form-control me-2" type="text" name="comment_text" placeholder="Add a comment...">
+                  <button class="btn btn-sm btn-primary" type="submit">Comment</button>
+                </form>
+              </div><!-- end card-body -->
+            </div><!-- end card -->
+
+            <?php
+          } // end while
+        } else {
+          echo "<p>No posts found.</p>";
+        }
+        ?>
+      </div>
+    </div>
+    <!-- Media Tab -->
+    <div class="tab-pane fade" id="tab-media">
+      <h4>Media</h4>
+      <p>All image/video posts, etc.</p>
+    </div>
+    <!-- Highlights Tab -->
+    <div class="tab-pane fade" id="tab-highlights">
+      <h4>Highlights</h4>
+      <?php
+      if ($resHighlights && $resHighlights->num_rows > 0) {
+        while ($hrow = $resHighlights->fetch_assoc()) {
+          // Show a feed-style card for each highlight
+          $postID = $hrow['id'];
+          $postType = $hrow['post_type'];
+        
+          ?>
+          <div class="card mb-4">
+            <div class="card-body">
+              <!-- top row, content, etc. Or simpler code for now. -->
+              <?php if ($postType === 'image'): ?>
+                <img src="<?php echo $hrow['file_path']; ?>" class="img-fluid" alt="Highlight Image">
+              <?php elseif ($postType === 'video'): ?>
+                <video controls style="width: 100%; max-width: 300px;">
+                  <source src="<?php echo $hrow['file_path']; ?>" type="video/mp4">
+                </video>
+              <?php else: ?>
+                <p><?php echo $hrow['text_content']; ?></p>
+              <?php endif; ?>
+            </div>
           </div>
-        </div>
-      </div>
-      <!-- Media Tab -->
-      <div class="tab-pane fade" id="tab-media">
-        <h4>Media</h4>
-        <p>All image/video posts, etc.</p>
-      </div>
-      <!-- Highlights Tab -->
-      <div class="tab-pane fade" id="tab-highlights">
-        <h4>Highlights</h4>
-        <p>All highlight posts or data here.</p>
-      </div>
-      <!-- Reposts Tab -->
-      <div class="tab-pane fade" id="tab-reposts">
+          <?php
+        }
+      } else {
+        echo "<p>No highlights yet.</p>";
+      }
+      ?>
+    </div>
+    <!-- Reposts Tab -->
+    <!-- <div class="tab-pane fade" id="tab-reposts">
         <h4>Reposts</h4>
         <p>All reposts here.</p>
-      </div>
-      <!-- Likes Tab -->
-      <div class="tab-pane fade" id="tab-likes">
-        <h4>Likes</h4>
-        <p>All liked posts here...</p>
-      </div>
-    </div>
-
-
-    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
-          type="button" role="tab" aria-controls="pills-home" aria-selected="true">Nexts</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile"
-          type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Media</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact"
-          type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Highlights</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact"
-          type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Likes</button>
-      </li>
-
-    </ul>
-    <div class="tab-content" id="pills-tabContent">
-      <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab"
-        tabindex="0">...</div>
-      <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
-        ...</div>
-      <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
-        ...</div>
-      <div class="tab-pane fade" id="pills-disabled" role="tabpanel" aria-labelledby="pills-disabled-tab" tabindex="0">
-        ...</div>
+      </div> -->
+    <!-- Likes Tab -->
+    <div class="tab-pane fade" id="tab-likes">
+      <h4>Likes</h4>
+      <p>All liked posts here...</p>
     </div>
   </div>
+
+
+  </div>
   </div><!-- /container -->
+
 
 
 

@@ -13,7 +13,7 @@ if ($conn->connect_error) {
 
 
 //Fetch all videos from newest to oldest (LIFO)
-$sql = "SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.created_at, u.id AS user_owner_id, u.username,
+$sql = "SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.created_at, p.is_highlight, u.id AS user_owner_id, u.username, u.name, u.profile_pic,
           (SELECT COUNT(*) FROM likes l where l.post_id = p.id) AS like_count,
           (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
           from posts p
@@ -171,11 +171,11 @@ $result = $conn->query($sql);
                   <!--Left side: User profile pic+name+ @username + time-->
                   <div class="d-flex align-items-center">
                     <!--User's Profile Pic-->
-                    <img src="https://via.placeholder.com/40" alt="Profile" width="40" height="40"
+                    <img src="<?php echo $row['profile_pic']; ?>" alt="Profile" width="40" height="40"
                       class="rounded-circle me-2">
                     <div>
                       <!--User account name-->
-                      <strong><?php echo $row['username']; ?></strong>
+                      <strong><?php echo $row['name']; ?></strong>
                       <!-- user's @ handle -->
                       <span class="text-muted">@<?php echo strtolower($row['username']); ?></span><br>
                       <!-- time posted -->
@@ -192,6 +192,15 @@ $result = $conn->query($sql);
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li><a class="dropdown-item" href="#">Save Post</a></li>
+                      <!--Only show this if the PostOwner is the logged in user-->
+                      <?php if ($postOwnerID == $loggedUserID): ?>
+                        <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
+                          <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from Highlights</a></li>
+                        <?php else: ?>
+                          <!--If it's not highlighted already-->
+                          <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add to Highlights</a></li>
+                        <?php endif; ?>
+                      <?php endif; ?>
                       <li><a class="dropdown-item" href="#">Report</a></li>
                       <!--Only show follow/unfollow if the postowner isnt the same as the logged in user-->
                       <?php if ($postOwnerID != $loggedUserID): ?>
