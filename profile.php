@@ -344,10 +344,10 @@ $resLikesTab = $conn->query($sqlLikes);
 
           <!--Nav Links-->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Feed</a> <!--Current Page-->
+            <a class="nav-link active" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Upload</a>
+            <a class="nav-link" href="upload.php">Upload</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Settings</a>
@@ -372,13 +372,13 @@ $resLikesTab = $conn->query($sqlLikes);
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <!-- "dropdown-menu-end" to align the menu to the right side -->
-              <li><a class="dropdown-item" href="#">My Profile</a></li>
+              <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $loggedUserId; ?>">My Profile</a></li>
               <li><a class="dropdown-item" href="#">Settings</a></li>
               <li><a class="dropdown-item" href="#">Help/Support</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Log Out</a></li>
+              <li><a class="dropdown-item" href="logout.php">Log Out</a></li>
             </ul>
           </div>
 
@@ -440,8 +440,13 @@ $resLikesTab = $conn->query($sqlLikes);
           </div>
         </div>
 
-        <!-- Follow button -->
+        <!-- Follow + message button -->
         <?php if ($loggedUserId != $profileUserId): ?>
+          <div class="d-flex align-items-center gap-2"> 
+          <a href="conversation.php?user_id=<?php echo $profileUserId; ?>" class="btn btn-outline-primary btn-lg me-2">
+            Message
+          </a>
+
           <?php if ($isFollowing): ?>
             <a href="follow_user.php?followed_id=<?php echo $profileUserId; ?>&action=unfollow"
               class="btn btn-outline-danger btn-lg">
@@ -453,6 +458,7 @@ $resLikesTab = $conn->query($sqlLikes);
               Follow
             </a>
           <?php endif; ?>
+          </div>
         <?php else: ?>
           <!-- If it's the same user as the one logged in, "Edit Profile" -->
           <a href="edit_profile.php" class="btn btn-primary btn-lg">Edit Profile</a>
@@ -593,8 +599,7 @@ $resLikesTab = $conn->query($sqlLikes);
                 <!-- top row: user info + 3 dots -->
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <div class="d-flex align-items-center">
-                    <img src="<?php echo $profilePic; ?>" alt="Profile" width="40" height="40"
-                      class="rounded-circle me-2">
+                    <img src="<?php echo $profilePic; ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                     <div>
                       <strong><?php echo $row['username']; ?></strong>
                       <span class="text-muted">@<?php echo strtolower($row['username']); ?></span><br>
@@ -765,7 +770,7 @@ $resLikesTab = $conn->query($sqlLikes);
               $alreadyLiked = ($likeCheckResult->num_rows > 0);
             }
 
-            
+
             if ($userID > 0) {
               // Check if this user already liked
               $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$userID'";
@@ -779,7 +784,7 @@ $resLikesTab = $conn->query($sqlLikes);
               $followRes = $conn->query($checkFollowSql);
               $alreadyFollows = ($followRes->num_rows > 0);
             }
-            
+
             ?>
 
             <!-- Post Card -->
