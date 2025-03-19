@@ -109,6 +109,7 @@ $sqlAllPosts = "SELECT
   u.id AS user_owner_id,
   u.username,
   u.name,
+  u.profile_pic,
   (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
   (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
 FROM posts p
@@ -124,6 +125,7 @@ $sqlMedia = "SELECT
     p.file_path,
     p.text_content,
     p.created_at,
+    p.is_highlight,
     u.id AS user_owner_id,
     u.username,
     u.name,
@@ -164,6 +166,7 @@ $sqlLikes = "SELECT p.id AS postID,
     p.file_path,
     p.text_content,
     p.created_at,
+    p.is_highlight,
     u.id AS user_owner_id,
     u.username,
     u.name,
@@ -365,7 +368,7 @@ $resLikesTab = $conn->query($sqlLikes);
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               <!-- The user’s profile pic -->
-              <img src="https://via.placeholder.com/32" alt="Profile" width="32" height="32" class="rounded-circle">
+              <img src="<?php echo $profilePic; ?>" alt="Profile" width="32" height="32" class="rounded-circle">
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <!-- "dropdown-menu-end" to align the menu to the right side -->
@@ -590,7 +593,7 @@ $resLikesTab = $conn->query($sqlLikes);
                 <!-- top row: user info + 3 dots -->
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <div class="d-flex align-items-center">
-                    <img src="https://via.placeholder.com/40" alt="Profile" width="40" height="40"
+                    <img src="<?php echo $profilePic; ?>" alt="Profile" width="40" height="40"
                       class="rounded-circle me-2">
                     <div>
                       <strong><?php echo $row['username']; ?></strong>
