@@ -443,7 +443,7 @@ $resLikesTab = $conn->query($sqlLikes);
         <!-- Follow + message button -->
         <?php if ($loggedUserId != $profileUserId): ?>
           <div class="d-flex align-items-center gap-2"> 
-          <a href="conversation.php?user_id=<?php echo $profileUserId; ?>" class="btn btn-outline-primary btn-lg me-2">
+          <a href="conversation.php?other_id=<?php echo $profileUserId; ?>" class="btn btn-outline-primary btn-lg me-2">
             Message
           </a>
 
