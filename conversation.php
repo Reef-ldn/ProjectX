@@ -165,9 +165,9 @@ $result = $conn->query($sql);
     <div class="chat-header">
       <div class="d-flex align-items-center">
         <!--Back Button-->
-        <a href="inbox.php" class="btn btn-light btn-sm me-3">
+        <!-- <a href="inbox.php" class="btn btn-light btn-sm me-3">
           <i class="fas fa-arrow-left"></i>
-        </a>
+        </a> -->
         <img src="<?php echo $other_profile_pic; ?>" alt="Profile">
         <span><?php echo $other_username; ?></span>
       </div>
