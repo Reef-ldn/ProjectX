@@ -8,50 +8,7 @@
  }
  ?>
 
-
- <!--Front End-->
-<!DOCTYPE html>
- <html>
-
-  <head>
-    <title>Create a Post</title>
-  </head>
-  
-  <body>
-    <h1>Upload Content</h1> 
-    
-    <!--Form to allow users to upload media -->
-    <form action = "upload.php" method="POST" enctype="multipart/form-data">
-
-      <!--Choose a Post Type-->
-      <label> Type of Post: </label> <br>
-      <select name = "post_type" required>
-        <option value = "text">Text</option>       <!--Text Posts-->
-        <option value = "image">Image</option>     <!--Image Posts-->
-        <option value = "video">Video</option>     <!--Video Posts-->
-      </select> <br> <br>
-
-      <!--Title field-->
-      <label>Title (Optional): </label><br>
-      <input type = "text" name="title" placeholder="A short title..."/> <br><br>
-
-
-      <!--For Text Posts/captions-->
-      <label> Text Content (For Text Posts or Captions): </label>   <br>
-      <textarea name = "text_content"   placeholder= "Write Something..."></textarea>     <br><br>
-
-      <!--For Image/Video Uploads-->
-      <label>Upload File (For Images or Video): </label> <br>
-      <input type = "file" name = "media_file" accept="image/*,video/*" > <br><br>     
-
-      <button type = "submit" name="submit_post">Post</button>
-    </form>
-
-  </body>
-
-</html>
-
-<!--Backend to handle this post  -->
+<!--Backend to handle postS  -->
 <?php
 if(isset($_POST['submit_post'])) {    //if the post button is pressed.
   $user_id = $_SESSION['user_id'];    
@@ -119,3 +76,121 @@ if(isset($_POST['submit_post'])) {    //if the post button is pressed.
 }
 
 ?>
+
+<!--Front-end-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Content</title>
+
+  <!-- Bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!--  Icons -->
+  <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      background-color: #f4f6f9;
+    }
+
+    .upload-container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+
+    .preview-box {
+      margin-top: 15px;
+      max-width: 100%;
+      max-height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="upload-container">
+    <h2 class="text-center mb-4">Create a Post</h2>
+
+    <form action="upload.php" method="POST" enctype="multipart/form-data">
+      <!-- Post Type -->
+      <div class="mb-3">
+        <label class="form-label">Type of Post</label>
+        <select name="post_type" class="form-select" id="postType" required>
+          <option value="text">Text</option>
+          <option value="image">Image</option>
+          <option value="video">Video</option>
+        </select>
+      </div>
+
+      <!-- Title -->
+      <div class="mb-3">
+        <label class="form-label">Title (Optional)</label>
+        <input type="text" name="title" class="form-control" placeholder="Enter a short title">
+      </div>
+
+      <!-- Text Content -->
+      <div class="mb-3">
+        <label class="form-label">Text Content</label>
+        <textarea name="text_content" class="form-control" rows="4" placeholder="Write something..."></textarea>
+      </div>
+
+      <!-- Media Upload -->
+      <div class="mb-3">
+        <label class="form-label">Upload File (for Image or Video)</label>
+        <input type="file" name="media_file" class="form-control" id="mediaInput" accept="image/*,video/*">
+        <div class="preview-box mt-2" id="mediaPreview"></div>
+      </div>
+
+      <!-- Submit -->
+      <div class="d-grid">
+        <button type="submit" name="submit_post" class="btn btn-success btn-lg">Post</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const mediaInput = document.getElementById('mediaInput');
+    const preview = document.getElementById('mediaPreview');
+
+    mediaInput.addEventListener('change', function () {
+      const file = this.files[0];
+      preview.innerHTML = '';
+
+      if (file) {
+        const fileType = file.type;
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          if (fileType.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'img-fluid rounded';
+            preview.appendChild(img);
+          } else if (fileType.startsWith('video/')) {
+            const vid = document.createElement('video');
+            vid.src = e.target.result;
+            vid.controls = true;
+            vid.className = 'img-fluid rounded';
+            preview.appendChild(vid);
+          }
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+
+</body>
+</html>

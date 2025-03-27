@@ -261,7 +261,7 @@ $resLikesTab = $conn->query($sqlLikes);
 
     /*  green rows */
     .stats-row {
-      background-color: rgb(4, 145, 63);
+      background-color: rgb(3, 145, 63);
       color: #fff;
       padding: 12px;
       margin-bottom: 8px;
@@ -316,6 +316,38 @@ $resLikesTab = $conn->query($sqlLikes);
     .tab-highlights {
       margin-top: -20;
     }
+
+    .btn-outline-primary {
+      color: rgb(32, 145, 32);
+      border-color:rgb(36, 156, 20)
+    }
+
+    .btn-outline-primary:hover {
+      color: #fff;
+      background-color:rgb(3, 145, 63);
+      border-color:rgba(255, 255, 255, 0.73);
+    }
+
+    .btn-outline-primary.focus,
+    .btn-outline-primary:focus {
+      box-shadow: 0 0 0 .2rem rgba(0, 255, 55, 0.5)
+    }
+
+    .btn-primary {
+      background-color: #038e63;
+    }
+
+    .btn-primary:hover {
+      background-color: rgba(189, 160, 0, 0.72);
+      opacity: 80%;
+    }
+
+    .btn-link{
+      color: #038e63;
+    }
+    .bi-chat-right-dots, .bi-send{
+      color: #038e63;
+    }
   </style>
 </head>
 
@@ -323,11 +355,11 @@ $resLikesTab = $conn->query($sqlLikes);
 <div class="bg-light">
 
   <!--Navbar start-->
-  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"> <!--Dark Background-->
+  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-black"> <!--Dark Background-->
     <div class="container-fluid">
       <!--Left - Logo + Project Name-->
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="me-2">
+      <a class="navbar-brand d-flex align-items-center" href="feed.php">
+        <img src="\ProjectX\uploads\Logo\Next XI Logo.png" alt="Logo" width="35" height="35" class="me-2">
         Next XI
       </a>
 
@@ -344,13 +376,13 @@ $resLikesTab = $conn->query($sqlLikes);
 
           <!--Nav Links-->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
+            <a class="nav-link" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
           </li>
           <li class="nav-item">
             <a class="nav-link" href="upload.php">Upload</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Settings</a>
+            <a class="nav-link active" href="profile.php?user_id=<?php echo $loggedUserId; ?>#">My Profile</a>
           </li>
 
         </ul>
@@ -531,17 +563,17 @@ $resLikesTab = $conn->query($sqlLikes);
 
     <!-- Sub-Nav for Profile Options -->
     <div class="sub-nav-tabs mt-3 ">
-      <ul class="nav nav-pills">
+      <ul class="nav nav-pills justify-content-center">
         <!--Posts-->
-        <li class="nav-item"> <a class="nav-link active" data-bs-toggle="tab" href="#tab-posts">Posts</a></li>
+        <li class="nav-item me-5"> <a class="nav-link active" data-bs-toggle="tab" href="#tab-posts">Posts</a></li>
         <!--Media-->
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-media">Media</a></li>
+        <li class="nav-item me-5"><a class="nav-link" data-bs-toggle="tab" href="#tab-media">Media</a></li>
         <!--Highlights-->
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-highlights">Highlights</a></li>
+        <li class="nav-item me-5"><a class="nav-link" data-bs-toggle="tab" href="#tab-highlights">Highlights</a></li>
         <!--Reposts-->
         <!-- <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-reposts">Reposts</a></li> -->
         <!--Likes-->
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-likes">Likes</a></li>
+        <li class="nav-item me-5"><a class="nav-link" data-bs-toggle="tab" href="#tab-likes">Likes</a></li>
       </ul>
     </div>
 
@@ -1258,8 +1290,6 @@ $resLikesTab = $conn->query($sqlLikes);
         </div>
       </div>
 
-
-
       <!-- Reposts Tab -->
       <!-- <div class="tab-pane fade" id="tab-reposts">
         <h4>Reposts</h4>
@@ -1511,13 +1541,15 @@ $resLikesTab = $conn->query($sqlLikes);
     </div><!-- container -->
 
 
-    <!--Bootstrap JavaScript-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-      </script>
+  </div>
+
+  <!--Bootstrap JavaScript-->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
 
 
-    </body>
+  </body>
 
 </html>
 <?php
