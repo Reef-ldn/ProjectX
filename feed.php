@@ -200,6 +200,7 @@ $result = $conn->query($sql);
                           <!--If it's not highlighted already-->
                           <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add to Highlights</a></li>
                         <?php endif; ?>
+                        
                       <?php endif; ?>
                       <li><a class="dropdown-item" href="#">Report</a></li>
                       <!--Only show follow/unfollow if the postowner isnt the same as the logged in user-->
@@ -211,11 +212,18 @@ $result = $conn->query($sql);
                           echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=follow">Follow</a></li>';
                         }
                         ?>
+                        
                       <?php endif; ?>
                       <!--<li><a class="dropdown-item" href="#">Follow/Unfollow</a></li>-->
                       <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $postOwnerID; ?>">View Profile</a>
                       </li>
-                      <li>
+                      <!--DELETE POST-->
+                      <?php if ($postOwnerID == $loggedUserID): ?>
+                        <li><a class="dropdown-item text-danger" 
+                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
+                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
+                        <li>
+                      <?php endif; ?>
                         <hr class="dropdown-divider">
                       </li>
                       <li><a class="dropdown-item" href="#">Cancel</a></li>

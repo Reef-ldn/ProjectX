@@ -111,11 +111,12 @@ $users = $conn->query($sql);
       background-color: #f1f1f1;
     }
 
-     /* When a conversation is selected */
-     .user-item.active {
+    /* When a conversation is selected */
+    .user-item.active {
       background-color: #009e42;
       color: white;
     }
+
     .user-item.active .msg-preview {
       color: white;
     }

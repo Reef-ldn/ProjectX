@@ -668,6 +668,10 @@ $resLikesTab = $conn->query($sqlLikes);
                                     to
                                     Highlights</a></li>
                               <?php endif; ?>
+                              <!--DELETE POST-->
+                              <li><a class="dropdown-item text-danger" 
+                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
+                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li></li>
                             <?php endif; ?>
 
                             <li>
@@ -889,6 +893,7 @@ $resLikesTab = $conn->query($sqlLikes);
                             <li><a class="dropdown-item" href="#">Save Post</a></li>
                             <!--Only show this if the PostOwner is the logged in user-->
                             <?php if ($postOwnerID == $loggedUserID): ?>
+                           
                               <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
                                 <li><a class="dropdown-item"
                                     href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
@@ -901,6 +906,10 @@ $resLikesTab = $conn->query($sqlLikes);
                                     to
                                     Highlights</a></li>
                               <?php endif; ?>
+                              <!--DELETE POST-->
+                              <li><a class="dropdown-item text-danger" 
+                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
+                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
                             <?php endif; ?>
 
                             <li>
@@ -1135,6 +1144,7 @@ $resLikesTab = $conn->query($sqlLikes);
                             <li><a class="dropdown-item" href="#">Save Post</a></li>
                             <!--Only show this if the PostOwner is the logged in user-->
                             <?php if ($postOwnerID == $loggedUserID): ?>
+                            
                               <?php if ($hrow['is_highlight'] == 1): ?> <!--If it's a highlight-->
                                 <li><a class="dropdown-item"
                                     href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
@@ -1147,6 +1157,10 @@ $resLikesTab = $conn->query($sqlLikes);
                                     to
                                     Highlights</a></li>
                               <?php endif; ?>
+                              <!--DELETE POST-->
+                              <li><a class="dropdown-item text-danger" 
+                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
+                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
                             <?php endif; ?>
 
                             <li>
@@ -1383,6 +1397,7 @@ $resLikesTab = $conn->query($sqlLikes);
                             <li><a class="dropdown-item" href="#">Save Post</a></li>
                             <!--Only show this if the PostOwner is the logged in user-->
                             <?php if ($postOwnerID == $loggedUserID): ?>
+                              
                               <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
                                 <li><a class="dropdown-item"
                                     href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
@@ -1395,6 +1410,10 @@ $resLikesTab = $conn->query($sqlLikes);
                                     to
                                     Highlights</a></li>
                               <?php endif; ?>
+                              <!--DELETE POST-->
+                              <li><a class="dropdown-item text-danger" 
+                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
+                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
                             <?php endif; ?>
 
                             <li>

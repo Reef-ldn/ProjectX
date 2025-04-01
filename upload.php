@@ -100,11 +100,6 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
       transition: background-color 0.3s ease;
     }
 
-    .dark-mode {
-      background-color: #121212;
-      color: white;
-    }
-
     .upload-container {
       max-width: 600px;
       margin: 60px auto;
@@ -112,7 +107,7 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-      transition: background 0.3s ease;
+      transition: 0.3s ease;
     }
 
     .dark-mode .upload-container {
@@ -253,7 +248,7 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
 
           <!-- Drop area for drag-and-drop upload -->
           <div id="drop-area">
-            <p><i class="fas fa-upload"></i> Drag & Drop file here or click to select</p>
+            <p><i class="fas fa-upload"></i> Drag & Drop file here or click to select (JPEG/PNG for images)</p>
 
             <!-- Hidden file input (used when clicking drop area) -->
             <input type="file" name="media_file" id="mediaInput" class="form-control d-none" accept="image/*,video/*">
