@@ -153,6 +153,7 @@ $result = $conn->query($sql);
             }
 
             // fetch comments
+            $commentCount = $row['comment_count'];
             $commentSql = "SELECT c.comment_text, c.created_at, u.username
                          FROM comments c
                          JOIN users u ON c.user_id = u.id
@@ -265,7 +266,7 @@ $result = $conn->query($sql);
 
                   <!-- Comment icon -->
                   <button class="btn btn-link text-decoration-none me-3">
-                    <a href="view_comments.php?post_id=<?php echo $postID; ?>.">
+                    <a href="view_comments.php?post_id=<?php echo $postID; ?>">
                       <i class="bi bi-chat-right-dots"></i>
                     </a>
                   </button>
@@ -295,9 +296,11 @@ $result = $conn->query($sql);
 
                 <!-- Comments Section -->
                 <hr>
-                <div class="mb-2">
+                <div class="mb-2 comment-section">
                   <!-- fetch comments and loop-->
                   <?php
+                  
+
                   if ($commentRes && $commentRes->num_rows > 0) {
                     while ($cRow = $commentRes->fetch_assoc()) {
                       echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' . $cRow['created_at'] . ')</i></p>';
@@ -306,18 +309,17 @@ $result = $conn->query($sql);
                     echo '<small class="text-muted">No comments yet.</small><br><br>';
                   }
 
-
                   //Only display 2 comments and hide the rest under a "View all comments" hyperlink
-                  $commentCount = $row['comment_count'];
                   if ($commentCount > 2) {
                     echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
                   }
 
                   ?>
+                  
                   <!--<small class="text-muted">Comments go here...</small>-->
                 </div>
                 <!--Comments Form-->
-                <form class="d-flex" action="comments.php" method="POST">
+                <form class="d-flex comment-form" action="comments.php" method="POST">
                   <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
                   <input class="form-control me-2" type="text" name="comment_text" placeholder="Add a comment...">
                   <button class="btn btn-sm btn-primary" type="submit">Comment</button>
@@ -361,44 +363,55 @@ $result = $conn->query($sql);
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
 
+<!--Script to handle likes without refreshing the page-->
   <script>
-    document.querySelectorAll('.toggle-like').forEach(btn => {
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
+    document.querySelectorAll('.comment-form').forEach(form => {
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-        const postID = this.dataset.postId;
-        const alreadyLiked = this.dataset.liked === '1';
-        const action = alreadyLiked ? 'unlike' : 'like';
-        const icon = this.querySelector('i');
-        const url = `toggle_like.php?post_id=${postID}&action=${action}`;
+    const postID = this.querySelector('input[name="post_id"]').value;
+    const commentInput = this.querySelector('input[name="comment_text"]');
+    const commentText = commentInput.value.trim();
+    if (!commentText) return;
 
-        fetch(url)
-          .then(res => res.json())
-          .then(data => {
-            if (data.status === 'success') {
-              // Toggle the icon style
-              if (data.liked) {
-                icon.classList.remove('bi-heart');
-                icon.classList.add('bi-heart-fill', 'text-danger');
-                btn.dataset.liked = '1';
-              } else {
-                icon.classList.remove('bi-heart-fill', 'text-danger');
-                icon.classList.add('bi-heart');
-                btn.dataset.liked = '0';
-              }
+    const formData = new FormData();
+    formData.append('post_id', postID);
+    formData.append('comment_text', commentText);
 
-              // Update like count
-              const countP = btn.closest('.card-body').querySelector('p strong');
-              let countText = countP.innerText;
-              let currentCount = parseInt(countText) || 0;
-
-              const newCount = data.liked ? currentCount + 1 : currentCount - 1;
-              countP.innerText = `${newCount} like${newCount !== 1 ? 's' : ''}`;
-            }
-          });
+    try {
+      const res = await fetch('comments.php', {
+        method: 'POST',
+        body: formData
       });
-    });
-  </script>
+
+      const text = await res.text(); // safer than res.json()
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (jsonErr) {
+        console.error("Invalid JSON:", text);
+        throw new Error("Server returned invalid JSON.");
+      }
+
+      if (data.status === 'success') {
+        window.location.href = `view_comments.php?post_id=${postID}`;
+      } else {
+        alert(data.message || 'Failed to add comment.');
+      }
+
+    } catch (error) {
+      console.error('Comment error:', error);
+      alert('Something went wrong. Please try again.');
+    }
+  });
+});
+
+
+</script>
+
+
+
 
 </body>
 
