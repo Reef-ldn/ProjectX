@@ -26,7 +26,9 @@
   $conn->query($sql);
   
   //Redirect back to the inbox
-  header("Location: conversation.php?other_id=$receiver_id");
-  exit; 
+  $redirectBack = $_SERVER['HTTP_REFERER'] ?? 'feed.php';
+  header("Location: $redirectBack");
+  exit;
+  
 
  ?>

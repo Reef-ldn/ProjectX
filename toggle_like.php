@@ -29,5 +29,17 @@ if ($action === 'like') {
 }
 
 $conn->close();
-header("Location: feed.php");
+$redirectBack = $_SERVER['HTTP_REFERER'] ?? 'feed.php';
+
+// Append a flag 
+$glue = strpos($redirectBack, '?') !== false ? '&' : '?';
+$redirectBack .= "{$glue}liked=1";
+
+header('Content-Type: application/json');
+echo json_encode([
+  'status' => 'success',
+  'liked' => ($action === 'like'),
+  'post_id' => $postID
+]);
 exit;
+

@@ -44,8 +44,10 @@ else if ($action == 'unfollow') {
 }
 
 //redirect back to proiile page
-header("Location: profile.php?user_id=$followed_id");
+$redirectBack = $_SERVER['HTTP_REFERER'] ?? 'feed.php';
+header("Location: $redirectBack");
 exit;
+
 
 
 ?>

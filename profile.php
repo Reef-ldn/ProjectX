@@ -319,13 +319,13 @@ $resLikesTab = $conn->query($sqlLikes);
 
     .btn-outline-primary {
       color: rgb(32, 145, 32);
-      border-color:rgb(36, 156, 20)
+      border-color: rgb(36, 156, 20)
     }
 
     .btn-outline-primary:hover {
       color: #fff;
-      background-color:rgb(3, 145, 63);
-      border-color:rgba(255, 255, 255, 0.73);
+      background-color: rgb(3, 145, 63);
+      border-color: rgba(255, 255, 255, 0.73);
     }
 
     .btn-outline-primary.focus,
@@ -342,10 +342,12 @@ $resLikesTab = $conn->query($sqlLikes);
       opacity: 80%;
     }
 
-    .btn-link{
+    .btn-link {
       color: #038e63;
     }
-    .bi-chat-right-dots, .bi-send{
+
+    .bi-chat-right-dots,
+    .bi-send {
       color: #038e63;
     }
   </style>
@@ -422,6 +424,8 @@ $resLikesTab = $conn->query($sqlLikes);
 
   <!--Main Body Container-->
   <div class="container mt-5">
+
+
 
     <!-- Row #1: Profile Pic + Name/Handle/Team/Position-->
     <div class="row align-items-center mb-2">
@@ -576,6 +580,12 @@ $resLikesTab = $conn->query($sqlLikes);
         <li class="nav-item me-5"><a class="nav-link" data-bs-toggle="tab" href="#tab-likes">Likes</a></li>
       </ul>
     </div>
+    <?php if (isset($_GET['deleted']) && $_GET['deleted'] == 1): ?>
+      <div class="alert alert-success alert-dismissible fade show mt-10" role="alert">
+        ✅ Post deleted successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
 
     <!-- Tab Content -->
     <div class="tab-content">
@@ -669,9 +679,9 @@ $resLikesTab = $conn->query($sqlLikes);
                                     Highlights</a></li>
                               <?php endif; ?>
                               <!--DELETE POST-->
-                              <li><a class="dropdown-item text-danger" 
-                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
-                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li></li>
+                              <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>"
+                                  onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
+                              </li>
                             <?php endif; ?>
 
                             <li>
@@ -699,16 +709,11 @@ $resLikesTab = $conn->query($sqlLikes);
 
                       <!-- Buttons row -->
                       <div class="d-flex align-items-center mb-2">
-                        <?php if ($alreadyLiked): ?>
-                          <a href="toggle_like.php?post_id=<?php echo $postID; ?>&action=unlike"
-                            class="btn btn-link me-3 text-danger">
-                            <i class="bi bi-heart-fill"></i>
-                          </a>
-                        <?php else: ?>
-                          <a href="toggle_like.php?post_id=<?php echo $postID; ?>&action=like" class="btn btn-link me-3">
-                            <i class="bi bi-heart"></i>
-                          </a>
-                        <?php endif; ?>
+                        <!-- Like Heart Icon -->
+                        <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                          data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
+                          <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
+                        </a>
 
                         <!-- Comment icon (view all comments page) -->
                         <button class="btn btn-link text-decoration-none me-3">
@@ -893,7 +898,7 @@ $resLikesTab = $conn->query($sqlLikes);
                             <li><a class="dropdown-item" href="#">Save Post</a></li>
                             <!--Only show this if the PostOwner is the logged in user-->
                             <?php if ($postOwnerID == $loggedUserID): ?>
-                           
+
                               <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
                                 <li><a class="dropdown-item"
                                     href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
@@ -907,9 +912,8 @@ $resLikesTab = $conn->query($sqlLikes);
                                     Highlights</a></li>
                               <?php endif; ?>
                               <!--DELETE POST-->
-                              <li><a class="dropdown-item text-danger" 
-                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
-                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
+                              <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>"
+                                  onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
                             <?php endif; ?>
 
                             <li>
@@ -943,21 +947,10 @@ $resLikesTab = $conn->query($sqlLikes);
                       <div class="d-flex align-items-center mb-2">
 
                         <!-- Like Heart Icon -->
-                        <?php
-                        if ($alreadyLiked) {
-                          // filled heart
-                          echo '<a href="toggle_like.php?post_id=' . $postID . '&action=unlike" 
-                         class="btn btn-link me-3 text-danger">
-                         <i class="bi bi-heart-fill"></i>
-                       </a>';
-                        } else {
-                          // outline heart
-                          echo '<a href="toggle_like.php?post_id=' . $postID . '&action=like" 
-                         class="btn btn-link me-3">
-                         <i class="bi bi-heart"></i>
-                       </a>';
-                        }
-                        ?>
+                        <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                          data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
+                          <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
+                        </a>
 
                         <!-- Comment icon -->
                         <button class="btn btn-link text-decoration-none me-3">
@@ -1144,7 +1137,7 @@ $resLikesTab = $conn->query($sqlLikes);
                             <li><a class="dropdown-item" href="#">Save Post</a></li>
                             <!--Only show this if the PostOwner is the logged in user-->
                             <?php if ($postOwnerID == $loggedUserID): ?>
-                            
+
                               <?php if ($hrow['is_highlight'] == 1): ?> <!--If it's a highlight-->
                                 <li><a class="dropdown-item"
                                     href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
@@ -1158,9 +1151,8 @@ $resLikesTab = $conn->query($sqlLikes);
                                     Highlights</a></li>
                               <?php endif; ?>
                               <!--DELETE POST-->
-                              <li><a class="dropdown-item text-danger" 
-                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
-                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
+                              <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>"
+                                  onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
                             <?php endif; ?>
 
                             <li>
@@ -1193,22 +1185,12 @@ $resLikesTab = $conn->query($sqlLikes);
                       <!-- Buttons row (like, comment, share) -->
                       <div class="d-flex align-items-center mb-2">
 
+
                         <!-- Like Heart Icon -->
-                        <?php
-                        if ($alreadyLiked) {
-                          // filled heart
-                          echo '<a href="toggle_like.php?post_id=' . $postID . '&action=unlike" 
-                         class="btn btn-link me-3 text-danger">
-                         <i class="bi bi-heart-fill"></i>
-                       </a>';
-                        } else {
-                          // outline heart
-                          echo '<a href="toggle_like.php?post_id=' . $postID . '&action=like" 
-                         class="btn btn-link me-3">
-                         <i class="bi bi-heart"></i>
-                       </a>';
-                        }
-                        ?>
+                        <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                          data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
+                          <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
+                        </a>
 
                         <!-- Comment icon -->
                         <button class="btn btn-link text-decoration-none me-3">
@@ -1397,7 +1379,7 @@ $resLikesTab = $conn->query($sqlLikes);
                             <li><a class="dropdown-item" href="#">Save Post</a></li>
                             <!--Only show this if the PostOwner is the logged in user-->
                             <?php if ($postOwnerID == $loggedUserID): ?>
-                              
+
                               <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
                                 <li><a class="dropdown-item"
                                     href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
@@ -1411,9 +1393,8 @@ $resLikesTab = $conn->query($sqlLikes);
                                     Highlights</a></li>
                               <?php endif; ?>
                               <!--DELETE POST-->
-                              <li><a class="dropdown-item text-danger" 
-                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
-                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
+                              <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>"
+                                  onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
                             <?php endif; ?>
 
                             <li>
@@ -1447,21 +1428,10 @@ $resLikesTab = $conn->query($sqlLikes);
                       <div class="d-flex align-items-center mb-2">
 
                         <!-- Like Heart Icon -->
-                        <?php
-                        if ($alreadyLiked) {
-                          // filled heart
-                          echo '<a href="toggle_like.php?post_id=' . $postID . '&action=unlike" 
-                         class="btn btn-link me-3 text-danger">
-                         <i class="bi bi-heart-fill"></i>
-                       </a>';
-                        } else {
-                          // outline heart
-                          echo '<a href="toggle_like.php?post_id=' . $postID . '&action=like" 
-                         class="btn btn-link me-3">
-                         <i class="bi bi-heart"></i>
-                       </a>';
-                        }
-                        ?>
+                        <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                          data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
+                          <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
+                        </a>
 
                         <!-- Comment icon -->
                         <button class="btn btn-link text-decoration-none me-3">
@@ -1566,6 +1536,73 @@ $resLikesTab = $conn->query($sqlLikes);
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
+
+  <!--Script to auto refresh the page after deleting a post-->
+  <script>
+    // Check if deletion just happened
+    const urlParams = new URLSearchParams(window.location.search);
+    const wasDeleted = urlParams.get('deleted') === '1';
+    const wasLiked = urlParams.get('liked') === '1';
+
+    if (wasDeleted || wasLiked) {
+      setTimeout(() => {
+        // Remove the success banner from the URL
+        urlParams.delete('deleted');
+        urlParams.delete('liked');
+
+        const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+        window.history.replaceState(null, '', newUrl);
+
+        // Reload the current tab content (Bootstrap tabs)
+        const activeTab = document.querySelector('.sub-nav-tabs .nav-link.active');
+        if (activeTab) {
+          activeTab.click(); // re-triggers the tab to reload content if it's dynamic
+        } else {
+          location.reload(); // fallback: full reload
+        }
+
+      }, 1200); // Wait 1.2 seconds before refreshing
+    }
+  </script>
+  <!--Script to handle likes in place without refreshing the whole page-->
+  <script>
+    document.querySelectorAll('.toggle-like').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const postID = this.dataset.postId;
+        const alreadyLiked = this.dataset.liked === '1';
+        const action = alreadyLiked ? 'unlike' : 'like';
+        const icon = this.querySelector('i');
+        const url = `toggle_like.php?post_id=${postID}&action=${action}`;
+
+        fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              // Toggle the icon style
+              if (data.liked) {
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill', 'text-danger');
+                btn.dataset.liked = '1';
+              } else {
+                icon.classList.remove('bi-heart-fill', 'text-danger');
+                icon.classList.add('bi-heart');
+                btn.dataset.liked = '0';
+              }
+
+              // Update like count
+              const countP = btn.closest('.card-body').querySelector('p strong');
+              let countText = countP.innerText;
+              let currentCount = parseInt(countText) || 0;
+
+              const newCount = data.liked ? currentCount + 1 : currentCount - 1;
+              countP.innerText = `${newCount} like${newCount !== 1 ? 's' : ''}`;
+            }
+          });
+      });
+    });
+  </script>
 
 
   </body>

@@ -19,10 +19,16 @@ $checkSql = "SELECT * FROM posts WHERE id = '$postId' AND user_id = '$loggedInUs
 $result = $conn->query($checkSql);
 
 if ($result && $result->num_rows === 1) {
+
+   // Delete comments
+   $conn->query("DELETE FROM comments WHERE post_id = '$postId'");
+   //  delete likes
+   $conn->query("DELETE FROM likes WHERE post_id = '$postId'");
+
   // Delete post
   $deleteSql = "DELETE FROM posts WHERE id = '$postId'";
   if ($conn->query($deleteSql)) {
-    header("Location: profile.php?user_id=$loggedInUserId&message=Post+Deleted");
+    header("Location: profile.php?user_id=$loggedInUserId&deleted=1");
     exit;
   } else {
     echo "Error deleting post: " . $conn->error;

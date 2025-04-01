@@ -40,6 +40,8 @@ $stmt->close();    //close statement
 $conn->close();     //done communicating with the db
 
 //redirect back to the feed
-header("Location: feed.php");
+$redirectBack = $_SERVER['HTTP_REFERER'] ?? 'feed.php';
+header("Location: $redirectBack");
 exit;
+
 ?>

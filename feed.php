@@ -195,12 +195,15 @@ $result = $conn->query($sql);
                       <!--Only show this if the PostOwner is the logged in user-->
                       <?php if ($postOwnerID == $loggedUserID): ?>
                         <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
-                          <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from Highlights</a></li>
+                          <li><a class="dropdown-item"
+                              href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from Highlights</a>
+                          </li>
                         <?php else: ?>
                           <!--If it's not highlighted already-->
-                          <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add to Highlights</a></li>
+                          <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add
+                              to Highlights</a></li>
                         <?php endif; ?>
-                        
+
                       <?php endif; ?>
                       <li><a class="dropdown-item" href="#">Report</a></li>
                       <!--Only show follow/unfollow if the postowner isnt the same as the logged in user-->
@@ -212,18 +215,17 @@ $result = $conn->query($sql);
                           echo '<li><a class="dropdown-item" href="follow_user.php?followed_id=' . $postOwnerID . '&action=follow">Follow</a></li>';
                         }
                         ?>
-                        
+
                       <?php endif; ?>
                       <!--<li><a class="dropdown-item" href="#">Follow/Unfollow</a></li>-->
                       <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $postOwnerID; ?>">View Profile</a>
                       </li>
                       <!--DELETE POST-->
                       <?php if ($postOwnerID == $loggedUserID): ?>
-                        <li><a class="dropdown-item text-danger" 
-                              href="delete_post.php?post_id=<?php echo $postID; ?>" 
-                              onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
+                        <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>"
+                            onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a></li>
                         <li>
-                      <?php endif; ?>
+                        <?php endif; ?>
                         <hr class="dropdown-divider">
                       </li>
                       <li><a class="dropdown-item" href="#">Cancel</a></li>
@@ -256,21 +258,10 @@ $result = $conn->query($sql);
                 <div class="d-flex align-items-center mb-2">
 
                   <!-- Like Heart Icon -->
-                  <?php
-                  if ($alreadyLiked) {
-                    // filled heart
-                    echo '<a href="toggle_like.php?post_id=' . $postID . '&action=unlike" 
-                         class="btn btn-link me-3 text-danger">
-                         <i class="bi bi-heart-fill"></i>
-                       </a>';
-                  } else {
-                    // outline heart
-                    echo '<a href="toggle_like.php?post_id=' . $postID . '&action=like" 
-                         class="btn btn-link me-3">
-                         <i class="bi bi-heart"></i>
-                       </a>';
-                  }
-                  ?>
+                  <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                    data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
+                    <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
+                  </a>
 
                   <!-- Comment icon -->
                   <button class="btn btn-link text-decoration-none me-3">
@@ -369,6 +360,45 @@ $result = $conn->query($sql);
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
+
+  <script>
+    document.querySelectorAll('.toggle-like').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const postID = this.dataset.postId;
+        const alreadyLiked = this.dataset.liked === '1';
+        const action = alreadyLiked ? 'unlike' : 'like';
+        const icon = this.querySelector('i');
+        const url = `toggle_like.php?post_id=${postID}&action=${action}`;
+
+        fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              // Toggle the icon style
+              if (data.liked) {
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill', 'text-danger');
+                btn.dataset.liked = '1';
+              } else {
+                icon.classList.remove('bi-heart-fill', 'text-danger');
+                icon.classList.add('bi-heart');
+                btn.dataset.liked = '0';
+              }
+
+              // Update like count
+              const countP = btn.closest('.card-body').querySelector('p strong');
+              let countText = countP.innerText;
+              let currentCount = parseInt(countText) || 0;
+
+              const newCount = data.liked ? currentCount + 1 : currentCount - 1;
+              countP.innerText = `${newCount} like${newCount !== 1 ? 's' : ''}`;
+            }
+          });
+      });
+    });
+  </script>
 
 </body>
 
