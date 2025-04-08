@@ -6,6 +6,7 @@ if (!isset($_SESSION['user_id'])) {
   die("Please log in to see comments!");
 }
 
+$userID = $_SESSION['user_id'];
 $postID = (int) $_GET['post_id'];
 
 // Connect to DB
@@ -15,56 +16,180 @@ if ($conn->connect_error) {
 }
 
 //Fetch details about the post
-$postSql = "SELECT p.id, p.text_content, p.file_path, p.post_type, p.created_at, u.username
+$postSql = "SELECT p.*, u.username
             FROM posts p
             JOIN users u ON p.user_id = u.id
             WHERE p.id = $postID";
 $postRes = $conn->query($postSql);
 $postRow = $postRes->fetch_assoc();
 
-// Fetch comments
-$commentSql = "SELECT c.id, c.comment_text, c.created_at, c.user_id,  u.username
+// Fetch all top level comments for this post
+$commentSql = "SELECT c.*,  u.username
                FROM comments c
                JOIN users u ON c.user_id = u.id
-               WHERE c.post_id='$postID'
+               WHERE c.post_id= $postID AND c.parent_id IS NULL
                ORDER BY c.created_at ASC";
 $commentRes = $conn->query($commentSql);
 ?>
+
+
 
 <!DOCTYPE html>
 <html>
 
 <head>
-  <title>Comments for Post #<?php echo $postID; ?></title>
+<meta charset="UTF-8">
+  <title>Comments for Post #<?= $postID; ?></title>
 
   <!--Bootstrap CSS CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
   <!--Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+  
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .container-main {
+      display: flex;
+      gap: 20px;
+    }
+
+    .post-section {
+      flex: 2;
+    }
+
+    .comment-section {
+      flex: 1;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .comment-box {
+      position: relative;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      background-color: white;
+    }
+
+    .reply-box {
+      margin-left: 20px;
+      margin-top: 5px;
+      padding-left: 10px;
+      border-left: 2px solid #eee;
+    }
+
+    .reply-form {
+      display: none;
+    }
+  </style>
+
 </head>
 
-<body class="p-3">
+<body class="container py-4">
 
-  <h1>Comments for Post #<?php echo $postID; ?></h1>
-
+  <h2 class="mb-4">Post Details</h2>
+  <div class="container-main">
+    <!-- Post Content (2/3 of screen) -->
+    <div class="post-section">
   <!-- Display  details about the post -->
   <?php if ($postRow): ?>
-    <h2>Posted by: <?php echo $postRow['username']; ?> on <?php echo $postRow['created_at']; ?></h2>
-    <?php if ($postRow['post_type'] === 'text'): ?>
-      <p><?php echo $postRow['text_content']; ?></p>
-    <?php elseif ($postRow['post_type'] === 'image'): ?>
-      <p><?php echo $postRow['text_content']; ?></p>
+    <div class="mb-3">
+    <h4>Posted by: <?php echo $postRow['username']; ?> on <?php echo $postRow['created_at']; ?></h4>
+    <p><?= htmlspecialchars($postRow['text_content']) ?></p>
+
+    <?php if ($postRow['post_type'] === 'image'): ?>
+            <img src="<?= $postRow['file_path'] ?>" class="img-fluid" alt="Post Image">
+          <?php elseif ($postRow['post_type'] === 'video'): ?>
+            <video class="w-100" controls>
+              <source src="<?= $postRow['file_path'] ?>" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+
+     <!-- Comment Section (1/3, scrollable) -->
+     <div class="comment-section">
+      <h4>All Comments</h4>
+
+      <?php if ($commentRes && $commentRes->num_rows > 0): ?>
+        <?php while ($comment = $commentRes->fetch_assoc()): ?>
+          <div class="comment-box">
+            <!-- Header: username and timestamp -->
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong><?= $comment['username'] ?></strong>
+                <small class="text-muted">(<?= $comment['created_at'] ?>)</small>
+              </div>
+
+              <!-- Dropdown menu (3 dots) -->
+              <div class="dropdown">
+                <button class="btn btn-sm text-muted" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <?php if ($comment['user_id'] == $userID): ?>
+                    <li><a class="dropdown-item edit-comment" href="#" data-id="<?= $comment['id'] ?>">Edit</a></li>
+                    <li><a class="dropdown-item delete-comment text-danger" href="#" data-id="<?= $comment['id'] ?>">Delete</a></li>
+                  <?php endif; ?>
+                  <li><a class="dropdown-item" href="#">Report</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <p class="comment-text" data-id="<?= $comment['id'] ?>"><?= htmlspecialchars($comment['comment_text']) ?></p>
+
+            <!-- Replies would go here -->
+            <div class="reply-box" id="replies-<?= $comment['id'] ?>"></div>
+
+            <!-- Show/Hide Reply form -->
+            <button class="btn btn-sm btn-outline-primary show-reply-btn mt-2" data-id="<?= $comment['id'] ?>">Reply</button>
+            <form class="reply-form mt-2" data-parent-id="<?= $comment['id'] ?>">
+              <input type="hidden" name="post_id" value="<?= $postID ?>">
+              <input type="hidden" name="parent_id" value="<?= $comment['id'] ?>">
+              <input type="text" name="reply_text" class="form-control form-control-sm mb-2" placeholder="Write your reply...">
+              <button class="btn btn-sm btn-secondary" type="submit">Send</button>
+            </form>
+          </div>
+        <?php endwhile; ?>
+      <?php else: ?>
+        <p>No comments yet!</p>
+      <?php endif; ?>
+
+      <hr>
+      <form action="comments.php" method="POST">
+        <input type="hidden" name="post_id" value="<?= $postID ?>">
+        <textarea name="comment_text" class="form-control mb-2" placeholder="Write a comment..."></textarea>
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+      </form>
+    </div>
+  </div>
+
+    </div>
+
+
+    <?php //if ($postRow['post_type'] === 'text'): ?>
+      <p><?php //echo $postRow['text_content']; ?></p>
+    <?php //elseif ($postRow['post_type'] === 'image'): ?>
+      <p><?php // echo $postRow['text_content']; ?></p>
       <img src="<?php echo $postRow['file_path']; ?>" width="400">
-    <?php else: ?>
-      <p><?php echo $postRow['text_content']; ?></p>
+    <?php //else: ?>
+      <p><?php //echo $postRow['text_content']; ?></p>
       <video width="400" controls>
         <source src="<?php echo $postRow['file_path']; ?>" type="video/mp4">
       </video>
-    <?php endif; ?>
-  <?php endif; ?>
+    <?php //endif; ?>
+  <?php //endif; ?>
 
   <hr>
 
@@ -117,17 +242,17 @@ $commentRes = $conn->query($commentSql);
     <p>No comments yet!</p>
   <?php endif; ?>
 
+  
   <hr>
+      <form action="comments.php" method="POST">
+        <input type="hidden" name="post_id" value="<?= $postID ?>">
+        <textarea name="comment_text" class="form-control mb-2" placeholder="Write a comment..."></textarea>
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+      </form>
+    </div>
+  </div>
 
-  <!-- Comment submission form -->
-  <h3>Leave a Comment</h3>
-  <form action="comments.php" method="POST">
-    <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
-    <textarea name="comment_text" class="form-control mb-2" placeholder="Write a comment..."></textarea>
-    <button type="submit" class="btn btn-primary">Post Comment</button>
-  </form>
-
-  <!-- Possibly a link back to feed -->
+  <!--  link back to feed -->
   <br>
   <a href="feed.php" class="btn btn-secondary">Back to Feed</a>
 
