@@ -15,6 +15,7 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
+
 //Fetch details about the post + the poster's username
 $postSql = "SELECT p.*, u.username
             FROM posts p
@@ -30,6 +31,16 @@ $commentSql = "SELECT c.*,  u.username
                WHERE c.post_id= $postID AND c.parent_id IS NULL
                ORDER BY c.created_at ASC";
 $commentRes = $conn->query($commentSql);
+
+function fetchReplies($conn, $parentID)
+{
+  $stmt = $conn->prepare("SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.parent_id = ? ORDER BY c.created_at ASC");
+  $stmt->bind_param("i", $parentID);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  return $res;
+}
+
 ?>
 
 
@@ -49,8 +60,8 @@ $commentRes = $conn->query($commentSql);
   <!--Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-    <!--Global CSS Styling-->
-    <link rel="stylesheet" href="css/style.css">
+  <!--Global CSS Styling-->
+  <link rel="stylesheet" href="css/style.css">
 
 
   <style>
@@ -94,10 +105,10 @@ $commentRes = $conn->query($commentSql);
     }
 
     .reply-box {
-      margin-left: 20px;
-      margin-top: 5px;
-      padding-left: 10px;
-      border-left: 2px solid #eee;
+      margin-left: 1rem;
+      margin-top: 0.5rem;
+      padding-left: 0.75rem;
+      border-left: 2px solid #ddd;
     }
 
     .reply-form {
@@ -176,7 +187,19 @@ $commentRes = $conn->query($commentSql);
               </p>
 
               <!-- Replies would go here -->
-              <div class="reply-box" id="replies-<?= $comment['id'] ?>"></div>
+              <div class="reply-box" id="replies-<?= $comment['id'] ?>">
+                <?php
+                $replies = fetchReplies($conn, $comment['id']);
+                while ($reply = $replies->fetch_assoc()):
+                  ?>
+                  <div class="reply-box ms-3 mt-1">
+                    <strong><?= $reply['username'] ?></strong>
+                    <small class="text-muted">(<?= $reply['created_at'] ?>)</small>
+                    <p class="mb-1"><?= htmlspecialchars($reply['comment_text']) ?></p>
+                  </div>
+                <?php endwhile; ?>
+              </div>
+
 
               <!-- Show/Hide Reply form -->
               <div class="text-end">
