@@ -1,6 +1,7 @@
 <!-- This page displays a feed of all the uploaded content from users-->
 
 <?php
+
 session_start();  //Check the user is logged in;
 
 //connect to the db
@@ -137,6 +138,9 @@ $result = $conn->query($sql);
             $loggedUserID = $_SESSION['user_id'] ?? 0;
             $postOwnerID = $row['user_owner_id'];
 
+            $ownerPic = !empty($row['profile_pic']) ? $row['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
+
+
             $alreadyLiked = false;
             $alreadyFollows = false;
 
@@ -174,7 +178,7 @@ $result = $conn->query($sql);
                   <!--Left side: User profile pic+name+ @username + time-->
                   <div class="d-flex align-items-center">
                     <!--User's Profile Pic-->
-                    <img src="<?php echo $row['profile_pic']; ?>" alt="Profile" width="40" height="40"
+                    <img src="<?php echo $ownerPic ?>" alt="Profile" width="40" height="40"
                       class="rounded-circle me-2">
                     <div>
                       <!--User account name-->
