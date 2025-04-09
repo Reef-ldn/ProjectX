@@ -80,6 +80,20 @@ function fetchReplies($conn, $parentID)
       min-width: 0;
     }
 
+    .post-media {
+      max-width: 100%;
+      max-height: 400px;
+      overflow: hidden;
+    }
+
+    .post-media img,
+    .post-media video {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+
     .comment-section {
       flex: 1;
       max-height: 90vh;
@@ -137,17 +151,17 @@ function fetchReplies($conn, $parentID)
           <h4>Posted by: <?php echo $postRow['username']; ?> on <?php echo $postRow['created_at']; ?></h4>
           <p><?= htmlspecialchars($postRow['text_content']) ?></p>
 
-          <?php if ($postRow['post_type'] === 'image'): ?>
-            <img src="<?= $postRow['file_path'] ?>" class="img-fluid" style="max-height: 400px; object-fit: contain;"
-              alt="Post Image">
-          <?php elseif ($postRow['post_type'] === 'video'): ?>
-            <video class="w-100" style="max-height: 400px;" controls>
-              <source src="<?= $postRow['file_path'] ?>" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
-
+          <div class="post-media">
+            <?php if ($postRow['post_type'] === 'image'): ?>
+              <img src="<?= $postRow['file_path'] ?>" class="img-fluid" alt="Post Image">
+            <?php elseif ($postRow['post_type'] === 'video'): ?>
+              <video class="w-100" controls>
+                <source src="<?= $postRow['file_path'] ?>" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            <?php endif; ?>
           </div>
-        <?php endif; ?>
+        </div>
       <?php endif; ?>
     </div>
 
@@ -186,17 +200,36 @@ function fetchReplies($conn, $parentID)
               <p class="comment-text" data-id="<?= $comment['id'] ?>"><?= htmlspecialchars($comment['comment_text']) ?>
               </p>
 
-              <!-- Replies would go here -->
+              <!-- Replies go here -->
               <div class="reply-box" id="replies-<?= $comment['id'] ?>">
                 <?php
                 $replies = fetchReplies($conn, $comment['id']);
                 while ($reply = $replies->fetch_assoc()):
                   ?>
                   <div class="reply-box ms-3 mt-1">
-                    <strong><?= $reply['username'] ?></strong>
-                    <small class="text-muted">(<?= $reply['created_at'] ?>)</small>
-                    <p class="mb-1"><?= htmlspecialchars($reply['comment_text']) ?></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong><?= $reply['username'] ?></strong>
+                        <small class="text-muted">(<?= $reply['created_at'] ?>)</small>
+                      </div>
+                      <?php if ($reply['user_id'] == $userID): ?>
+                        <div class="dropdown">
+                          <button class="btn btn-sm text-muted" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item edit-comment" href="#" data-id="<?= $reply['id'] ?>">Edit</a></li>
+                            <li><a class="dropdown-item delete-comment text-danger" href="#"
+                                data-id="<?= $reply['id'] ?>">Delete</a></li>
+                          </ul>
+                        </div>
+                      <?php endif; ?>
+                    </div>
+
+                    <p class="comment-text mb-1" data-id="<?= $reply['id'] ?>"><?= htmlspecialchars($reply['comment_text']) ?>
+                    </p>
                   </div>
+
                 <?php endwhile; ?>
               </div>
 
