@@ -47,9 +47,7 @@ $result = $conn->query($sql);
 
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
-  <!--Global CSS Styling-->
-  <link rel="stylesheet" href="css/style.css">
-
+  
 
 </head>
 

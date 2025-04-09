@@ -199,8 +199,7 @@ $resLikesTab = $conn->query($sqlLikes);
   <!--Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-    <!--Global CSS Styling-->
-    <link rel="stylesheet" href="css/style.css">
+    
 
 
   <style>
