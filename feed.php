@@ -47,6 +47,10 @@ $result = $conn->query($sql);
 
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
+  <!--Global CSS Styling-->
+  <link rel="stylesheet" href="css/style.css">
+
+
 </head>
 
 <body>
@@ -240,13 +244,11 @@ $result = $conn->query($sql);
                     <?php if ($row['post_type'] == "image"): ?>
                       <img src="<?php echo $row['file_path']; ?>" class="img-fluid" alt="Post Image">
                     <?php elseif ($row['post_type'] == "video"): ?>
-                      <div style="max-width: 300px; max-height: 350px; margin: 0 auto; overflow: hidden;">
-                        <video style="object-fit: contain; width: 100%; height: 100%;" controls>
-                          <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
-                          Your browser does not support the video tag.
-                        </video>
+                      <video class="w-100" style="max-height: 400px;" controls>
+                        <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
 
-                      </div>
 
 
                     <?php elseif ($row['post_type'] == "text"): ?>
@@ -299,7 +301,7 @@ $result = $conn->query($sql);
                 <div class="mb-2 comment-section">
                   <!-- fetch comments and loop-->
                   <?php
-                  
+
 
                   if ($commentRes && $commentRes->num_rows > 0) {
                     while ($cRow = $commentRes->fetch_assoc()) {
@@ -315,7 +317,7 @@ $result = $conn->query($sql);
                   }
 
                   ?>
-                  
+
                   <!--<small class="text-muted">Comments go here...</small>-->
                 </div>
                 <!--Comments Form-->
@@ -363,52 +365,52 @@ $result = $conn->query($sql);
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
 
-<!--Script to handle likes without refreshing the page-->
+  <!--Script to handle likes without refreshing the page-->
   <script>
     document.querySelectorAll('.comment-form').forEach(form => {
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-    const postID = this.querySelector('input[name="post_id"]').value;
-    const commentInput = this.querySelector('input[name="comment_text"]');
-    const commentText = commentInput.value.trim();
-    if (!commentText) return;
+        const postID = this.querySelector('input[name="post_id"]').value;
+        const commentInput = this.querySelector('input[name="comment_text"]');
+        const commentText = commentInput.value.trim();
+        if (!commentText) return;
 
-    const formData = new FormData();
-    formData.append('post_id', postID);
-    formData.append('comment_text', commentText);
+        const formData = new FormData();
+        formData.append('post_id', postID);
+        formData.append('comment_text', commentText);
 
-    try {
-      const res = await fetch('comments.php', {
-        method: 'POST',
-        body: formData
+        try {
+          const res = await fetch('comments.php', {
+            method: 'POST',
+            body: formData
+          });
+
+          const text = await res.text(); // safer than res.json()
+
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (jsonErr) {
+            console.error("Invalid JSON:", text);
+            throw new Error("Server returned invalid JSON.");
+          }
+
+          if (data.status === 'success') {
+            window.location.href = `view_comments.php?post_id=${postID}`;
+          } else {
+            alert(data.message || 'Failed to add comment.');
+          }
+
+        } catch (error) {
+          console.error('Comment error:', error);
+          alert('Something went wrong. Please try again.');
+        }
       });
-
-      const text = await res.text(); // safer than res.json()
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (jsonErr) {
-        console.error("Invalid JSON:", text);
-        throw new Error("Server returned invalid JSON.");
-      }
-
-      if (data.status === 'success') {
-        window.location.href = `view_comments.php?post_id=${postID}`;
-      } else {
-        alert(data.message || 'Failed to add comment.');
-      }
-
-    } catch (error) {
-      console.error('Comment error:', error);
-      alert('Something went wrong. Please try again.');
-    }
-  });
-});
+    });
 
 
-</script>
+  </script>
 
 
 

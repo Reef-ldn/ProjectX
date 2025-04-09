@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userID = $_SESSION['user_id'];
-$postID = (int) $_GET['post_id'];
+$postID = (int) $_GET['post_id']; //id of the post we're viewing
 
 // Connect to DB
 $conn = new mysqli("localhost", "root", "", "projectx_db");
@@ -15,7 +15,7 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
-//Fetch details about the post
+//Fetch details about the post + the poster's username
 $postSql = "SELECT p.*, u.username
             FROM posts p
             JOIN users u ON p.user_id = u.id
@@ -49,6 +49,9 @@ $commentRes = $conn->query($commentSql);
   <!--Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+    <!--Global CSS Styling-->
+    <link rel="stylesheet" href="css/style.css">
+
 
   <style>
     body {
@@ -58,10 +61,12 @@ $commentRes = $conn->query($commentSql);
     .container-main {
       display: flex;
       gap: 20px;
+      flex-wrap: nowrap;
     }
 
     .post-section {
       flex: 2;
+      min-width: 0;
     }
 
     .comment-section {
@@ -69,6 +74,9 @@ $commentRes = $conn->query($commentSql);
       max-height: 90vh;
       overflow-y: auto;
       padding-right: 10px;
+      background-color: #fff;
+      border-left: 1px solid #ddd;
+      padding-left: 15px;
     }
 
     .comment-box {
@@ -80,9 +88,9 @@ $commentRes = $conn->query($commentSql);
       background-color: white;
     }
 
-    .show-reply-btn{
-      scale: 90%;
+    .show-reply-btn {
       font-weight: 600;
+      font-size: 0.8rem;
     }
 
     .reply-box {
@@ -96,6 +104,12 @@ $commentRes = $conn->query($commentSql);
       display: none;
     }
 
+    video,
+    img {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+    }
   </style>
 
 </head>
@@ -113,69 +127,77 @@ $commentRes = $conn->query($commentSql);
           <p><?= htmlspecialchars($postRow['text_content']) ?></p>
 
           <?php if ($postRow['post_type'] === 'image'): ?>
-            <img src="<?= $postRow['file_path'] ?>" class="img-fluid" alt="Post Image">
+            <img src="<?= $postRow['file_path'] ?>" class="img-fluid" style="max-height: 400px; object-fit: contain;"
+              alt="Post Image">
           <?php elseif ($postRow['post_type'] === 'video'): ?>
-            <video class="w-100" controls>
+            <video class="w-100" style="max-height: 400px;" controls>
               <source src="<?= $postRow['file_path'] ?>" type="video/mp4">
               Your browser does not support the video tag.
             </video>
-          <?php endif; ?>
-        </div>
+
+          </div>
+        <?php endif; ?>
       <?php endif; ?>
     </div>
 
     <!-- Comment Section (1/3, scrollable) -->
     <div class="comment-section">
-      <h4>All Comments</h4>
+      <h4 class="sticky-top bg-white pt-2">All Comments</h4>
 
-      <?php if ($commentRes && $commentRes->num_rows > 0): ?>
-        <?php while ($comment = $commentRes->fetch_assoc()): ?>
-          <div class="comment-box">
-            <!-- Header: username and timestamp -->
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <strong><?= $comment['username'] ?></strong>
-                <small class="text-muted">(<?= $comment['created_at'] ?>)</small>
+
+      <div class="comment-list" style="overflow-y: auto; max-height: 70vh;">
+        <?php if ($commentRes && $commentRes->num_rows > 0): ?>
+          <?php while ($comment = $commentRes->fetch_assoc()): ?>
+            <div class="comment-box">
+              <!-- Header: username and timestamp -->
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong><?= $comment['username'] ?></strong>
+                  <small class="text-muted">(<?= $comment['created_at'] ?>)</small>
+                </div>
+
+                <!-- Dropdown menu (3 dots) -->
+                <div class="dropdown">
+                  <button class="btn btn-sm text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <?php if ($comment['user_id'] == $userID): ?>
+                      <li><a class="dropdown-item edit-comment" href="#" data-id="<?= $comment['id'] ?>">Edit</a></li>
+                      <li><a class="dropdown-item delete-comment text-danger" href="#"
+                          data-id="<?= $comment['id'] ?>">Delete</a></li>
+                    <?php endif; ?>
+                    <li><a class="dropdown-item" href="#">Report</a></li>
+                  </ul>
+                </div>
               </div>
 
-              <!-- Dropdown menu (3 dots) -->
-              <div class="dropdown">
-                <button class="btn btn-sm text-muted" type="button" data-bs-toggle="dropdown">
-                  <i class="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <?php if ($comment['user_id'] == $userID): ?>
-                    <li><a class="dropdown-item edit-comment" href="#" data-id="<?= $comment['id'] ?>">Edit</a></li>
-                    <li><a class="dropdown-item delete-comment text-danger" href="#"
-                        data-id="<?= $comment['id'] ?>">Delete</a></li>
-                  <?php endif; ?>
-                  <li><a class="dropdown-item" href="#">Report</a></li>
-                </ul>
+              <p class="comment-text" data-id="<?= $comment['id'] ?>"><?= htmlspecialchars($comment['comment_text']) ?>
+              </p>
+
+              <!-- Replies would go here -->
+              <div class="reply-box" id="replies-<?= $comment['id'] ?>"></div>
+
+              <!-- Show/Hide Reply form -->
+              <div class="text-end">
+                <button class="btn btn-outline-secondary btn-sm show-reply-btn px-2 py-0"
+                  data-id="<?= $comment['id'] ?>">Reply</button>
               </div>
+              <form class="reply-form mt-2 ms-2" data-parent-id="<?= $comment['id'] ?>">
+                <input type="hidden" name="post_id" value="<?= $postID ?>">
+                <input type="hidden" name="parent_id" value="<?= $comment['id'] ?>">
+                <input type="text" name="reply_text" class="form-control form-control-sm mb-2"
+                  placeholder="Write your reply...">
+                <button class="btn btn-sm btn-secondary ms-2" type="submit">Send</button>
+              </form>
             </div>
+          <?php endwhile; ?>
+        <?php else: ?>
+          <p>No comments yet!</p>
+        <?php endif; ?>
+      </div>
 
-            <p class="comment-text" data-id="<?= $comment['id'] ?>"><?= htmlspecialchars($comment['comment_text']) ?></p>
-
-            <!-- Replies would go here -->
-            <div class="reply-box" id="replies-<?= $comment['id'] ?>"></div>
-
-            <!-- Show/Hide Reply form -->
-            <button class="btn btn-sm btn-outline-primary show-reply-btn ms-2"
-              data-id="<?= $comment['id'] ?>">Reply</button>
-            <form class="reply-form mt-2 ms-2" data-parent-id="<?= $comment['id'] ?>">
-              <input type="hidden" name="post_id" value="<?= $postID ?>">
-              <input type="hidden" name="parent_id" value="<?= $comment['id'] ?>">
-              <input type="text" name="reply_text" class="form-control form-control-sm mb-2"
-                placeholder="Write your reply...">
-              <button class="btn btn-sm btn-secondary" type="submit">Send</button>
-            </form>
-          </div>
-        <?php endwhile; ?>
-      <?php else: ?>
-        <p>No comments yet!</p>
-      <?php endif; ?>
-
-      <hr>
+      <hr class="mt-3">
       <form action="comments.php" method="POST">
         <input type="hidden" name="post_id" value="<?= $postID ?>">
         <textarea name="comment_text" class="form-control mb-2" placeholder="Write a comment..."></textarea>
