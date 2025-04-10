@@ -48,11 +48,86 @@ $result = $conn->query($sql);
 
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
+  <style>
+    body {
+      background-image: url('/ProjectX/uploads/Trophy_wallpaper_cropped.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      /*  no scrolling */
+      margin: 0;
+      padding: 0;
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+
+      /* color: rgba(240,240,240,1); */
+
+    }
+
+    .bg-blur-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(5px);
+      /* blur effect */
+      background-color: rgba(0, 0, 0, 0.4);
+      /*  dark tint */
+      z-index: 1;
+    }
+
+    .main-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    
+    .card {
+      background-color: rgba(30, 30, 30, 0.90);
+      color: rgba(240, 240, 240, 0.95);
+    }
+
+    
+    .custom-muted {
+      color: white;
+      opacity: 0.7;
+    }
+
+    .bi-three-dots{
+      color: rgba(255,255,255,0.9)
+    }
+
+    .btn-primary {
+      background-color: #038e63;
+    }
+    .bi-chat-right-dots,
+    .bi-send {
+      color: #038e63;
+      opacity:1;
+    }
+
+    .right-bar {
+      background-color: rgba(30, 30, 30, 0.94);
+      color: rgba(240, 240, 240, 1);
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+
+
+ </style>
   
 
 </head>
 
-<body>
+<>
+
+<div class="bg-blur-overlay"></div>
+<div class="main-content">
+
 
   <!--Navbar start-->
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"> <!--Dark Background-->
@@ -122,7 +197,7 @@ $result = $conn->query($sql);
 
 
   <!--Main Content Area-->
-  <div class="container pt-5 mt-5">
+  <div class="container pt-0 mt-5">
     <div class="row">
       <!--Left or Center Column: 6/12 columns-->
       <div class="offset-md-2 col-md-7">
@@ -184,9 +259,9 @@ $result = $conn->query($sql);
                       <!--User account name-->
                       <strong><?php echo $row['name']; ?></strong>
                       <!-- user's @ handle -->
-                      <span class="text-muted">@<?php echo strtolower($row['username']); ?></span><br>
+                      <span class="custom-muted">@<?php echo strtolower($row['username']); ?></span><br>
                       <!-- time posted -->
-                      <small class="text-muted">
+                      <small class="custom-muted">
                         Posted on <?php echo date('d M, y H:i', strtotime($row['created_at'])); ?>
                       </small>
                     </div>
@@ -310,7 +385,7 @@ $result = $conn->query($sql);
                       echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' . $cRow['created_at'] . ')</i></p>';
                     }
                   } else {
-                    echo '<small class="text-muted">No comments yet.</small><br><br>';
+                    echo '<small class="custom-muted">No comments yet.</small><br><br>';
                   }
 
                   //Only display 2 comments and hide the rest under a "View all comments" hyperlink
@@ -320,7 +395,7 @@ $result = $conn->query($sql);
 
                   ?>
 
-                  <!--<small class="text-muted">Comments go here...</small>-->
+                  <!--<small class="custom-muted">Comments go here...</small>-->
                 </div>
                 <!--Comments Form-->
                 <form class="d-flex comment-form" action="comments.php" method="POST">
@@ -344,23 +419,26 @@ $result = $conn->query($sql);
 
       <!-- Right Column: col-md-4 for "Trending" or anything else -->
       <div class="col-md-3">
-        <div class="bg-light p-3 mb-5">
+        <div class="right-bar p-3 mb-3">
           <h5>Trending</h5>
           <p>Trending posts / recommended users</p>
         </div>
-        <div class="bg-light p-3 mb-4">
+        <div class="right-bar p-3 mb-3">
           <h5>People you may know</h5>
           <p>User 1</p>
           <p>User 2</p>
           <p>User 3</p>
         </div>
-        <div class="bg-light p-3">
+        <div class="right-bar p-3">
           <h5>Another Section</h5>
           <p>Some additional widget or ads, etc.</p>
         </div>
       </div> <!-- end col-md-4 -->
     </div> <!-- end row -->
   </div> <!-- end container -->
+
+  </div>
+  
 
   <!--Bootstrap JavaScript-->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
