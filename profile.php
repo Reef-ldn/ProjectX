@@ -422,8 +422,10 @@ $resLikesTab = $conn->query($sqlLikes);
     }
 
     .right-bar {
-      background-color: rgba(30, 30, 30, 0.8);
+      background-color: rgba(30, 30, 30, 0.9);
       color: rgba(240, 240, 240, 1);
+      border-radius: 10px;
+      margin-bottom: 15px;
     }
   </style>
 </head>
@@ -1101,19 +1103,19 @@ $resLikesTab = $conn->query($sqlLikes);
 
             <!-- Right Column: col-md-4 for "Previous Teams" current league -->
             <div class="col-md-3 ms-3">
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>Previous Teams</h5>
                 <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
                 <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
                 <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
               </div>
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>Trophies</h5>
                 <p>Trophy 1 <small>(2003/01)</small></p>
                 <p>Trophy 2 <small>(2003/01)</small></p>
                 <p>Trophy 3 <small>(2003/01)</small></p>
               </div>
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>People You May Know</h5>
                 <p>User 1 <small>@handle</small></p>
                 <p>User 2 <small>@handle</small></p>
@@ -1339,19 +1341,19 @@ $resLikesTab = $conn->query($sqlLikes);
             </div>
             <!-- Right Column: col-md-4 for "Previous Teams" current league -->
             <div class="col-md-3 ms-3">
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>Previous Teams</h5>
                 <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
                 <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
                 <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
               </div>
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>Trophies</h5>
                 <p>Trophy 1 <small>(2003/01)</small></p>
                 <p>Trophy 2 <small>(2003/01)</small></p>
                 <p>Trophy 3 <small>(2003/01)</small></p>
               </div>
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>People You May Know</h5>
                 <p>User 1 <small>@handle</small></p>
                 <p>User 2 <small>@handle</small></p>
@@ -1580,19 +1582,19 @@ $resLikesTab = $conn->query($sqlLikes);
             </div>
             <!-- Right Column: col-md-4 for "Previous Teams" current league -->
             <div class="col-md-3 ms-3">
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>Previous Teams</h5>
                 <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
                 <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
                 <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
               </div>
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>Trophies</h5>
                 <p>Trophy 1 <small>(2003/01)</small></p>
                 <p>Trophy 2 <small>(2003/01)</small></p>
                 <p>Trophy 3 <small>(2003/01)</small></p>
               </div>
-              <div class="bg-light p-3">
+              <div class="right-bar p-3">
                 <h5>People You May Know</h5>
                 <p>User 1 <small>@handle</small></p>
                 <p>User 2 <small>@handle</small></p>
