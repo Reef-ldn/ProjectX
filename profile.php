@@ -466,8 +466,12 @@ $resLikesTab = $conn->query($sqlLikes);
               <a class="nav-link" href="upload.php">Upload</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="inbox.php">Messages</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link active" href="profile.php?user_id=<?php echo $loggedUserId; ?>#">My Profile</a>
             </li>
+           
 
           </ul>
 
