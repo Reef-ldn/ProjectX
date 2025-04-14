@@ -1263,11 +1263,11 @@ $resLikesTab = $conn->query($sqlLikes);
                               <img src="<?php echo $hrow['file_path']; ?>" class="img-fluid" alt="Post Image">
                             <?php elseif ($hrow['post_type'] == "video"): ?>
                               <video class="w-100" style="max-height: 400px;" controls>
-                                <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
+                                <source src="<?php echo $hrow['file_path']; ?>" type="video/mp4">
                                 Your browser does not support the video tag.
                               </video>
 
-                            </div>
+                           
 
                           <?php elseif ($hrow['post_type'] == "text"): ?>
                             <p><?php echo $hrow['text_content']; ?></p>
@@ -1507,13 +1507,14 @@ $resLikesTab = $conn->query($sqlLikes);
                           <?php if ($row['post_type'] == "image"): ?>
                             <img src="<?php echo $row['file_path']; ?>" class="img-fluid" alt="Post Image">
                           <?php elseif ($row['post_type'] == "video"): ?>
-                            <div style="max-width: 300px; max-height: 350px; margin: 0 auto; overflow: hidden;">
-                              <video style="object-fit: contain; width: 100%; height: auto;" controls>
+                              <video class="w-100" style="max-height: 400px;" controls>
                                 <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
                                 Your browser does not support the video tag.
                               </video>
-                            </div>
 
+
+
+                    
                           <?php elseif ($row['post_type'] == "text"): ?>
                             <p><?php echo $row['text_content']; ?></p>
                           <?php endif; ?>
@@ -1662,6 +1663,7 @@ $resLikesTab = $conn->query($sqlLikes);
       }, 1200); // Wait 1.2 seconds before refreshing
     }
   </script>
+  
   <!--Script to handle likes in place without refreshing the whole page-->
   <script>
     document.querySelectorAll('.toggle-like').forEach(btn => {
