@@ -105,7 +105,8 @@ $result = $conn->query($sql);
     }
 
     .bi-chat-right-dots,
-    .bi-send {
+    .bi-send,
+    .btn-green {
       color: #038e63;
       opacity: 1;
     }
@@ -355,7 +356,7 @@ $result = $conn->query($sql);
                   <div class="d-flex align-items-center mb-2">
 
                     <!-- Like Heart Icon -->
-                    <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                    <a href="#" class="btn btn-green toggle-like me-3" data-post-id="<?php echo $postID; ?>"
                       data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
                       <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
                     </a>
@@ -377,11 +378,12 @@ $result = $conn->query($sql);
                   <?php
                   $likeCount = $row['like_count'];
                   if ($likeCount == 1) {
-                    echo "<p><strong>1 like</strong></p>";
+                    echo '<p><span id="like-count-' . $postID . '"><strong>1 like</strong></span></p>';
                   } else {
-                    echo "<p><strong>{$likeCount} likes</strong></p>";
+                    echo '<p><span id="like-count-' . $postID . '"><strong>' . $likeCount . ' likes</strong></span></p>';
                   }
                   ?>
+
 
                   <!-- Caption -->
                   <?php if (!empty($row['text_content']) && $row['post_type'] != 'text'): ?>
@@ -555,6 +557,44 @@ $result = $conn->query($sql);
       });
     });
   </script>
+
+  <script>
+    document.querySelectorAll('.toggle-like').forEach(button => {
+      button.addEventListener('click', async function (e) {
+        e.preventDefault();
+        const postId = this.dataset.postId;
+        const liked = this.dataset.liked === '1';
+
+        try {
+          const res = await fetch(`toggle_like.php?post_id=${postId}&action=${liked ? 'unlike' : 'like'}`);
+          const data = await res.json();
+
+          if (data.status === 'success') {
+            const icon = this.querySelector('i');
+            const countEl = document.getElementById(`like-count-${postId}`);
+
+            // Update icon
+            if (data.liked) {
+              icon.classList.remove('bi-heart');
+              icon.classList.add('bi-heart-fill', 'text-danger');
+              this.dataset.liked = '1';
+            } else {
+              icon.classList.remove('bi-heart-fill', 'text-danger');
+              icon.classList.add('bi-heart');
+              this.dataset.liked = '0';
+            }
+
+
+            let currentCount = parseInt(countEl.textContent) || 0;
+            countEl.innerHTML = `<strong>${data.liked ? currentCount + 1 : currentCount - 1} like${(data.liked && currentCount === 0) || (currentCount > 1) ? 's' : ''}</strong>`;
+          }
+        } catch (err) {
+          console.error('Error toggling like:', err);
+        }
+      });
+    });
+  </script>
+
 
   <!--Script to inject the post ID into Modal-->
   <script>
