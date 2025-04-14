@@ -199,9 +199,21 @@ $result = $conn->query($sql);
     <!--Navbar End-->
 
 
+
+
     <!--Main Content Area-->
     <div class="container pt-4 mt-5">
+
       <div class="row">
+
+        <!--Post sent popup-->
+        <?php if (isset($_GET['shared']) && $_GET['shared'] === 'success'): ?>
+          <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            ✅ Post sent successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <?php endif; ?>
+
         <!--Left or Center Column: 6/12 columns-->
         <div class="offset-md-2 col-md-7">
 
@@ -246,7 +258,9 @@ $result = $conn->query($sql);
                          LIMIT 2";
               $commentRes = $conn->query($commentSql);
               ?>
+
               <div class="card mb-4">
+
                 <!--Card Body-->
                 <div class="card-body">
 
@@ -348,13 +362,14 @@ $result = $conn->query($sql);
 
                     <!-- Comment icon -->
                     <button class="btn btn-link text-decoration-none me-3">
-                      <a href="view_comments.php?post_id=<?php echo $postID; ?>">
+                      <a href="view_post.php?post_id=<?php echo $postID; ?>">
                         <i class="bi bi-chat-right-dots"></i>
                       </a>
                     </button>
 
                     <!--Share Icon-->
-                    <button class="btn btn-link text-decoration-none me-3">
+                    <button class="btn btn-link text-decoration-none me-3 share-btn" data-bs-toggle="modal"
+                      data-bs-target="#shareModal" data-post-id="<?php echo $postID; ?>">
                       <i class="bi bi-send"></i> </button>
                   </div>
 
@@ -393,7 +408,7 @@ $result = $conn->query($sql);
 
                     //Only display 2 comments and hide the rest under a "View all comments" hyperlink
                     if ($commentCount > 2) {
-                      echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                      echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
                     }
 
                     ?>
@@ -415,7 +430,7 @@ $result = $conn->query($sql);
           } else {
             echo "<p>No posts found in feed.</p>";
           }
-          $conn->close();
+
           ?>
         </div> <!-- end col-md-7 -->
 
@@ -444,6 +459,51 @@ $result = $conn->query($sql);
     </div> <!-- end container -->
 
   </div>
+
+  <!-- Share Post Modal -->
+  <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="shareForm" method="POST" action="send_post.php">
+        <input type="hidden" name="post_id" id="modalPostId">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="shareModalLabel">Send Post</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <p>Select a user to send this post to:</p>
+            <div class="form-group">
+              <select class="form-control" name="recipient_id" required>
+                <?php
+                // Get the list of people the logged-in user is following
+                $loggedId = $_SESSION['user_id'] ?? 0;
+                $followSql = "SELECT u.id, u.username 
+                            FROM users u
+                            JOIN follows f ON f.followed_id = u.id
+                            WHERE f.follower_id = '$loggedId'";
+                $followRes = $conn->query($followSql);
+
+                if ($followRes && $followRes->num_rows > 0) {
+                  while ($f = $followRes->fetch_assoc()) {
+                    echo '<option value="' . $f['id'] . '">' . $f['username'] . '</option>';
+                  }
+                } else {
+                  echo '<option disabled>No followers found</option>';
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Send</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
 
   <!--Bootstrap JavaScript-->
@@ -483,7 +543,7 @@ $result = $conn->query($sql);
           }
 
           if (data.status === 'success') {
-            window.location.href = `view_comments.php?post_id=${postID}`;
+            window.location.href = `view_post.php?post_id=${postID}`;
           } else {
             alert(data.message || 'Failed to add comment.');
           }
@@ -494,10 +554,33 @@ $result = $conn->query($sql);
         }
       });
     });
-
-
   </script>
 
+  <!--Script to inject the post ID into Modal-->
+  <script>
+    document.querySelectorAll('.share-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const postId = this.dataset.postId;
+        document.getElementById('modalPostId').value = postId;
+      });
+    });
+  </script>
+
+  <!--Timeout the pop up message after a few seconds-->
+  <script>
+    setTimeout(() => {
+      const alert = document.querySelector('.alert');
+      if (alert) {
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+      }
+    }, 3000);
+  </script>
+
+
+  <?php
+  $conn->close();
+  ?>
 
 
 

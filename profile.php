@@ -182,7 +182,6 @@ $sqlLikes = "SELECT p.id AS postID,
               JOIN posts p ON l.post_id = p.id
               JOIN users u ON p.user_id = u.id
               WHERE l.user_id = '$user_id'
-                AND p.is_highlight = 1
               ORDER BY p.created_at DESC
             ";
 $resLikesTab = $conn->query($sqlLikes);
@@ -427,6 +426,7 @@ $resLikesTab = $conn->query($sqlLikes);
       border-radius: 10px;
       margin-bottom: 8px;
     }
+
     .right-bar-wrapper {
       position: sticky;
       top: 70px;
@@ -798,7 +798,7 @@ $resLikesTab = $conn->query($sqlLikes);
 
                           <!-- Comment icon (view all comments page) -->
                           <button class="btn btn-link text-decoration-none me-3">
-                            <a href="view_comments.php?post_id=<?php echo $postID; ?>">
+                            <a href="view_post.php?post_id=<?php echo $postID; ?>">
                               <i class="bi bi-chat-right-dots"></i>
                             </a>
                           </button>
@@ -847,7 +847,7 @@ $resLikesTab = $conn->query($sqlLikes);
                           }
 
                           if ($commentCount > 2) {
-                            echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                            echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
                           }
                           ?>
                         </div>
@@ -870,30 +870,29 @@ $resLikesTab = $conn->query($sqlLikes);
               </div>
               <!-- Right Column: col-md-4 for "Previous Teams" current league -->
               <div class="col-md-3 ms-3">
-              <div class="right-bar-wrapper">
-                <div class="right-bar p-3">
-                  <h5>Previous Teams</h5>
-                  <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>Trophies</h5>
-                  <p>Trophy 1 <small>(2003/01)</small></p>
-                  <p>Trophy 2 <small>(2003/01)</small></p>
-                  <p>Trophy 3 <small>(2003/01)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>People You May Know</h5>
-                  <p>User 1 <small>@handle</small></p>
-                  <p>User 2 <small>@handle</small></p>
-                  <p>User 3 <small>@handle</small></p>
-                </div>
+                <div class="right-bar-wrapper">
+                  <div class="right-bar p-3">
+                    <h5>Previous Teams</h5>
+                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>Trophies</h5>
+                    <p>Trophy 1 <small>(2003/01)</small></p>
+                    <p>Trophy 2 <small>(2003/01)</small></p>
+                    <p>Trophy 3 <small>(2003/01)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>People You May Know</h5>
+                    <p>User 1 <small>@handle</small></p>
+                    <p>User 2 <small>@handle</small></p>
+                    <p>User 3 <small>@handle</small></p>
+                  </div>
                 </div>
               </div> <!-- end col-md-4 -->
             </div> <!-- end row -->
           </div>
-
         </div>
 
 
@@ -1036,7 +1035,7 @@ $resLikesTab = $conn->query($sqlLikes);
 
                           <!-- Comment icon -->
                           <button class="btn btn-link text-decoration-none me-3">
-                            <a href="view_comments.php?post_id=<?php echo $postID; ?>.">
+                            <a href="view_post.php?post_id=<?php echo $postID; ?>.">
                               <i class="bi bi-chat-right-dots"></i>
                             </a>
                           </button>
@@ -1091,7 +1090,7 @@ $resLikesTab = $conn->query($sqlLikes);
                           //Only display 2 comments and hide the rest under a "View all comments" hyperlink
                           $commentCount = $row['comment_count'];
                           if ($commentCount > 2) {
-                            echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                            echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
                           }
 
                           ?>
@@ -1116,25 +1115,25 @@ $resLikesTab = $conn->query($sqlLikes);
 
               <!-- Right Column: col-md-4 for "Previous Teams" current league -->
               <div class="col-md-3 ms-3">
-              <div class="right-bar-wrapper">
-              <div class="right-bar p-3">
-                  <h5>Previous Teams</h5>
-                  <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>Trophies</h5>
-                  <p>Trophy 1 <small>(2003/01)</small></p>
-                  <p>Trophy 2 <small>(2003/01)</small></p>
-                  <p>Trophy 3 <small>(2003/01)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>People You May Know</h5>
-                  <p>User 1 <small>@handle</small></p>
-                  <p>User 2 <small>@handle</small></p>
-                  <p>User 3 <small>@handle</small></p>
-                </div>
+                <div class="right-bar-wrapper">
+                  <div class="right-bar p-3">
+                    <h5>Previous Teams</h5>
+                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>Trophies</h5>
+                    <p>Trophy 1 <small>(2003/01)</small></p>
+                    <p>Trophy 2 <small>(2003/01)</small></p>
+                    <p>Trophy 3 <small>(2003/01)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>People You May Know</h5>
+                    <p>User 1 <small>@handle</small></p>
+                    <p>User 2 <small>@handle</small></p>
+                    <p>User 3 <small>@handle</small></p>
+                  </div>
                 </div>
               </div> <!-- end col-md-4 -->
             </div> <!-- end row -->
@@ -1288,7 +1287,7 @@ $resLikesTab = $conn->query($sqlLikes);
 
                         <!-- Comment icon -->
                         <button class="btn btn-link text-decoration-none me-3">
-                          <a href="view_comments.php?post_id=<?php echo $postID; ?>.">
+                          <a href="view_post.php?post_id=<?php echo $postID; ?>.">
                             <i class="bi bi-chat-right-dots"></i>
                           </a>
                         </button>
@@ -1333,7 +1332,7 @@ $resLikesTab = $conn->query($sqlLikes);
                         //Only display 2 comments and hide the rest under a "View all comments" hyperlink
                         $commentCount = $hrow['comment_count'];
                         if ($commentCount > 2) {
-                          echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                          echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
                         }
 
                         ?>
@@ -1357,25 +1356,25 @@ $resLikesTab = $conn->query($sqlLikes);
             </div>
             <!-- Right Column: col-md-4 for "Previous Teams" current league -->
             <div class="col-md-3 ms-3">
-            <div class="right-bar-wrapper">
-              <div class="right-bar p-3">
-                <h5>Previous Teams</h5>
-                <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
-              </div>
-              <div class="right-bar p-3">
-                <h5>Trophies</h5>
-                <p>Trophy 1 <small>(2003/01)</small></p>
-                <p>Trophy 2 <small>(2003/01)</small></p>
-                <p>Trophy 3 <small>(2003/01)</small></p>
-              </div>
-              <div class="right-bar p-3">
-                <h5>People You May Know</h5>
-                <p>User 1 <small>@handle</small></p>
-                <p>User 2 <small>@handle</small></p>
-                <p>User 3 <small>@handle</small></p>
-              </div>
+              <div class="right-bar-wrapper">
+                <div class="right-bar p-3">
+                  <h5>Previous Teams</h5>
+                  <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
+                  <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
+                  <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                </div>
+                <div class="right-bar p-3">
+                  <h5>Trophies</h5>
+                  <p>Trophy 1 <small>(2003/01)</small></p>
+                  <p>Trophy 2 <small>(2003/01)</small></p>
+                  <p>Trophy 3 <small>(2003/01)</small></p>
+                </div>
+                <div class="right-bar p-3">
+                  <h5>People You May Know</h5>
+                  <p>User 1 <small>@handle</small></p>
+                  <p>User 2 <small>@handle</small></p>
+                  <p>User 3 <small>@handle</small></p>
+                </div>
               </div>
             </div> <!-- end col-md-4 -->
           </div> <!-- end row -->
@@ -1532,7 +1531,7 @@ $resLikesTab = $conn->query($sqlLikes);
 
                         <!-- Comment icon -->
                         <button class="btn btn-link text-decoration-none me-3">
-                          <a href="view_comments.php?post_id=<?php echo $postID; ?>.">
+                          <a href="view_post.php?post_id=<?php echo $postID; ?>.">
                             <i class="bi bi-chat-right-dots"></i>
                           </a>
                         </button>
@@ -1577,7 +1576,7 @@ $resLikesTab = $conn->query($sqlLikes);
                         //Only display 2 comments and hide the rest under a "View all comments" hyperlink
                         $commentCount = $row['comment_count'];
                         if ($commentCount > 2) {
-                          echo '<a href="view_comments.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                          echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
                         }
 
                         ?>
@@ -1601,25 +1600,25 @@ $resLikesTab = $conn->query($sqlLikes);
             </div>
             <!-- Right Column: col-md-4 for "Previous Teams" current league -->
             <div class="col-md-3 ms-3">
-            <div class="right-bar-wrapper">
-              <div class="right-bar p-3">
-                <h5>Previous Teams</h5>
-                <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
-              </div>
-              <div class="right-bar p-3">
-                <h5>Trophies</h5>
-                <p>Trophy 1 <small>(2003/01)</small></p>
-                <p>Trophy 2 <small>(2003/01)</small></p>
-                <p>Trophy 3 <small>(2003/01)</small></p>
-              </div>
-              <div class="right-bar p-3">
-                <h5>People You May Know</h5>
-                <p>User 1 <small>@handle</small></p>
-                <p>User 2 <small>@handle</small></p>
-                <p>User 3 <small>@handle</small></p>
-              </div>
+              <div class="right-bar-wrapper">
+                <div class="right-bar p-3">
+                  <h5>Previous Teams</h5>
+                  <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
+                  <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
+                  <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                </div>
+                <div class="right-bar p-3">
+                  <h5>Trophies</h5>
+                  <p>Trophy 1 <small>(2003/01)</small></p>
+                  <p>Trophy 2 <small>(2003/01)</small></p>
+                  <p>Trophy 3 <small>(2003/01)</small></p>
+                </div>
+                <div class="right-bar p-3">
+                  <h5>People You May Know</h5>
+                  <p>User 1 <small>@handle</small></p>
+                  <p>User 2 <small>@handle</small></p>
+                  <p>User 3 <small>@handle</small></p>
+                </div>
               </div>
             </div> <!-- end col-md-4 -->
           </div> <!-- end row -->

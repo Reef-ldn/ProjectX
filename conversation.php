@@ -34,11 +34,13 @@ if ($userRes && $userRes->num_rows > 0) {
 
 
 //Get all messages where the sender_id = me
-$sql = "SELECT m.id, m.sender_id, m.receiver_id, m.content, m.created_at,
-               sender.username AS sender_name, receiver.username AS receiver_name
+$sql = "SELECT m.id, m.sender_id, m.receiver_id, m.content, m.created_at, m.shared_post_id,
+               sender.username AS sender_name, receiver.username 
+               AS receiver_name, p.post_type, p.file_path, p.text_content AS post_text
         FROM messages m
         LEFT JOIN users AS sender ON m.sender_id = sender.id
         LEFT JOIN users AS receiver ON m.receiver_id = receiver.id
+        LEFT JOIN posts p ON m.shared_post_id = p.id
         WHERE (m.sender_id = '$my_id' AND m.receiver_id='$other_id')
            OR (m.sender_id = '$other_id' AND m.receiver_id='$my_id')
         ORDER BY m.created_at ASC";
@@ -191,9 +193,33 @@ $result = $conn->query($sql);
           if (!$isSender) {
             echo "<img src='$other_profile_pic' width='30' height='30' class='rounded-circle me-2'>";
           }
-          echo "<div class='msg-content'>" . htmlspecialchars($row['content']) . "<br>
-          <small>" . date('H:i', strtotime($row['created_at'])) . "</small>
-          </div>";
+          echo "<div class='msg-content'>";
+          if (!empty($row['content'])) {
+            echo "<p>" . htmlspecialchars($row['content']) . "</p>";
+          }
+          
+          // If there's a shared post
+          if (!empty($row['shared_post_id'])) {
+            echo "<div class='card mt-2' style='background-color: #f1f1f1; color: black;'>
+                    <div class='card-body p-2'>";
+          
+            if ($row['post_type'] === 'image') {
+              echo "<img src='{$row['file_path']}' class='img-fluid rounded' style='max-height:200px;'>";
+            } elseif ($row['post_type'] === 'video') {
+              echo "<video class='w-100' style='max-height:200px;' controls>
+                      <source src='{$row['file_path']}' type='video/mp4'>
+                    </video>";
+            } elseif ($row['post_type'] === 'text') {
+              echo "<p class='mb-0'>" . htmlspecialchars($row['post_text']) . "</p>";
+            }
+          
+            echo "<a href='view_post.php?post_id={$row['shared_post_id']}' class='btn btn-sm btn-outline-success mt-2'>View Post</a>
+                  </div>
+                </div>";
+          }
+          
+          echo "<br><small>" . date('H:i', strtotime($row['created_at'])) . "</small></div>";
+          
           echo "</div>";
         }
       } else {
@@ -214,12 +240,12 @@ $result = $conn->query($sql);
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- <script>
+  <script>
     const chatMessages = document.querySelector('.chat-messages');
     if (chatMessages) {
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-  </script> -->
+  </script>
 
 </body>
 
