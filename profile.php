@@ -8,7 +8,9 @@ session_start();
 $profileUserId = (int) $_GET['user_id'] ?? 0;
 
 //The user that is currently logged in
-$loggedUserId = (int) $_SESSION['user_id'] ?? 0;
+$loggedUserId = (int) $_SESSION['user_id'] ?? null;
+$loggedIn = isset($_SESSION['user_id']);
+
 
 //connect to the db
 $conn = new mysqli("localhost", "root", "", "projectx_db");    //connect to db
@@ -25,10 +27,10 @@ if ($userResult->num_rows == 0) {         //If no user has this ID, no user is f
 $userRow = $userResult->fetch_assoc();
 
 //The user's profile picture
-$profilePic = !empty($userRow['profile_pic'])
-  ? $userRow['profile_pic']
+$profilePic = !empty($row['profile_pic'])
+  ? $row['profile_pic']
   : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
-$bannerPic = $userRow['banner_pic'] ?? 'uploads/profile_pics/default_banner.jpg';
+
 
 //If the user type is 'player', fetch from the 'players' table too
 if ($userRow['user_type'] == 'player') {
@@ -237,6 +239,62 @@ $resLikesTab = $conn->query($sqlLikes);
       z-index: 1;
     }
 
+    .navbar .form-control {
+      background-color: #111;
+      color: #fff;
+      border: 1px solid #fff;
+    }
+
+    .navbar {
+      padding-top: 0.6rem;
+      padding-bottom: 0.6rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+    }
+
+    .navbar .navbar-brand {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .navbar-brand img {
+      box-shadow: 0 0 8px rgba(0, 255, 100, 0.5);
+      border-radius: 50%;
+    }
+
+    .navbar-brand img {
+      box-shadow: 0 0 6px rgba(0, 255, 100, 0.5);
+      border-radius: 50%;
+    }
+
+    .navbar.bg-black {
+      background: linear-gradient(90deg, #000 0%, #121 100%);
+    }
+
+
+
+    .navbar .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .navbar .form-control:focus {
+      box-shadow: none;
+      border-color: #0f0;
+    }
+
+    .navbar .btn-outline-light {
+      border-color: rgba(255, 255, 255, 0.9);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .navbar .btn-outline-light:hover {
+      background-color: #009e42;
+      color: #000;
+    }
+
+
+
     .main-content {
       position: relative;
       z-index: 2;
@@ -439,6 +497,21 @@ $resLikesTab = $conn->query($sqlLikes);
   <div class="main-content">
 
     <!--Navbar start-->
+
+    <?php if ($loggedIn) {
+      // Get user's profile pic if needed from DB
+      $loggedInPic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; // fallback for logged-in user
+
+      $query = $conn->query("SELECT profile_pic FROM users WHERE id = $loggedUserId");
+      if ($query && $query->num_rows > 0) {
+        $profilePicData = $query->fetch_assoc();
+        if (!empty($profilePicData['profile_pic'])) {
+          $loggedInPic = $profilePicData['profile_pic'];
+        }
+      }
+    }
+    ?>
+    <!--Navbar Start-->
     <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-black"> <!--Dark Background-->
       <div class="container-fluid">
         <!--Left - Logo + Project Name-->
@@ -459,48 +532,53 @@ $resLikesTab = $conn->query($sqlLikes);
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
 
             <!--Nav Links-->
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="upload.php">Upload</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="inbox.php">Messages</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="profile.php?user_id=<?php echo $loggedUserId; ?>#">My Profile</a>
-            </li>
-           
-
+            <?php if ($loggedIn): ?>
+              <li class="nav-item"><a class="nav-link" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
+              </li>
+              <li class="nav-item"><a class="nav-link" href="upload.php">Upload</a></li>
+              <li class="nav-item"><a class="nav-link" href="inbox.php">Messages</a></li>
+              <li class="nav-item"><a class="nav-link active" href="profile.php?user_id=<?php echo $loggedUserId; ?>#">My
+                  Profile</a></li>
+            <?php endif; ?>
           </ul>
 
-          <!--Right Side: Search + Profile Pic Dropdown-->
+          <!--Right Side: Search + Profile Pic Dropdown or login/signup-->
           <div class="d-flex align-items-center">
             <!--Search Bar-->
-            <form class="d-flex me-3" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <form class="d-flex me-4 mb-0" role="search" action="search.php" method="GET">
+              <input class="form-control me-2" type="search" name="q" placeholder="Search users or posts"
+                aria-label="Search">
               <button class="btn btn-outline-light" type="submit">Search</button>
             </form>
 
-            <!--Profile Pic Dropdown-->
-            <div class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                <!-- The user’s profile pic -->
-                <img src="<?php echo $profilePic; ?>" alt="Profile" width="32" height="32" class="rounded-circle">
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <!-- "dropdown-menu-end" to align the menu to the right side -->
-                <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $loggedUserId; ?>">My Profile</a></li>
-                <li><a class="dropdown-item" href="#">Settings</a></li>
-                <li><a class="dropdown-item" href="#">Help/Support</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="logout.php">Log Out</a></li>
-              </ul>
-            </div>
+            <!-- Conditional: if user is logged in -->
+            <?php if ($loggedIn): ?>
+              <!--Profile Pic Dropdown-->
+              <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                  <!-- The user’s profile pic -->
+                  <img src="<?php echo $loggedInPic; ?>" alt="Profile" width="32" height="32" class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <!-- "dropdown-menu-end" to align the menu to the right side -->
+                  <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $loggedUserId; ?>">My Profile</a></li>
+                  <li><a class="dropdown-item" href="#">Settings</a></li>
+                  <li><a class="dropdown-item" href="#">Help/Support</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li><a class="dropdown-item" href="logout.php">Log Out</a></li>
+                </ul>
+              </div>
+            <?php else: ?>
+              <!-- If not logged in -->
+              <div class="d-flex align-items-center">
+                <a href="login.php" class="btn btn-outline-light me-2">Log In</a>
+                <a href="register.php" class="btn btn-success">Sign Up</a>
+              </div>
+
+            <?php endif; ?>
 
           </div> <!--end d-flex align-items-center-->
         </div> <!--End collaps-->
@@ -701,7 +779,7 @@ $resLikesTab = $conn->query($sqlLikes);
                     // For user info:
                     $ownerName = $row['name'] ?? 'Unknown';
                     $ownerUsername = $row['username'] ?? 'user';
-                    $ownerPic = !empty($row['profile_pic']) ? $userRow['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
+                    $ownerPic = !empty($row['profile_pic']) ? $row['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
                     $postCreated = $row['created_at'];
 
                     // check if current (logged-in) user liked/follows
@@ -1271,246 +1349,246 @@ $resLikesTab = $conn->query($sqlLikes);
                                 Your browser does not support the video tag.
                               </video>
 
-                           
 
-                          <?php elseif ($hrow['post_type'] == "text"): ?>
-                            <p><?php echo $hrow['text_content']; ?></p>
-                          <?php endif; ?>
+
+                            <?php elseif ($hrow['post_type'] == "text"): ?>
+                              <p><?php echo $hrow['text_content']; ?></p>
+                            <?php endif; ?>
+                          </div>
                         </div>
-                      </div>
 
-                      <!-- Buttons row (like, comment, share) -->
-                      <div class="d-flex align-items-center mb-2">
+                        <!-- Buttons row (like, comment, share) -->
+                        <div class="d-flex align-items-center mb-2">
 
 
-                        <!-- Like Heart Icon -->
-                        <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
-                          data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
-                          <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
-                        </a>
-
-                        <!-- Comment icon -->
-                        <button class="btn btn-link text-decoration-none me-3">
-                          <a href="view_post.php?post_id=<?php echo $postID; ?>.">
-                            <i class="bi bi-chat-right-dots"></i>
+                          <!-- Like Heart Icon -->
+                          <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                            data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
+                            <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
                           </a>
-                        </button>
 
-                        <!--Share Icon-->
-                        <button class="btn btn-link text-decoration-none me-3">
-                          <i class="bi bi-send"></i> </button>
-                      </div>
+                          <!-- Comment icon -->
+                          <button class="btn btn-link text-decoration-none me-3">
+                            <a href="view_post.php?post_id=<?php echo $postID; ?>.">
+                              <i class="bi bi-chat-right-dots"></i>
+                            </a>
+                          </button>
 
-                      <!-- Like count -->
-                      <?php
-                      $likeCount = $hrow['like_count'];
-                      if ($likeCount == 1) {
-                        echo "<p><strong>1 like</strong></p>";
-                      } else {
-                        echo "<p><strong>{$likeCount} likes</strong></p>";
-                      }
-                      ?>
+                          <!--Share Icon-->
+                          <button class="btn btn-link text-decoration-none me-3">
+                            <i class="bi bi-send"></i> </button>
+                        </div>
 
-                      <!-- Caption -->
-                      <?php if (!empty($hrow['text_content']) && $hrow['post_type'] != 'text'): ?>
-                        <p>
-                          <strong><?php echo strtolower($hrow['username']); ?> </strong>
-                          <?php echo $hrow['text_content']; ?>
-                        </p>
-                      <?php endif; ?>
-
-                      <!-- Comments Section -->
-                      <hr>
-                      <div class="mb-2">
-                        <!-- fetch comments and loop-->
+                        <!-- Like count -->
                         <?php
-                        if ($commentRes && $commentRes->num_rows > 0) {
-                          while ($cRow = $commentRes->fetch_assoc()) {
-                            echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' . $cRow['created_at'] . ')</i></p>';
-                          }
+                        $likeCount = $hrow['like_count'];
+                        if ($likeCount == 1) {
+                          echo "<p><strong>1 like</strong></p>";
                         } else {
-                          echo '<small class="custom-muted">No comments yet.</small><br><br>';
+                          echo "<p><strong>{$likeCount} likes</strong></p>";
                         }
-
-
-                        //Only display 2 comments and hide the rest under a "View all comments" hyperlink
-                        $commentCount = $hrow['comment_count'];
-                        if ($commentCount > 2) {
-                          echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
-                        }
-
                         ?>
-                        <!--<small class="custom-muted">Comments go here...</small>-->
-                      </div>
-                      <!--Comments Form-->
-                      <form class="d-flex" action="comments.php" method="POST">
-                        <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
-                        <input class="form-control me-2" type="text" name="comment_text" placeholder="Add a comment...">
-                        <button class="btn btn-sm btn-primary" type="submit">Comment</button>
-                      </form>
 
-                    </div> <!-- end card-body -->
-                  </div> <!-- end card mb-4 -->
+                        <!-- Caption -->
+                        <?php if (!empty($hrow['text_content']) && $hrow['post_type'] != 'text'): ?>
+                          <p>
+                            <strong><?php echo strtolower($hrow['username']); ?> </strong>
+                            <?php echo $hrow['text_content']; ?>
+                          </p>
+                        <?php endif; ?>
 
-                  <?php
+                        <!-- Comments Section -->
+                        <hr>
+                        <div class="mb-2">
+                          <!-- fetch comments and loop-->
+                          <?php
+                          if ($commentRes && $commentRes->num_rows > 0) {
+                            while ($cRow = $commentRes->fetch_assoc()) {
+                              echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' . $cRow['created_at'] . ')</i></p>';
+                            }
+                          } else {
+                            echo '<small class="custom-muted">No comments yet.</small><br><br>';
+                          }
+
+
+                          //Only display 2 comments and hide the rest under a "View all comments" hyperlink
+                          $commentCount = $hrow['comment_count'];
+                          if ($commentCount > 2) {
+                            echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                          }
+
+                          ?>
+                          <!--<small class="custom-muted">Comments go here...</small>-->
+                        </div>
+                        <!--Comments Form-->
+                        <form class="d-flex" action="comments.php" method="POST">
+                          <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
+                          <input class="form-control me-2" type="text" name="comment_text" placeholder="Add a comment...">
+                          <button class="btn btn-sm btn-primary" type="submit">Comment</button>
+                        </form>
+
+                      </div> <!-- end card-body -->
+                    </div> <!-- end card mb-4 -->
+
+                    <?php
                   } // end while
                 }
 
                 ?>
-            </div>
-            <!-- Right Column: col-md-4 for "Previous Teams" current league -->
-            <div class="col-md-3 ms-3">
-              <div class="right-bar-wrapper">
-                <div class="right-bar p-3">
-                  <h5>Previous Teams</h5>
-                  <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>Trophies</h5>
-                  <p>Trophy 1 <small>(2003/01)</small></p>
-                  <p>Trophy 2 <small>(2003/01)</small></p>
-                  <p>Trophy 3 <small>(2003/01)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>People You May Know</h5>
-                  <p>User 1 <small>@handle</small></p>
-                  <p>User 2 <small>@handle</small></p>
-                  <p>User 3 <small>@handle</small></p>
-                </div>
               </div>
-            </div> <!-- end col-md-4 -->
-          </div> <!-- end row -->
+              <!-- Right Column: col-md-4 for "Previous Teams" current league -->
+              <div class="col-md-3 ms-3">
+                <div class="right-bar-wrapper">
+                  <div class="right-bar p-3">
+                    <h5>Previous Teams</h5>
+                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>Trophies</h5>
+                    <p>Trophy 1 <small>(2003/01)</small></p>
+                    <p>Trophy 2 <small>(2003/01)</small></p>
+                    <p>Trophy 3 <small>(2003/01)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>People You May Know</h5>
+                    <p>User 1 <small>@handle</small></p>
+                    <p>User 2 <small>@handle</small></p>
+                    <p>User 3 <small>@handle</small></p>
+                  </div>
+                </div>
+              </div> <!-- end col-md-4 -->
+            </div> <!-- end row -->
+          </div>
         </div>
-      </div>
 
-      <!-- Reposts Tab -->
-      <!-- <div class="tab-pane fade" id="tab-reposts">
+        <!-- Reposts Tab -->
+        <!-- <div class="tab-pane fade" id="tab-reposts">
         <h4>Reposts</h4>
         <p>All reposts here.</p>
       </div> -->
 
-      <!-- Likes Tab -->
-      <div class="tab-pane fade" id="tab-likes">
-        <div class="container">
-          <div class="row">
-            <!--Left or Center Column: 6/12 columns-->
-            <div class="offset-md-1 col-md-7">
+        <!-- Likes Tab -->
+        <div class="tab-pane fade" id="tab-likes">
+          <div class="container">
+            <div class="row">
+              <!--Left or Center Column: 6/12 columns-->
+              <div class="offset-md-1 col-md-7">
 
-              <?php
-              if ($resLikesTab && $resLikesTab->num_rows > 0) {
-                while ($row = $resLikesTab->fetch_assoc()) {
+                <?php
+                if ($resLikesTab && $resLikesTab->num_rows > 0) {
+                  while ($row = $resLikesTab->fetch_assoc()) {
 
-                  // Show a feed- card for each highlight
-                  $postID = $row['postID'] ?? 0;
-                  $postType = $row['post_type'] ?? 'text';
-                  $filePath = $row['file_path'] ?? '';
-                  $postOwnerID = $row['user_owner_id'] ?? 0;
-                  $userID = $_SESSION['user_id'] ?? 0;
-                  $loggedUserID = $_SESSION['user_id'] ?? 0;
+                    // Show a feed- card for each highlight
+                    $postID = $row['postID'] ?? 0;
+                    $postType = $row['post_type'] ?? 'text';
+                    $filePath = $row['file_path'] ?? '';
+                    $postOwnerID = $row['user_owner_id'] ?? 0;
+                    $userID = $_SESSION['user_id'] ?? 0;
+                    $loggedUserID = $_SESSION['user_id'] ?? 0;
 
-                  $alreadyLiked = false;
-                  $alreadyFollows = false;
+                    $alreadyLiked = false;
+                    $alreadyFollows = false;
 
-                  $likeCount = $row['like_count'] ?? 0;
-                  $commentCount = $row['comment_count'] ?? 0;
+                    $likeCount = $row['like_count'] ?? 0;
+                    $commentCount = $row['comment_count'] ?? 0;
 
-                  // For user info:
-                  $ownerName = $row['name'] ?? 'Unknown';
-                  $ownerUsername = $row['username'] ?? 'user';
-                  $ownerPic = !empty($row['profile_pic']) ? $row['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
-                  $postCreated = $row['created_at'] ?? '1970-01-01 00:00:00';
+                    // For user info:
+                    $ownerName = $row['name'] ?? 'Unknown';
+                    $ownerUsername = $row['username'] ?? 'user';
+                    $ownerPic = !empty($row['profile_pic']) ? $row['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
+                    $postCreated = $row['created_at'] ?? '1970-01-01 00:00:00';
 
-                  if ($userID > 0) {
-                    // Check if this user already liked
-                    $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$userID'";
-                    $likeCheckResult = $conn->query($likeCheckSql);
-                    $alreadyLiked = ($likeCheckResult->num_rows > 0);
-                  }
+                    if ($userID > 0) {
+                      // Check if this user already liked
+                      $likeCheckSql = "SELECT * FROM likes WHERE post_id='$postID' AND user_id='$userID'";
+                      $likeCheckResult = $conn->query($likeCheckSql);
+                      $alreadyLiked = ($likeCheckResult->num_rows > 0);
+                    }
 
-                  if ($loggedUserID > 0) {
-                    //check if the user already follows the user
-                    $checkFollowSql = "SELECT * FROM follows WHERE follower_id='$loggedUserID' AND followed_id='$postOwnerID'";
-                    $followRes = $conn->query($checkFollowSql);
-                    $alreadyFollows = ($followRes->num_rows > 0);
-                  }
+                    if ($loggedUserID > 0) {
+                      //check if the user already follows the user
+                      $checkFollowSql = "SELECT * FROM follows WHERE follower_id='$loggedUserID' AND followed_id='$postOwnerID'";
+                      $followRes = $conn->query($checkFollowSql);
+                      $alreadyFollows = ($followRes->num_rows > 0);
+                    }
 
-                  // fetch comments
-                  $commentSql = "SELECT c.comment_text, c.created_at, u.username
+                    // fetch comments
+                    $commentSql = "SELECT c.comment_text, c.created_at, u.username
                          FROM comments c
                          JOIN users u ON c.user_id = u.id
                          WHERE c.post_id = '$postID'
                          ORDER BY c.created_at ASC
                          LIMIT 2";
-                  $commentRes = $conn->query($commentSql);
-                  ?>
-                  <div class="card mb-4">
-                    <!--Card Body-->
-                    <div class="card-body">
+                    $commentRes = $conn->query($commentSql);
+                    ?>
+                    <div class="card mb-4">
+                      <!--Card Body-->
+                      <div class="card-body">
 
-                      <!--Top Part: user pic + username + 3-dot hamburger on the right-->
-                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <!--Top Part: user pic + username + 3-dot hamburger on the right-->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
 
-                        <!--Left side: User profile pic+name+ @username + time-->
-                        <div class="d-flex align-items-center">
-                          <!--User's Profile Pic-->
-                          <img src="<?php echo $row['profile_pic']; ?>" alt="Profile" width="40" height="40"
-                            class="rounded-circle me-2">
-                          <div>
-                            <!--User account name-->
-                            <strong><?php echo $row['name']; ?></strong>
-                            <!-- user's @ handle -->
-                            <span class="custom-muted">@<?php echo strtolower($row['username']); ?></span><br>
-                            <!-- time posted -->
-                            <small class="custom-muted">
-                              Posted on <?php echo date('d M, y H:i', strtotime($row['created_at'])); ?>
-                            </small>
+                          <!--Left side: User profile pic+name+ @username + time-->
+                          <div class="d-flex align-items-center">
+                            <!--User's Profile Pic-->
+                            <img src="<?php echo $row['profile_pic']; ?>" alt="Profile" width="40" height="40"
+                              class="rounded-circle me-2">
+                            <div>
+                              <!--User account name-->
+                              <strong><?php echo $row['name']; ?></strong>
+                              <!-- user's @ handle -->
+                              <span class="custom-muted">@<?php echo strtolower($row['username']); ?></span><br>
+                              <!-- time posted -->
+                              <small class="custom-muted">
+                                Posted on <?php echo date('d M, y H:i', strtotime($row['created_at'])); ?>
+                              </small>
+                            </div>
                           </div>
-                        </div>
 
-                        <!-- Right: 3-dot dropdown menu -->
-                        <div class="dropdown">
-                          <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-three-dots"></i> <!-- Using a bootstrap icon -->
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Save Post</a></li>
-                            <!--Only show this if the PostOwner is the logged in user-->
-                            <?php if ($postOwnerID == $loggedUserID): ?>
+                          <!-- Right: 3-dot dropdown menu -->
+                          <div class="dropdown">
+                            <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              <i class="bi bi-three-dots"></i> <!-- Using a bootstrap icon -->
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                              <li><a class="dropdown-item" href="#">Save Post</a></li>
+                              <!--Only show this if the PostOwner is the logged in user-->
+                              <?php if ($postOwnerID == $loggedUserID): ?>
 
-                              <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
-                                <li><a class="dropdown-item"
-                                    href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
-                                    Highlights</a>
+                                <?php if ($row['is_highlight'] == 1): ?> <!--If it's a highlight-->
+                                  <li><a class="dropdown-item"
+                                      href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
+                                      Highlights</a>
+                                  </li>
+                                <?php else: ?>
+                                  <!--If it's not highlighted already-->
+                                  <li><a class="dropdown-item"
+                                      href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add
+                                      to
+                                      Highlights</a></li>
+                                <?php endif; ?>
+                                <!--DELETE POST-->
+                                <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>"
+                                    onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a>
                                 </li>
-                              <?php else: ?>
-                                <!--If it's not highlighted already-->
-                                <li><a class="dropdown-item"
-                                    href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add
-                                    to
-                                    Highlights</a></li>
                               <?php endif; ?>
-                              <!--DELETE POST-->
-                              <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>"
-                                  onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a>
+
+                              <li>
+                                <hr class="dropdown-divider">
                               </li>
-                            <?php endif; ?>
+                              <li><a class="dropdown-item" href="#">Cancel</a></li>
+                            </ul>
+                          </div>
+                        </div> <!-- end d-flex justify-content-between -->
 
-                            <li>
-                              <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Cancel</a></li>
-                          </ul>
-                        </div>
-                      </div> <!-- end d-flex justify-content-between -->
-
-                      <!-- Middle: the actual post content (image/video/text) -->
-                      <div style="max-width: 800px;" class="mb-3">
-                        <div class="mb-3">
-                          <?php if ($row['post_type'] == "image"): ?>
-                            <img src="<?php echo $row['file_path']; ?>" class="img-fluid" alt="Post Image">
-                          <?php elseif ($row['post_type'] == "video"): ?>
+                        <!-- Middle: the actual post content (image/video/text) -->
+                        <div style="max-width: 800px;" class="mb-3">
+                          <div class="mb-3">
+                            <?php if ($row['post_type'] == "image"): ?>
+                              <img src="<?php echo $row['file_path']; ?>" class="img-fluid" alt="Post Image">
+                            <?php elseif ($row['post_type'] == "video"): ?>
                               <video class="w-100" style="max-height: 400px;" controls>
                                 <source src="<?php echo $row['file_path']; ?>" type="video/mp4">
                                 Your browser does not support the video tag.
@@ -1518,195 +1596,195 @@ $resLikesTab = $conn->query($sqlLikes);
 
 
 
-                    
-                          <?php elseif ($row['post_type'] == "text"): ?>
-                            <p><?php echo $row['text_content']; ?></p>
-                          <?php endif; ?>
+
+                            <?php elseif ($row['post_type'] == "text"): ?>
+                              <p><?php echo $row['text_content']; ?></p>
+                            <?php endif; ?>
+                          </div>
                         </div>
-                      </div>
 
-                      <!-- Buttons row (like, comment, share) -->
-                      <div class="d-flex align-items-center mb-2">
+                        <!-- Buttons row (like, comment, share) -->
+                        <div class="d-flex align-items-center mb-2">
 
-                        <!-- Like Heart Icon -->
-                        <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
-                          data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
-                          <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
-                        </a>
-
-                        <!-- Comment icon -->
-                        <button class="btn btn-link text-decoration-none me-3">
-                          <a href="view_post.php?post_id=<?php echo $postID; ?>.">
-                            <i class="bi bi-chat-right-dots"></i>
+                          <!-- Like Heart Icon -->
+                          <a href="#" class="btn btn-link me-3 toggle-like" data-post-id="<?php echo $postID; ?>"
+                            data-liked="<?php echo $alreadyLiked ? '1' : '0'; ?>">
+                            <i class="bi <?php echo $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart'; ?>"></i>
                           </a>
-                        </button>
 
-                        <!--Share Icon-->
-                        <button class="btn btn-link text-decoration-none me-3">
-                          <i class="bi bi-send"></i> </button>
-                      </div>
+                          <!-- Comment icon -->
+                          <button class="btn btn-link text-decoration-none me-3">
+                            <a href="view_post.php?post_id=<?php echo $postID; ?>.">
+                              <i class="bi bi-chat-right-dots"></i>
+                            </a>
+                          </button>
 
-                      <!-- Like count -->
-                      <?php
-                      $likeCount = $row['like_count'];
-                      if ($likeCount == 1) {
-                        echo "<p><strong>1 like</strong></p>";
-                      } else {
-                        echo "<p><strong>{$likeCount} likes</strong></p>";
-                      }
-                      ?>
+                          <!--Share Icon-->
+                          <button class="btn btn-link text-decoration-none me-3">
+                            <i class="bi bi-send"></i> </button>
+                        </div>
 
-                      <!-- Caption -->
-                      <?php if (!empty($row['text_content']) && $row['post_type'] != 'text'): ?>
-                        <p>
-                          <strong><?php echo strtolower($row['username']); ?> </strong>
-                          <?php echo $row['text_content']; ?>
-                        </p>
-                      <?php endif; ?>
-
-                      <!-- Comments Section -->
-                      <hr>
-                      <div class="mb-2">
-                        <!-- fetch comments and loop-->
+                        <!-- Like count -->
                         <?php
-                        if ($commentRes && $commentRes->num_rows > 0) {
-                          while ($cRow = $commentRes->fetch_assoc()) {
-                            echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' . $cRow['created_at'] . ')</i></p>';
-                          }
+                        $likeCount = $row['like_count'];
+                        if ($likeCount == 1) {
+                          echo "<p><strong>1 like</strong></p>";
                         } else {
-                          echo '<small class="custom-muted">No comments yet.</small><br><br>';
+                          echo "<p><strong>{$likeCount} likes</strong></p>";
                         }
-
-
-                        //Only display 2 comments and hide the rest under a "View all comments" hyperlink
-                        $commentCount = $row['comment_count'];
-                        if ($commentCount > 2) {
-                          echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
-                        }
-
                         ?>
-                        <!--<small class="custom-muted">Comments go here...</small>-->
-                      </div>
-                      <!--Comments Form-->
-                      <form class="d-flex" action="comments.php" method="POST">
-                        <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
-                        <input class="form-control me-2" type="text" name="comment_text" placeholder="Add a comment...">
-                        <button class="btn btn-sm btn-primary" type="submit">Comment</button>
-                      </form>
 
-                    </div> <!-- end card-body -->
-                  </div> <!-- end card mb-4 -->
+                        <!-- Caption -->
+                        <?php if (!empty($row['text_content']) && $row['post_type'] != 'text'): ?>
+                          <p>
+                            <strong><?php echo strtolower($row['username']); ?> </strong>
+                            <?php echo $row['text_content']; ?>
+                          </p>
+                        <?php endif; ?>
 
-                  <?php
-                } // end while
-              }
-              ?>
+                        <!-- Comments Section -->
+                        <hr>
+                        <div class="mb-2">
+                          <!-- fetch comments and loop-->
+                          <?php
+                          if ($commentRes && $commentRes->num_rows > 0) {
+                            while ($cRow = $commentRes->fetch_assoc()) {
+                              echo '<p><b>' . $cRow['username'] . ':</b> ' . $cRow['comment_text'] . ' <i>(' . $cRow['created_at'] . ')</i></p>';
+                            }
+                          } else {
+                            echo '<small class="custom-muted">No comments yet.</small><br><br>';
+                          }
 
-            </div>
-            <!-- Right Column: col-md-4 for "Previous Teams" current league -->
-            <div class="col-md-3 ms-3">
-              <div class="right-bar-wrapper">
-                <div class="right-bar p-3">
-                  <h5>Previous Teams</h5>
-                  <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                  <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>Trophies</h5>
-                  <p>Trophy 1 <small>(2003/01)</small></p>
-                  <p>Trophy 2 <small>(2003/01)</small></p>
-                  <p>Trophy 3 <small>(2003/01)</small></p>
-                </div>
-                <div class="right-bar p-3">
-                  <h5>People You May Know</h5>
-                  <p>User 1 <small>@handle</small></p>
-                  <p>User 2 <small>@handle</small></p>
-                  <p>User 3 <small>@handle</small></p>
-                </div>
+
+                          //Only display 2 comments and hide the rest under a "View all comments" hyperlink
+                          $commentCount = $row['comment_count'];
+                          if ($commentCount > 2) {
+                            echo '<a href="view_post.php?post_id=' . $postID . '">View all ' . $commentCount . ' comments</a>';
+                          }
+
+                          ?>
+                          <!--<small class="custom-muted">Comments go here...</small>-->
+                        </div>
+                        <!--Comments Form-->
+                        <form class="d-flex" action="comments.php" method="POST">
+                          <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
+                          <input class="form-control me-2" type="text" name="comment_text" placeholder="Add a comment...">
+                          <button class="btn btn-sm btn-primary" type="submit">Comment</button>
+                        </form>
+
+                      </div> <!-- end card-body -->
+                    </div> <!-- end card mb-4 -->
+
+                    <?php
+                  } // end while
+                }
+                ?>
+
               </div>
-            </div> <!-- end col-md-4 -->
-          </div> <!-- end row -->
+              <!-- Right Column: col-md-4 for "Previous Teams" current league -->
+              <div class="col-md-3 ms-3">
+                <div class="right-bar-wrapper">
+                  <div class="right-bar p-3">
+                    <h5>Previous Teams</h5>
+                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
+                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>Trophies</h5>
+                    <p>Trophy 1 <small>(2003/01)</small></p>
+                    <p>Trophy 2 <small>(2003/01)</small></p>
+                    <p>Trophy 3 <small>(2003/01)</small></p>
+                  </div>
+                  <div class="right-bar p-3">
+                    <h5>People You May Know</h5>
+                    <p>User 1 <small>@handle</small></p>
+                    <p>User 2 <small>@handle</small></p>
+                    <p>User 3 <small>@handle</small></p>
+                  </div>
+                </div>
+              </div> <!-- end col-md-4 -->
+            </div> <!-- end row -->
+          </div>
         </div>
-      </div>
 
-    </div><!-- container -->
+      </div><!-- container -->
 
 
-  </div>
+    </div>
 
-  <!--Bootstrap JavaScript-->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    <!--Bootstrap JavaScript-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+      </script>
+
+    <!--Script to auto refresh the page after deleting a post-->
+    <script>
+      // Check if deletion just happened
+      const urlParams = new URLSearchParams(window.location.search);
+      const wasDeleted = urlParams.get('deleted') === '1';
+      const wasLiked = urlParams.get('liked') === '1';
+
+      if (wasDeleted || wasLiked) {
+        setTimeout(() => {
+          // Remove the success banner from the URL
+          urlParams.delete('deleted');
+          urlParams.delete('liked');
+
+          const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+          window.history.replaceState(null, '', newUrl);
+
+          // Reload the current tab content (Bootstrap tabs)
+          const activeTab = document.querySelector('.sub-nav-tabs .nav-link.active');
+          if (activeTab) {
+            activeTab.click(); // re-triggers the tab to reload content if it's dynamic
+          } else {
+            location.reload(); // fallback: full reload
+          }
+
+        }, 1200); // Wait 1.2 seconds before refreshing
+      }
     </script>
 
-  <!--Script to auto refresh the page after deleting a post-->
-  <script>
-    // Check if deletion just happened
-    const urlParams = new URLSearchParams(window.location.search);
-    const wasDeleted = urlParams.get('deleted') === '1';
-    const wasLiked = urlParams.get('liked') === '1';
+    <!--Script to handle likes in place without refreshing the whole page-->
+    <script>
+      document.querySelectorAll('.toggle-like').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
 
-    if (wasDeleted || wasLiked) {
-      setTimeout(() => {
-        // Remove the success banner from the URL
-        urlParams.delete('deleted');
-        urlParams.delete('liked');
+          const postID = this.dataset.postId;
+          const alreadyLiked = this.dataset.liked === '1';
+          const action = alreadyLiked ? 'unlike' : 'like';
+          const icon = this.querySelector('i');
+          const url = `toggle_like.php?post_id=${postID}&action=${action}`;
 
-        const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-        window.history.replaceState(null, '', newUrl);
+          fetch(url)
+            .then(res => res.json())
+            .then(data => {
+              if (data.status === 'success') {
+                // Toggle the icon style
+                if (data.liked) {
+                  icon.classList.remove('bi-heart');
+                  icon.classList.add('bi-heart-fill', 'text-danger');
+                  btn.dataset.liked = '1';
+                } else {
+                  icon.classList.remove('bi-heart-fill', 'text-danger');
+                  icon.classList.add('bi-heart');
+                  btn.dataset.liked = '0';
+                }
 
-        // Reload the current tab content (Bootstrap tabs)
-        const activeTab = document.querySelector('.sub-nav-tabs .nav-link.active');
-        if (activeTab) {
-          activeTab.click(); // re-triggers the tab to reload content if it's dynamic
-        } else {
-          location.reload(); // fallback: full reload
-        }
+                // Update like count
+                const countP = btn.closest('.card-body').querySelector('p strong');
+                let countText = countP.innerText;
+                let currentCount = parseInt(countText) || 0;
 
-      }, 1200); // Wait 1.2 seconds before refreshing
-    }
-  </script>
-  
-  <!--Script to handle likes in place without refreshing the whole page-->
-  <script>
-    document.querySelectorAll('.toggle-like').forEach(btn => {
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-
-        const postID = this.dataset.postId;
-        const alreadyLiked = this.dataset.liked === '1';
-        const action = alreadyLiked ? 'unlike' : 'like';
-        const icon = this.querySelector('i');
-        const url = `toggle_like.php?post_id=${postID}&action=${action}`;
-
-        fetch(url)
-          .then(res => res.json())
-          .then(data => {
-            if (data.status === 'success') {
-              // Toggle the icon style
-              if (data.liked) {
-                icon.classList.remove('bi-heart');
-                icon.classList.add('bi-heart-fill', 'text-danger');
-                btn.dataset.liked = '1';
-              } else {
-                icon.classList.remove('bi-heart-fill', 'text-danger');
-                icon.classList.add('bi-heart');
-                btn.dataset.liked = '0';
+                const newCount = data.liked ? currentCount + 1 : currentCount - 1;
+                countP.innerText = `${newCount} like${newCount !== 1 ? 's' : ''}`;
               }
-
-              // Update like count
-              const countP = btn.closest('.card-body').querySelector('p strong');
-              let countText = countP.innerText;
-              let currentCount = parseInt(countText) || 0;
-
-              const newCount = data.liked ? currentCount + 1 : currentCount - 1;
-              countP.innerText = `${newCount} like${newCount !== 1 ? 's' : ''}`;
-            }
-          });
+            });
+        });
       });
-    });
-  </script>
+    </script>
 
 
 </body>
