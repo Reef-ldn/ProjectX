@@ -17,12 +17,21 @@ if ($conn->connect_error) {
 
 
 //Fetch details about the post + the poster's username
-$postSql = "SELECT p.*, u.username, u.name, u.profile_pic
+$postSql = "SELECT p.*, u.username, u.name, u.profile_pic,
+            (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+            (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
             FROM posts p
             JOIN users u ON p.user_id = u.id
             WHERE p.id = $postID";
 $postRes = $conn->query($postSql);
 $postRow = $postRes->fetch_assoc();
+
+$likeQuery = $conn->query("SELECT * FROM likes WHERE post_id = $postID AND user_id = $userID");
+$alreadyLiked = $likeQuery->num_rows > 0;
+
+$countQuery = $conn->query("SELECT COUNT(*) as total FROM likes WHERE post_id = $postID");
+$likeCount = $countQuery->fetch_assoc()['total'];
+
 
 // Fetch all top level comments for this post
 $commentSql = "SELECT c.*, u.username, u.name, u.profile_pic, c.created_at
@@ -215,7 +224,28 @@ function fetchReplies($conn, $parentID)
               </video>
             <?php endif; ?>
 
-            <p><?= htmlspecialchars($postRow['text_content']) ?></p>
+            <!-- Like / Comment / Share Buttons -->
+            <div class="d-flex align-items-center mb-2">
+
+              <!-- Like Heart Icon -->
+              <a href="#" class="btn btn-link p-1 me-1 ms-2 toggle-like" data-post-id="<?= $postID ?>"
+                data-liked="<?= $alreadyLiked ? '1' : '0' ?>" id="like-btn-<?= $postID ?>">
+                <i class="bi <?= $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart' ?>"></i>
+              </a>
+              <span id="like-count-<?= $postID ?>"><strong><?= $likeCount ?>
+                  <?= $likeCount == 1 ? 'like' : 'likes' ?></strong></span>
+
+
+
+              <!-- Share Icon -->
+              <button class="btn btn-link text-decoration-none me-3 share-btn" data-bs-toggle="modal"
+                data-bs-target="#shareModal" data-post-id="<?= $postID ?>">
+                <i class="bi bi-send"></i>
+              </button>
+
+            </div>
+
+            <p class="ms-4"><?= htmlspecialchars($postRow['text_content']) ?></p>
             <hr>
             <h5>Comments</h5>
 
@@ -322,8 +352,10 @@ function fetchReplies($conn, $parentID)
                   <button class="btn btn-sm btn-success ms-2" type="submit">Send</button>
                 </form>
               </div>
+
             <?php endwhile; ?>
           <?php endif; ?>
+
 
 
 
@@ -337,98 +369,193 @@ function fetchReplies($conn, $parentID)
 
 
 
-</body>
+
+
+
+          <!-- Share Post Modal -->
+          <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <form id="shareForm" method="POST" action="send_post.php">
+                <input type="hidden" name="post_id" id="modalPostId">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="shareModalLabel">Send Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Select a user to send this post to:</p>
+                    <div class="form-group">
+                      <select class="form-control" name="recipient_id" required>
+                        <?php
+                        $loggedId = $_SESSION['user_id'] ?? 0;
+                        $followSql = "SELECT u.id, u.username 
+                          FROM users u
+                          JOIN follows f ON f.followed_id = u.id
+                          WHERE f.follower_id = '$loggedId'";
+                        $followRes = $conn->query($followSql);
+                        if ($followRes && $followRes->num_rows > 0) {
+                          while ($f = $followRes->fetch_assoc()) {
+                            echo '<option value="' . $f['id'] . '">' . $f['username'] . '</option>';
+                          }
+                        } else {
+                          echo '<option disabled>No followers found</option>';
+                        }
+                        ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
 
 
 
 
 
 
-<br>
+
+          <br>
 
 
 
-<!--Bootstrap JavaScript-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-  </script>
+          <!--Bootstrap JavaScript-->
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+            </script>
 
 
-<script>
-  // Show reply form on click
-  document.querySelectorAll('.show-reply-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      const parentId = button.dataset.id;
-      const form = document.querySelector(`.reply-form[data-parent-id="${parentId}"]`);
-      form.style.display = form.style.display === 'block' ? 'none' : 'block';
-    });
-  });
+          <script>
+            // Show reply form on click
+            document.querySelectorAll('.show-reply-btn').forEach(button => {
+              button.addEventListener('click', () => {
+                const parentId = button.dataset.id;
+                const form = document.querySelector(`.reply-form[data-parent-id="${parentId}"]`);
+                form.style.display = form.style.display === 'block' ? 'none' : 'block';
+              });
+            });
 
-  // Handle reply submission
-  document.querySelectorAll('.reply-form').forEach(form => {
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      const parentId = this.dataset.parentId;
+            // Handle reply submission
+            document.querySelectorAll('.reply-form').forEach(form => {
+              form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const parentId = this.dataset.parentId;
 
-      const res = await fetch('reply_comment.php', {
-        method: 'POST',
-        body: formData
-      });
+                const res = await fetch('reply_comment.php', {
+                  method: 'POST',
+                  body: formData
+                });
 
-      const data = await res.json();
-      if (data.status === 'success') {
-        const replyBox = document.querySelector(`#replies-${parentId}`);
-        const replyEl = document.createElement('p');
-        replyEl.classList.add('ms-2');
-        replyEl.textContent = 'You: ' + formData.get('reply_text');
-        replyBox.appendChild(replyEl);
-        this.reset();
-        this.style.display = 'none';
-      }
-    });
-  });
+                const data = await res.json();
+                if (data.status === 'success') {
+                  const replyBox = document.querySelector(`#replies-${parentId}`);
+                  const replyEl = document.createElement('p');
+                  replyEl.classList.add('ms-2');
+                  replyEl.textContent = 'You: ' + formData.get('reply_text');
+                  replyBox.appendChild(replyEl);
+                  this.reset();
+                  this.style.display = 'none';
+                }
+              });
+            });
 
-  // Edit comment 
-  document.querySelectorAll('.edit-comment').forEach(link => {
-    link.addEventListener('click', async e => {
-      e.preventDefault();
-      const id = link.dataset.id;
-      const textEl = document.querySelector(`.comment-text[data-id="${id}"]`);
-      const oldText = textEl.textContent;
-      const newText = prompt("Edit your comment:", oldText);
-      if (!newText || newText === oldText) return;
+            // Edit comment 
+            document.querySelectorAll('.edit-comment').forEach(link => {
+              link.addEventListener('click', async e => {
+                e.preventDefault();
+                const id = link.dataset.id;
+                const textEl = document.querySelector(`.comment-text[data-id="${id}"]`);
+                const oldText = textEl.textContent;
+                const newText = prompt("Edit your comment:", oldText);
+                if (!newText || newText === oldText) return;
 
-      const res = await fetch('edit_comment.php', {
-        method: 'POST',
-        body: new URLSearchParams({ comment_id: id, comment_text: newText })
-      });
+                const res = await fetch('edit_comment.php', {
+                  method: 'POST',
+                  body: new URLSearchParams({ comment_id: id, comment_text: newText })
+                });
 
-      const data = await res.json();
-      if (data.status === 'success') textEl.textContent = newText;
-    });
-  });
+                const data = await res.json();
+                if (data.status === 'success') textEl.textContent = newText;
+              });
+            });
 
-  // Delete comment
-  document.querySelectorAll('.delete-comment').forEach(link => {
-    link.addEventListener('click', async e => {
-      e.preventDefault();
-      const id = link.dataset.id;
-      if (!confirm("Delete this comment?")) return;
+            // Delete comment
+            document.querySelectorAll('.delete-comment').forEach(link => {
+              link.addEventListener('click', async e => {
+                e.preventDefault();
+                const id = link.dataset.id;
+                if (!confirm("Delete this comment?")) return;
 
-      const res = await fetch('delete_comment.php', {
-        method: 'POST',
-        body: new URLSearchParams({ comment_id: id })
-      });
+                const res = await fetch('delete_comment.php', {
+                  method: 'POST',
+                  body: new URLSearchParams({ comment_id: id })
+                });
 
-      const data = await res.json();
-      if (data.status === 'success') {
-        link.closest('.comment-box').remove();
-      }
-    });
-  });
+                const data = await res.json();
+                if (data.status === 'success') {
+                  link.closest('.comment-box').remove();
+                }
+              });
+            });
 
-</script>
+          </script>
+
+          <!--Script to share posts-->
+          <script>
+            document.querySelectorAll('.share-btn').forEach(button => {
+              button.addEventListener('click', function () {
+                const postId = this.dataset.postId;
+                document.getElementById('modalPostId').value = postId;
+              });
+            });
+          </script>
+
+          <!--Script to allow liking posts dynamically without refreshing the page-->
+          <script>
+            document.querySelectorAll('.toggle-like').forEach(button => {
+              button.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                const postId = button.dataset.postId;
+                const isLiked = button.dataset.liked === "1";
+                const action = isLiked ? 'unlike' : 'like';
+                const icon = button.querySelector('i');
+
+                try {
+                  const res = await fetch(`toggle_like.php?post_id=${postId}&action=${action}`);
+                  const data = await res.json();
+
+                  if (data.status === 'success') {
+                    // Toggle icon
+                    if (action === 'like') {
+                      icon.classList.remove('bi-heart');
+                      icon.classList.add('bi-heart-fill', 'text-danger');
+                      button.dataset.liked = "1";
+                    } else {
+                      icon.classList.remove('bi-heart-fill', 'text-danger');
+                      icon.classList.add('bi-heart');
+                      button.dataset.liked = "0";
+                    }
+
+                    // update like count with another request
+                    const countRes = await fetch(`like_count.php?post_id=${postId}`);
+                    const countData = await countRes.json();
+                    if (countData.status === 'success') {
+                      document.getElementById(`like-count-${postId}`).innerHTML = `<strong>${countData.like_count} ${countData.like_count == 1 ? 'like' : 'likes'}</strong>`;
+                    }
+                  }
+                } catch (err) {
+                  console.error("Failed to toggle like:", err);
+                }
+              });
+            });
+          </script>
+
+
 
 </body>
 
