@@ -251,6 +251,7 @@ $resLikesTab = $conn->query($sqlLikes);
       font-size: 1.1rem;
       font-weight: 500;
       letter-spacing: 0.4px;
+      border-bottom: 1px solid rgba(0, 255, 100, 0.6);
     }
 
     .navbar .navbar-brand {
@@ -263,13 +264,69 @@ $resLikesTab = $conn->query($sqlLikes);
       border-radius: 50%;
     }
 
-    .navbar-brand img {
-      box-shadow: 0 0 6px rgba(0, 255, 100, 0.5);
-      border-radius: 50%;
-    }
-
     .navbar.bg-black {
       background: linear-gradient(90deg, #000 0%, #121 100%);
+      opacity: 90%;
+    }
+
+
+    .navbar .nav-link {
+      position: relative;
+      padding-bottom: 6px;
+      color: rgba(255, 255, 255, 0.7);
+      transition: color 0.3s ease;
+    }
+
+    .navbar .nav-link:hover {
+      color: rgba(0, 255, 100, 0.5);
+      transition: color 1s ease;
+      transform-origin: bottom left;
+
+
+    }
+
+    .navbar .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 12%;
+      width: 80%;
+      height: 3px;
+      background-color: rgba(0, 255, 100, 0.5);
+      border-radius: 10px;
+      transform: scaleX(0);
+      transform-origin: bottom left;
+      transition: transform 0.3s ease;
+
+    }
+
+    .navbar .nav-link:hover::after {
+      transform: scaleX(1);
+    }
+
+
+    .navbar .nav-link.active::after {
+      transform: scaleX(1);
+      background-color: rgba(0, 255, 100, 0.5);
+    }
+
+
+
+    /*Active Nav Tab effect */
+    .navbar .nav-link.active {
+      font-weight: bold;
+      color: rgba(255, 255, 255, 1);
+    }
+
+    .navbar .nav-link.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      width: 80%;
+      height: 4px;
+      background-color: rgba(0, 255, 100, 0.5);
+      border-radius: 10px;
     }
 
 
@@ -501,7 +558,7 @@ $resLikesTab = $conn->query($sqlLikes);
     <?php if ($loggedIn) {
       // Get user's profile pic if needed from DB
       $loggedInPic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; // fallback for logged-in user
-
+    
       $query = $conn->query("SELECT profile_pic FROM users WHERE id = $loggedUserId");
       if ($query && $query->num_rows > 0) {
         $profilePicData = $query->fetch_assoc();
@@ -558,7 +615,8 @@ $resLikesTab = $conn->query($sqlLikes);
                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
                   data-bs-toggle="dropdown" aria-expanded="false">
                   <!-- The user’s profile pic -->
-                  <img src="<?php echo $loggedInPic; ?>" alt="Profile" width="32" height="32" class="rounded-circle">
+                  <img src="<?php echo $loggedInPic; ?>" alt="Profile" width="40" height="40" class="rounded-circle"
+                    style="border: 2px solid #009e42;">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <!-- "dropdown-menu-end" to align the menu to the right side -->

@@ -1,21 +1,4 @@
 <!-- Registration Form - Creates an account-->
-<form action = "register.php" method = "POST">
-  <h1>Sign Up</h1>
-  Username: <input type = "text" name = "username">  <br>
-  Email: <input type = "email" name = "email">   <br>
-  Password: <input type = "password" name="password">    <br>
-
-  <!--Account Type Selection -->
-  <label>Account Type:</label>
-  <select name = "user_type" required>
-    <option value = "player">Player</option>
-    <option value = "manager">Manager</option>
-    <option value = "scout">Scout</option>
-    <option value = "fan">Fan</option>
-  </select><br><br>
-
-  <button type="submit" name="submit">Register</button>
-</form>
 
 <?php
 if(isset($_POST['submit'])) {       //checks if the form was submitted through the submit button
@@ -84,3 +67,138 @@ if(isset($_POST['submit'])) {       //checks if the form was submitted through t
 }
 
 ?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      color: white;
+    }
+
+    .bg-blur-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(4px);
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+
+    .register-box {
+      position: relative;
+      z-index: 2;
+      max-width: 450px;
+      margin: 90px auto;
+      background-color: rgba(30, 30, 30, 0.88);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,255,100,0.2);
+    }
+
+    .form-control, .form-select {
+      background-color: #111;
+      color: white;
+      border: 1px solid #444;
+    }
+
+    .form-control::placeholder {
+      color: #aaa;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #00ff88;
+      background-color: #111;
+      color: white;
+      box-shadow: none;
+    }
+
+    .btn-success {
+      background-color: #009e42;
+      border-color: #009e42;
+    }
+
+    .btn-success:hover {
+      background-color: #00c55b;
+    }
+
+    .error-message {
+      color: #ff5f5f;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .login-text {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .login-text a {
+      color: #00ff88;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-text a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blur-overlay"></div>
+  <div class="register-box">
+    <h1 class="text-center mb-4">Sign Up</h1>
+    <form method="POST" action="register.php">
+      <div class="mb-3">
+        <label>Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+      </div>
+
+      <div class="mb-3">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" placeholder="Enter email" required>
+      </div>
+
+      <div class="mb-3">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+      </div>
+
+      <div class="mb-4">
+        <label>Account Type</label>
+        <select name="user_type" class="form-select" required>
+          <option value="">Choose...</option>
+          <option value="player">Player</option>
+          <option value="manager">Manager</option>
+          <option value="scout">Scout</option>
+          <option value="fan">Fan</option>
+        </select>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" name="submit" class="btn btn-success">Create Account</button>
+      </div>
+
+      <?php if (!empty($error)): ?>
+        <div class="error-message mt-3"><?php echo $error; ?></div>
+      <?php endif; ?>
+    </form>
+
+    <div class="login-text">
+      Already have an account?
+      <a href="login.php">Log In</a>
+    </div>
+  </div>
+</body>
+</html>
