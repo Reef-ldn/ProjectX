@@ -14,7 +14,8 @@ if ($conn->connect_error) {
 
 
 //Fetch all videos from newest to oldest (LIFO)
-$sql = "SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.created_at, p.is_highlight, u.id AS user_owner_id, u.username, u.name, u.profile_pic,
+$sql = "SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.created_at, p.is_highlight, u.id 
+        AS user_owner_id, u.username, u.name, u.profile_pic,
           (SELECT COUNT(*) FROM likes l where l.post_id = p.id) AS like_count,
           (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
           from posts p

@@ -37,6 +37,19 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
     && $_FILES['media_file']['error'] == 0
   ) {        //also check for errors
 
+    // Define allowed MIME types
+    $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'];
+
+    // Get the MIME type of the uploaded file
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $_FILES['media_file']['tmp_name']);
+    finfo_close($finfo);
+
+    // Check if the MIME type is allowed
+    if (!in_array($mimeType, $allowedMimeTypes)) {
+      die("Invalid file type uploaded.");
+    }
+
     //Move the file to the 'uploads' subfolder
     $originalName = $_FILES['media_file']['name'];   //Original File name
     $destination = "uploads/" . $originalName;       //Where the video is being put   //I might come back to this later to rename if collisions occur
