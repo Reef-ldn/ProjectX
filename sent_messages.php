@@ -57,3 +57,27 @@
 <?php
   $conn->close();
 ?>
+
+<?php
+// Testing Sending a Message
+//require_once 'db_connection.php'; // database connection
+
+// Simulate sending a message from user_id = 1 to user_id = 2
+// $sender_id = 1;
+// $receiver_id = 2;
+// $content = "Test message for unit testing";
+// $created_at = date('Y-m-d H:i:s');
+
+// // Insert into database
+// $stmt = $conn->prepare("INSERT INTO messages (sender_id, receiver_id, content, created_at) VALUES (?, ?, ?, ?)");
+// $stmt->bind_param("iiss", $sender_id, $receiver_id, $content, $created_at);
+
+// if ($stmt->execute()) {
+//     echo "Message Sent Successfully!";
+// } else {
+//     echo "Failed to send message: " . $stmt->error;
+// }
+
+// $stmt->close();
+// $conn->close();
+?>
