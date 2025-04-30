@@ -179,6 +179,10 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
     <!-- Bootstrap Icons  -->
     <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
+    <!--Navbar stylesheet-->
+    <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
+
     <style>
       body {
         background-color: #f4f6f9;
@@ -225,6 +229,13 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
   </head>
 
   <body>
+
+    <!--Nav Bar-->
+    <?php
+    $currentPage = 'upload';
+    include 'navbar.php'; ?>
+
+
 
     <!-- Main Upload Form -->
     <div class="upload-container">

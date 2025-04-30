@@ -10,6 +10,9 @@ if ($conn->connect_error) {
   die("Failed to connect to the database: " . $conn->connect_error);
 }
 
+$loggedUserId = $_SESSION['user_id'] ?? null;
+$loggedIn = isset($loggedUserId);
+
 
 
 
@@ -46,6 +49,10 @@ $result = $conn->query($sql);
 
   <!--Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+  <!--Navbar stylesheet-->
+  <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
 
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
@@ -131,76 +138,13 @@ $result = $conn->query($sql);
 <body>
 
   <div class="bg-blur-overlay"></div>
-  <div class="main-content">
+  <div class="main-content ">
 
-
-    <!--Navbar start-->
-    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"> <!--Dark Background-->
-      <div class="container-fluid">
-        <!--Left - Logo + Project Name-->
-        <a class="navbar-brand d-flex align-items-center" href="feed.php">
-          <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="me-2">
-          Next XI
-        </a>
-
-        <!--Toggler for small screens-->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span> <!--Toggler Icon-->
-        </button>
-
-        <!--Collapsible Div for the nav links and user dropdown-->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <!--Middle:Nav Links (centered using mx-auto)-->
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-
-            <!--Nav Links-->
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="upload.php">Upload</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Settings</a>
-            </li>
-
-          </ul>
-
-          <!--Right Side: Search + Profile Pic Dropdown-->
-          <div class="d-flex align-items-center">
-            <!--Search Bar-->
-            <form class="d-flex me-3" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
-
-            <!--Profile Pic Dropdown-->
-            <div class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                <!-- The user’s profile pic -->
-                <img src="https://via.placeholder.com/32" alt="Profile" width="32" height="32" class="rounded-circle">
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <!-- "dropdown-menu-end" to align the menu to the right side -->
-                <li><a class="dropdown-item" href="#">My Profile</a></li>
-                <li><a class="dropdown-item" href="#">Settings</a></li>
-                <li><a class="dropdown-item" href="#">Help/Support</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="logout.php" form action="logout.php">Log Out</a></li>
-              </ul>
-            </div>
-
-          </div> <!--end d-flex align-items-center-->
-        </div> <!--End collaps-->
-      </div> <!--End container-fluid-->
-    </nav>
-    <!--Navbar End-->
-
-
+  <!--Nav Bar-->
+    <?php 
+    $currentPage = 'feed';
+    include 'navbar.php'; ?>
+  
 
 
     <!--Main Content Area-->

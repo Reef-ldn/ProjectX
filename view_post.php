@@ -75,6 +75,9 @@ function fetchReplies($conn, $parentID)
   <!--Global CSS Styling-->
   <link rel="stylesheet" href="css/style.css">
 
+  <!--Navbar stylesheet-->
+  <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
 
   <style>
     body {
@@ -194,6 +197,13 @@ function fetchReplies($conn, $parentID)
 <body>
   <div class="bg-blur-overlay"></div>
   <div class="main-content container pt-5 mt-5">
+
+    <!--Nav Bar-->
+    <?php 
+    // $currentPage = 'profile';
+    include 'navbar.php'; ?>
+  
+
     <div class="row justify-content-center">
       <div class="col-md-8">
         <div class="card p-4">

@@ -205,6 +205,8 @@ $resLikesTab = $conn->query($sqlLikes);
   <!--Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+  <!--Navbar stylesheet-->
+  <link rel="stylesheet" href="/ProjectX/css/navbar.css">
 
 
 
@@ -238,119 +240,6 @@ $resLikesTab = $conn->query($sqlLikes);
       /*  dark tint */
       z-index: 1;
     }
-
-    .navbar .form-control {
-      background-color: #111;
-      color: #fff;
-      border: 1px solid #fff;
-    }
-
-    .navbar {
-      padding-top: 0.6rem;
-      padding-bottom: 0.6rem;
-      font-size: 1.1rem;
-      font-weight: 500;
-      letter-spacing: 0.4px;
-      border-bottom: 1px solid rgba(0, 255, 100, 0.6);
-    }
-
-    .navbar .navbar-brand {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-
-    .navbar-brand img {
-      box-shadow: 0 0 8px rgba(0, 255, 100, 0.5);
-      border-radius: 50%;
-    }
-
-    .navbar.bg-black {
-      background: linear-gradient(90deg, #000 0%, #121 100%);
-      opacity: 90%;
-    }
-
-
-    .navbar .nav-link {
-      position: relative;
-      padding-bottom: 6px;
-      color: rgba(255, 255, 255, 0.7);
-      transition: color 0.3s ease;
-    }
-
-    .navbar .nav-link:hover {
-      color: rgba(0, 255, 100, 0.5);
-      transition: color 1s ease;
-      transform-origin: bottom left;
-
-
-    }
-
-    .navbar .nav-link::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 12%;
-      width: 80%;
-      height: 3px;
-      background-color: rgba(0, 255, 100, 0.5);
-      border-radius: 10px;
-      transform: scaleX(0);
-      transform-origin: bottom left;
-      transition: transform 0.3s ease;
-
-    }
-
-    .navbar .nav-link:hover::after {
-      transform: scaleX(1);
-    }
-
-
-    .navbar .nav-link.active::after {
-      transform: scaleX(1);
-      background-color: rgba(0, 255, 100, 0.5);
-    }
-
-
-
-    /*Active Nav Tab effect */
-    .navbar .nav-link.active {
-      font-weight: bold;
-      color: rgba(255, 255, 255, 1);
-    }
-
-    .navbar .nav-link.active::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 10%;
-      width: 80%;
-      height: 4px;
-      background-color: rgba(0, 255, 100, 0.5);
-      border-radius: 10px;
-    }
-
-
-
-    .navbar .form-control::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .navbar .form-control:focus {
-      box-shadow: none;
-      border-color: #0f0;
-    }
-
-    .navbar .btn-outline-light {
-      border-color: rgba(255, 255, 255, 0.9);
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .navbar .btn-outline-light:hover {
-      background-color: #009e42;
-      color: #000;
-    }
-
-
 
     .main-content {
       position: relative;
@@ -393,7 +282,7 @@ $resLikesTab = $conn->query($sqlLikes);
 
     }
 
-    /*  black box in the top-right (posts, likes, followers, following) */
+    /*  black box in the top-right of the page (posts, likes, followers, following) */
     .info-box {
       display: flex;
       justify-content: space-evenly;
@@ -408,18 +297,17 @@ $resLikesTab = $conn->query($sqlLikes);
     .info-box .info-stat {
       flex: 1;
       text-align: center;
-      /*padding: 0px 0px 10px 15px;*/
       padding: 0px 30px 0px 30px;
     }
 
-    /*The Actual numbers */
+    /*The numbers */
     .info-box h5 {
       margin: 0 0 1px 0;
       font-size: 30px;
       font-weight: 400;
     }
 
-    /*Small Text in black box */
+    /* small Text in black box under the numbers */
     .info-box small {
       font-size: 15px;
       font-weight: 100;
@@ -438,7 +326,6 @@ $resLikesTab = $conn->query($sqlLikes);
       text-align: center;
       margin-bottom: 5px;
       opacity: 100%;
-
 
     }
 
@@ -555,9 +442,14 @@ $resLikesTab = $conn->query($sqlLikes);
 
     <!--Navbar start-->
 
+     <!--Nav Bar-->
+     <?php 
+    $currentPage = 'profile';
+    include 'navbar.php'; ?>
+  
     <?php if ($loggedIn) {
       // Get user's profile pic if needed from DB
-      $loggedInPic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; // fallback for logged-in user
+      $loggedInPic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
     
       $query = $conn->query("SELECT profile_pic FROM users WHERE id = $loggedUserId");
       if ($query && $query->num_rows > 0) {
@@ -568,81 +460,7 @@ $resLikesTab = $conn->query($sqlLikes);
       }
     }
     ?>
-    <!--Navbar Start-->
-    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-black"> <!--Dark Background-->
-      <div class="container-fluid">
-        <!--Left - Logo + Project Name-->
-        <a class="navbar-brand d-flex align-items-center" href="feed.php">
-          <img src="\ProjectX\uploads\Logo\Next XI Logo.png" alt="Logo" width="35" height="35" class="me-2">
-          Next XI
-        </a>
-
-        <!--Toggler for small screens-->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span> <!--Toggler Icon-->
-        </button>
-
-        <!--Collapsible Div for the nav links and user dropdown-->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <!--Middle:Nav Links (centered using mx-auto)-->
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-
-            <!--Nav Links-->
-            <?php if ($loggedIn): ?>
-              <li class="nav-item"><a class="nav-link" aria-current="page" href="feed.php">Feed</a> <!--Current Page-->
-              </li>
-              <li class="nav-item"><a class="nav-link" href="upload.php">Upload</a></li>
-              <li class="nav-item"><a class="nav-link" href="inbox.php">Messages</a></li>
-              <li class="nav-item"><a class="nav-link active" href="profile.php?user_id=<?php echo $loggedUserId; ?>#">My
-                  Profile</a></li>
-            <?php endif; ?>
-          </ul>
-
-          <!--Right Side: Search + Profile Pic Dropdown or login/signup-->
-          <div class="d-flex align-items-center">
-            <!--Search Bar-->
-            <form class="d-flex me-4 mb-0" role="search" action="search.php" method="GET">
-              <input class="form-control me-2" type="search" name="q" placeholder="Search users or posts"
-                aria-label="Search">
-              <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
-
-            <!-- Conditional: if user is logged in -->
-            <?php if ($loggedIn): ?>
-              <!--Profile Pic Dropdown-->
-              <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
-                  data-bs-toggle="dropdown" aria-expanded="false">
-                  <!-- The user’s profile pic -->
-                  <img src="<?php echo $loggedInPic; ?>" alt="Profile" width="40" height="40" class="rounded-circle"
-                    style="border: 2px solid #009e42;">
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <!-- "dropdown-menu-end" to align the menu to the right side -->
-                  <li><a class="dropdown-item" href="profile.php?user_id=<?php echo $loggedUserId; ?>">My Profile</a></li>
-                  <li><a class="dropdown-item" href="#">Settings</a></li>
-                  <li><a class="dropdown-item" href="#">Help/Support</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li><a class="dropdown-item" href="logout.php">Log Out</a></li>
-                </ul>
-              </div>
-            <?php else: ?>
-              <!-- If not logged in -->
-              <div class="d-flex align-items-center">
-                <a href="login.php" class="btn btn-outline-light me-2">Log In</a>
-                <a href="register.php" class="btn btn-success">Sign Up</a>
-              </div>
-
-            <?php endif; ?>
-
-          </div> <!--end d-flex align-items-center-->
-        </div> <!--End collaps-->
-      </div> <!--End container-fluid-->
-    </nav>
-    <!--Navbar End-->
+  
 
     <!--Main Body Container-->
     <div class="container mt-5">

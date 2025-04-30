@@ -63,6 +63,11 @@ $result = $conn->query($sql);
   <!-- Font Awesome -->
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
+    <!--Navbar stylesheet-->
+    <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
+
+
   <style>
     body {
       background-color: #f8f9fa;
@@ -162,7 +167,10 @@ $result = $conn->query($sql);
 
 <body>
 
+
+
   <div class="chat-container">
+  
     <!-- Chat Header -->
     <div class="chat-header">
       <div class="d-flex align-items-center">

@@ -1,8 +1,7 @@
-
 <?php
 session_start();  //Session to track which user is logged in
 
-if(isset($_POST['submit'])) {   //checks if the login button was pressed
+if (isset($_POST['submit'])) {   //checks if the login button was pressed
   //gets the data from the form
   $email = $_POST['email'];
   $password = $_POST['password'];
@@ -10,7 +9,7 @@ if(isset($_POST['submit'])) {   //checks if the login button was pressed
   //Connects the db
   $conn = new mysqli("localhost", "root", "", "projectx_db");
   //Checks the db is actually connected
-  if($conn->connect_error) {
+  if ($conn->connect_error) {
     die("Failed to connect to the database: " . $conn->connect_error);
   }
 
@@ -18,10 +17,10 @@ if(isset($_POST['submit'])) {   //checks if the login button was pressed
   $sql = "SELECT * FROM users WHERE email='$email'";  //checks if there's a row in the users table with the entered email
   $result = $conn->query($sql);   //if yes, stores that info in $result 
 
-  if($result->num_rows> 0) {    //if the result is > 0, at least one user has that email
+  if ($result->num_rows > 0) {    //if the result is > 0, at least one user has that email
     $row = $result->fetch_assoc();
     //Checks the password hash
-    if(password_verify($password, $row['password'])) {
+    if (password_verify($password, $row['password'])) {
       //password is correct - session variables set
       $_SESSION['user_id'] = $row['id'];
       $_SESSION['username'] = $row['username'];
@@ -29,10 +28,10 @@ if(isset($_POST['submit'])) {   //checks if the login button was pressed
       //Redirection to homepage 
     } else {
       echo "Wrong password!";
-    }  
-  } else {
-      echo "No account with that email!";
     }
+  } else {
+    echo "No account with that email!";
+  }
 
   $conn->close();
 }
@@ -44,10 +43,15 @@ so the next time they visit the page, they will be remembered*/
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Log In</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!--Navbar stylesheet-->
+  <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
+
   <style>
     body {
       background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
@@ -77,7 +81,7 @@ so the next time they visit the page, they will be remembered*/
       background-color: rgba(30, 30, 30, 0.85);
       padding: 40px;
       border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,255,100,0.2);
+      box-shadow: 0 0 15px rgba(0, 255, 100, 0.2);
     }
 
     .form-control {
@@ -128,8 +132,14 @@ so the next time they visit the page, they will be remembered*/
     }
   </style>
 </head>
+
 <body>
   <div class="bg-blur-overlay"></div>
+   <!--Nav Bar-->
+   <?php 
+    // $currentPage = 'profile';
+    include 'navbar.php'; ?>
+  
   <div class="login-box">
     <h1 class="text-center mb-4">Log In</h1>
     <form method="POST" action="login.php">
@@ -157,5 +167,10 @@ so the next time they visit the page, they will be remembered*/
       <a href="register.php">Sign Up</a>
     </div>
   </div>
+
+ 
 </body>
+
 </html>
+
+    

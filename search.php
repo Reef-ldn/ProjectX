@@ -46,6 +46,11 @@ if ($q !== '') {
   <meta charset="UTF-8">
   <title>Search Results</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+    <!--Navbar stylesheet-->
+    <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
+  
   <style>
     body {
       color: #eee;
@@ -153,8 +158,14 @@ if ($q !== '') {
 
   <!-- Top search bar -->
   <div class="main-content position-relative z-2">
+
+   <!--Nav Bar-->
+   <?php 
+    // $currentPage = 'profile';
+    include 'navbar.php'; ?>
+  
     <!--container-->
-    <div class="container">
+    <div class="container mt-5">
 
       <!-- Search Bar -->
       <form action="search.php" method="GET" class="d-flex justify-content-center mb-4">

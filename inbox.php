@@ -56,6 +56,11 @@ $users = $conn->query($sql);
   <!--Font Awesome Icons-->
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
+  
+  <!--Navbar stylesheet-->
+  <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
+
   <style>
     body {
       background: #f8f9fa;
@@ -154,7 +159,12 @@ $users = $conn->query($sql);
 </head>
 
 <body>
-  <div class="inbox-wrapper">
+  <div class="inbox-wrapper mt-5">
+
+   <!--Nav Bar-->
+   <?php 
+     $currentPage = 'inbox';
+    include 'navbar.php'; ?>
 
     <!-- Left panel: List of Users messaged -->
     <div class="sidebar">

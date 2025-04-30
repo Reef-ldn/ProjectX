@@ -75,6 +75,11 @@ if(isset($_POST['submit'])) {       //checks if the form was submitted through t
   <meta charset="UTF-8">
   <title>Sign Up</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+    <!--Navbar stylesheet-->
+    <link rel="stylesheet" href="/ProjectX/css/navbar.css">
+
+  
   <style>
     body {
       background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
@@ -157,6 +162,11 @@ if(isset($_POST['submit'])) {       //checks if the form was submitted through t
 </head>
 <body>
   <div class="bg-blur-overlay"></div>
+   <!--Nav Bar-->
+   <?php 
+    // $currentPage = 'profile';
+    include 'navbar.php'; ?>
+  
   <div class="register-box">
     <h1 class="text-center mb-4">Sign Up</h1>
     <form method="POST" action="register.php">
