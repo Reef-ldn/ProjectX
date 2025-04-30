@@ -293,8 +293,8 @@ if (isset($_POST['update_profile'])) {
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Matches Played</label>
-                  <input type="number" name="Appearances"
-                    value="<?= htmlspecialchars($playerData['appearances']) ?>" class="form-control">
+                  <input type="number" name="appearances" value="<?= htmlspecialchars($playerData['appearances']) ?>" class="form-control">
+
                 </div>
 
 

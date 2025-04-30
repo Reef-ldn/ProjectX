@@ -19,7 +19,7 @@ if ($conn->connect_error) {      //check connection
 }
 
 //fetch from the 'users' table
-$userSql = "SELECT username, user_type, profile_pic, banner_pic FROM users WHERE id = '$profileUserId'";
+$userSql = "SELECT username, name, user_type, profile_pic, banner_pic FROM users WHERE id = '$profileUserId'";
 $userResult = $conn->query($userSql);
 if ($userResult->num_rows == 0) {         //If no user has this ID, no user is found.
   die("No user found.");
@@ -67,6 +67,10 @@ $sqlFollowing = "SELECT COUNT(*) AS following_count
 $resFollowing = $conn->query($sqlFollowing);
 $rowFollowing = $resFollowing->fetch_assoc();
 $followingCount = $rowFollowing['following_count'];
+
+//Set the user's display name
+$displayName = !empty($userRow['name']) ? $userRow['name'] : "Player " . $profileUserId;
+
 
 //Post Count to be displayed at the top
 $user_id = $profileUserId;
@@ -442,15 +446,15 @@ $resLikesTab = $conn->query($sqlLikes);
 
     <!--Navbar start-->
 
-     <!--Nav Bar-->
-     <?php 
+    <!--Nav Bar-->
+    <?php
     $currentPage = 'profile';
     include 'navbar.php'; ?>
-  
+
     <?php if ($loggedIn) {
       // Get user's profile pic if needed from DB
       $loggedInPic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
-    
+
       $query = $conn->query("SELECT profile_pic FROM users WHERE id = $loggedUserId");
       if ($query && $query->num_rows > 0) {
         $profilePicData = $query->fetch_assoc();
@@ -460,7 +464,7 @@ $resLikesTab = $conn->query($sqlLikes);
       }
     }
     ?>
-  
+
 
     <!--Main Body Container-->
     <div class="container mt-5">
@@ -475,12 +479,11 @@ $resLikesTab = $conn->query($sqlLikes);
         <!-- Middle col: user info -->
         <div class="col">
           <!-- Display user’s name -->
-          <h2 class="name mb-1">
-            <?php echo $userRow['name'] ?? 'Player Name'; ?>
+          <h2 class="name mb-1"><?php echo $displayName; ?></h2>
 
-            <!-- The user's handle -->
-            <small class="handle">@<?php echo strtolower($userRow['username'] ?? 'player'); ?></small>
-            <br>
+          <!-- The user's handle -->
+          <small class="handle">@<?php echo strtolower($userRow['username'] ?? 'player'); ?></small>
+          <br>
           </h2>
 
           <!-- The player's current team -->
@@ -571,14 +574,15 @@ $resLikesTab = $conn->query($sqlLikes);
           Stats:
         </h3>
         <hr class="solid"> <!--Divider-->
-        <!--Matches-->
+        <!-- Matches -->
         <div class="col-6 col-md-2">
-          <h4><?php echo $plData['matches'] ?? '0'; ?></h4>
+          <h4><?php echo $plData['appearances'] ?? '0'; ?></h4>
           <div class="stats-label">Matches</div>
         </div>
-        <!--G/A-->
+        <!-- G/A -->
         <div class="col-6 col-md-2">
-          <h4><?php echo $plData['goals_assists'] ?? '0'; ?></h4>
+          <!--Matches it just the goals + assists added together-->
+          <h4><?php echo ($plData['goals'] + $plData['assists']) ?? '0'; ?></h4>
           <div class="stats-label">G/A</div>
         </div>
         <!--Goals-->
