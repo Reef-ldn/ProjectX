@@ -4,6 +4,7 @@
 
 session_start();  //Check the user is logged in;
 
+
 //connect to the db
 $conn = new mysqli("localhost", "root", "", "projectx_db");
 if ($conn->connect_error) {
@@ -479,7 +480,7 @@ $result = $conn->query($sql);
             body: formData
           });
 
-          const text = await res.text(); // safer than res.json()
+          const text = await res.text(); // safer than using res.json()
 
           let data;
           try {
@@ -490,7 +491,8 @@ $result = $conn->query($sql);
           }
 
           if (data.status === 'success') {
-            window.location.href = `view_post.php?post_id=${postID}`;
+            window.location.href = data.redirect;
+            // window.location.href = `view_post.php?post_id=${postID}`;
           } else {
             alert(data.message || 'Failed to add comment.');
           }

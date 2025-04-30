@@ -11,7 +11,6 @@ if (!isset($_SESSION['user_id'])) {
 
 //Get the user's ID from the session
 $user_id = $_SESSION['user_id'];
-
 //Getting the post_id and comment_text from the form submission(through POST)
 $post_id = $_POST['post_id'] ?? 0;
 $comment_text = $_POST['comment_text'] ?? '';
@@ -41,21 +40,35 @@ and it also protects the database from SQL Injection attacks
 // "iis" stands for int, int, string, which is all the types of the values we're binding
 $stmt->bind_param("iis", $user_id, $post_id, $comment_text);
 
-//Execute the query and respond with a JSON success or error message
+// Execute the query and handle the result
 if ($stmt->execute()) {
-  // If the insert worked, fetch the user's username to return it as part of the response
+  // Get the username of the person who commented
   $userRes = $conn->query("SELECT username FROM users WHERE id = '$user_id'");
   $username = $userRes->fetch_assoc()['username'] ?? 'unknown';
-
-  echo json_encode([
-    'status' => 'success',
-    'username' => $username,
-    'comment_text' => $comment_text,
-    'created_at' => date('Y-m-d H:i')
-  ]);
+  // Success — return a valid JSON response
+  echo json_encode(['status' => 'success', 'redirect' => "view_post.php?post_id=$post_id"]);
 } else {
-  echo json_encode(['status' => 'error', 'message' => 'Comment insert failed']);
+  echo json_encode(['status' => 'error', 'message' => 'Failed to save comment']);
 }
+
+  // // Check if the request was sent through JavaScript (AJAX)
+  // if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+  //     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+  //   // Return JSON for AJAX
+  //   echo json_encode([
+  //     'status' => 'success',
+  //     'username' => $username,
+  //     'comment_text' => $comment_text,
+  //     'created_at' => date('Y-m-d H:i')
+  //   ]);
+  // } else {
+  //   // If it's a regular form submission (not AJAX), redirect to view_post.php
+  //   header("Location: view_post.php?post_id=" . $post_id);
+  // }
+// } else {
+//   echo json_encode(['status' => 'error', 'message' => 'Comment insert failed']);
+// }
+
 
 
 //$stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, comment_text, created_at)
