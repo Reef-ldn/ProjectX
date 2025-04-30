@@ -17,12 +17,15 @@ if ($conn->connect_error) {
 }
 
 //Check the user's user type using the 'users' table
-$userSql = "SELECT user_type FROM users WHERE id = '$user_id' ";
+$userSql = "SELECT username, name, user_type FROM users WHERE id = '$user_id'";
 $userResult = $conn->query($userSql);
 if ($userResult->num_rows == 0) {        //if no users exist.
   die("No user found with the ID $user_id.");
 }
 $userRow = $userResult->fetch_assoc();
+$username = $userRow['username'];
+$name = $userRow['name'];
+
 //If the user isn't a player, deny them edit permissions.
 if ($userRow['user_type'] != 'player') {
   die("You are not a player, so you can not edit the player profile info.");
@@ -36,9 +39,12 @@ $playerData = $playerResult->fetch_assoc();   //if there's no row, this may be n
 //If the form is submitted, overwrite previous data
 if (isset($_POST['update_profile'])) {
   //Read the new data from the form
+  $newName = $_POST['name'];
+  $newUsername = $_POST['username'];
   $newHeight = $_POST['height'];
   $newWeight = $_POST['weight'];
   $newAge = $_POST['age'];
+  $newMatches = $_POST['appearances'];
   $newPosition = $_POST['preferred_position'];
   $newFoot = $_POST['preferred_foot'];
   $newGoals = $_POST['goals'];
@@ -50,11 +56,15 @@ if (isset($_POST['update_profile'])) {
   $newAwards = $_POST['awards'];
   $newCountry = $_POST['country'];
 
+  $conn->query("UPDATE users SET name = '$newName', username = '$newUsername' WHERE id = '$user_id'");
+
+
   //Update and overwrite
   $updateSql = "UPDATE players
                   SET height = '$newHeight',
                       weight = '$newWeight',
                       age = '$newAge',
+                      appearances = '$newMatches',
                       preferred_position = '$newPosition',
                       preferred_foot = '$newFoot',
                       goals = '$newGoals',
@@ -255,8 +265,18 @@ if (isset($_POST['update_profile'])) {
             <form id="editForm" action="edit_profile.php" method="POST" class="d-flex flex-column h-100">
               <!--  fields  -->
               <div class="form-scroll">
+                <div class="mb-3">
+
+                  <label class="form-label">Name</label>
+                  <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Username</label>
+                  <input type="text" name="username" value="<?= htmlspecialchars($username) ?>" class="form-control">
+                </div>
 
                 <div class="mb-3">
+
                   <label class="form-label">Height (cm)</label>
                   <input type="number" name="height" value="<?= htmlspecialchars($playerData['height']) ?>"
                     class="form-control">
@@ -271,6 +291,12 @@ if (isset($_POST['update_profile'])) {
                   <input type="number" name="age" value="<?= htmlspecialchars($playerData['age']) ?>"
                     class="form-control">
                 </div>
+                <div class="mb-3">
+                  <label class="form-label">Matches Played</label>
+                  <input type="number" name="Appearances"
+                    value="<?= htmlspecialchars($playerData['appearances']) ?>" class="form-control">
+                </div>
+
 
                 <!-- Dropdown for Position -->
                 <div class="mb-3">
