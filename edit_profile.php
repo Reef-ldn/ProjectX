@@ -306,7 +306,7 @@ if (isset($_POST['update_profile'])) {
                   'goals' => 'Goals',
                   'assists' => 'Assists',
                   'motm' => 'Man of the Match',
-                  'potm' => 'Player of the Match',
+                  'potm' => 'Player of the Month',
                   'current_team' => 'Current Team',
                   'current_league' => 'Current League',
                   'awards' => 'Awards',

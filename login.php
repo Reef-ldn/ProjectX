@@ -33,7 +33,10 @@ if (isset($_POST['submit'])) {   //checks if the login button was pressed
     echo "No account with that email!";
   }
 
+  
   $conn->close();
+  header("Location: feed.php"); exit;
+
 }
 /*Session just means to remember the user's ID in the background 
 so the next time they visit the page, they will be remembered*/

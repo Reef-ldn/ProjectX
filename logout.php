@@ -4,5 +4,6 @@ they're not recognised.*/
 session_start();
 session_destroy(); //clears the session
 echo "You have logged out";
+header("Location: login.php"); exit;
 
 ?>

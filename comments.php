@@ -1,7 +1,7 @@
 <?php
-// This script allows the user to comment on videos
+// This script allows the user to comment on posts
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json'); //Tells the browser we're returning JSON
 
 //Ensures the user is logged in before allowing them to comment
 if (!isset($_SESSION['user_id'])) {
@@ -12,11 +12,11 @@ if (!isset($_SESSION['user_id'])) {
 //Get the user's ID from the session
 $user_id = $_SESSION['user_id'];
 
-//Getting the post_id and comment_text from the database (through POST)
+//Getting the post_id and comment_text from the form submission(through POST)
 $post_id = $_POST['post_id'] ?? 0;
 $comment_text = $_POST['comment_text'] ?? '';
-//$user_id = $_POST['user_id'];
 
+//If the user submits an empty comment, it's rejected
 if (empty($comment_text)) {
   echo json_encode(['status' => 'error', 'message' => 'Comment cannot be empty']);
   exit;
@@ -29,12 +29,21 @@ if ($conn->connect_error) {
   exit;
 }
 
-//Insert into the comments table in the db
-$insertSql = "INSERT INTO comments (user_id, post_id, comment_text, created_at)
-              VALUES ('$user_id', '$post_id', '$comment_text', NOW())";
+//Using a prepared statement to insert comments safely into the DB (Prevents SQL injection and apostrophe issues)
+$stmt = $conn->prepare("
+  INSERT INTO comments (user_id, post_id, comment_text, created_at)
+  VALUES (?, ?, ?, NOW())");
+/*
+This prepared statement automatically escapes speical characters like apostrophes
+and it also protects the database from SQL Injection attacks 
+*/
 
-if ($conn->query($insertSql)) {
-  // Get the commenter’s username
+// "iis" stands for int, int, string, which is all the types of the values we're binding
+$stmt->bind_param("iis", $user_id, $post_id, $comment_text);
+
+//Execute the query and respond with a JSON success or error message
+if ($stmt->execute()) {
+  // If the insert worked, fetch the user's username to return it as part of the response
   $userRes = $conn->query("SELECT username FROM users WHERE id = '$user_id'");
   $username = $userRes->fetch_assoc()['username'] ?? 'unknown';
 
@@ -47,6 +56,7 @@ if ($conn->query($insertSql)) {
 } else {
   echo json_encode(['status' => 'error', 'message' => 'Comment insert failed']);
 }
+
 
 //$stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, comment_text, created_at)
 //         VALUES (?, ?, ? , NOW())");   //Use prepare and placeholders to allow the user to type apostrophes
@@ -61,9 +71,10 @@ if ($conn->query($insertSql)) {
 //  echo "Error, could not post your comment: " . $stmt->error;
 //}
 
-//$stmt->close();    //close statement
+
+
+$stmt->close();    //close statement
 $conn->close();     //done communicating with the db
-exit;
 
 //redirect back to the feed
 // $redirectBack = $_SERVER['HTTP_REFERER'] ?? 'feed.php';
