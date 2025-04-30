@@ -14,6 +14,50 @@ if ($conn->connect_error) {
 $loggedUserId = $_SESSION['user_id'] ?? null;
 $loggedIn = isset($loggedUserId);
 
+//Logic for the People YOu May Know Section
+$peopleYouMayKnow = [];
+
+//If the user is logged in
+if ($loggedIn) {
+  // Get all IDs of users the current user follows
+  $followingSql = "SELECT followed_id FROM follows WHERE follower_id = $loggedUserId";
+  $followingRes = $conn->query($followingSql);
+
+  $followingIds = [];
+  while ($row = $followingRes->fetch_assoc()) {
+    $followingIds[] = $row['followed_id'];
+  }
+
+  // If you follow anyone, find mutual followers
+  if (!empty($followingIds)) {
+    $ids = implode(",", $followingIds);
+
+    //Create the mutual followers sql query
+    $mutualSql = "
+  SELECT u.id, u.username, u.name, u.profile_pic, COUNT(*) as mutual_count
+  FROM follows f1
+  JOIN follows f2 ON f1.followed_id = f2.follower_id
+  JOIN users u ON f2.followed_id = u.id
+  WHERE f1.follower_id = $loggedUserId
+    AND f2.followed_id != $loggedUserId
+    AND f2.followed_id NOT IN (
+      SELECT followed_id FROM follows WHERE follower_id = $loggedUserId
+    )
+  GROUP BY f2.followed_id
+  ORDER BY mutual_count DESC
+  LIMIT 5
+";
+
+
+    $mutualRes = $conn->query($mutualSql);
+    if ($mutualRes && $mutualRes->num_rows > 0) {
+      while ($row = $mutualRes->fetch_assoc()) {
+        $peopleYouMayKnow[] = $row;
+      }
+    }
+  }
+}
+
 
 
 
@@ -141,11 +185,11 @@ $result = $conn->query($sql);
   <div class="bg-blur-overlay"></div>
   <div class="main-content ">
 
-  <!--Nav Bar-->
-    <?php 
+    <!--Nav Bar-->
+    <?php
     $currentPage = 'feed';
     include 'navbar.php'; ?>
-  
+
 
 
     <!--Main Content Area-->
@@ -277,9 +321,9 @@ $result = $conn->query($sql);
                         <li><a class="dropdown-item" href="#">Cancel</a></li>
                       </ul>
                     </div>
-                  </div> <!-- end d-flex justify-content-between -->
+                  </div>
 
-                  <!-- Middle: the actual post content (image/video/text) -->
+                  <!--  post content (image/video/text) -->
                   <div style="max-width: 800px;">
                     <div class="mb-3">
                       <?php if ($row['post_type'] == "image"): ?>
@@ -298,7 +342,7 @@ $result = $conn->query($sql);
                     </div>
                   </div>
 
-                  <!-- Buttons row (like, comment, share) -->
+                  <!-- Buttons  (like, comment, share) -->
                   <div class="d-flex align-items-center mb-2">
 
                     <!-- Like Heart Icon -->
@@ -342,6 +386,7 @@ $result = $conn->query($sql);
                   <!-- Comments Section -->
                   <hr>
                   <div class="mb-2 comment-section">
+
                     <!-- fetch comments and loop-->
                     <?php
 
@@ -380,31 +425,80 @@ $result = $conn->query($sql);
           }
 
           ?>
-        </div> <!-- end col-md-7 -->
+        </div>
 
 
-        <!-- Right Column: col-md-4 for "Trending" or anything else -->
+        <!-- Side Bar -->
         <div class="col-md-3">
           <div class="right-bar-wrapper">
+            <!--Trending-->
+            <?php
+            // Fetch top 3 trending posts (based on like count)
+            $trendingSql = "SELECT p.id AS post_id, p.text_content, p.file_path, p.post_type,
+                            u.username, u.name, u.profile_pic,
+                            (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count
+                            FROM posts p
+                            JOIN users u ON p.user_id = u.id
+                            ORDER BY like_count DESC
+                            LIMIT 3";
+            $trendingRes = $conn->query($trendingSql);
+            ?>
+
             <div class="right-bar p-3 mb-3">
               <h5>Trending</h5>
-              <p>Trending posts / recommended users</p>
+              <?php if ($trendingRes && $trendingRes->num_rows > 0): ?>
+                <?php while ($trend = $trendingRes->fetch_assoc()): ?>
+                  <div class="mb-2">
+                    <a href="view_post.php?post_id=<?= $trend['post_id'] ?>" class="text-light text-decoration-none">
+                      <div class="d-flex align-items-center">
+                        <img src="<?= $trend['profile_pic'] ?? 'uploads/profile_pics/Footballer_shooting_b&w.jpg' ?>"
+                          width="35" height="35" class="rounded-circle me-2">
+                        <div>
+                          <strong><?= $trend['name'] ?></strong> <br>
+                          <small>@<?= $trend['username'] ?></small> <br>
+                          <small class="text-muted"><?= $trend['like_count'] ?> likes</small>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+
+                <?php endwhile; ?>
+              <?php else: ?>
+                <p>No trending posts yet.</p>
+              <?php endif; ?>
             </div>
+
             <div class="right-bar p-3 mb-3">
-              <h5>People you may know</h5>
-              <p>User 1</p>
-              <p>User 2</p>
-              <p>User 3</p>
+              <h5>People You May Know</h5>
+              <?php if (!empty($peopleYouMayKnow)): ?>
+                <?php foreach ($peopleYouMayKnow as $person): ?>
+                  <div class="mb-2">
+                    <a href="profile.php?user_id=<?= $person['id'] ?>" class="text-light text-decoration-none">
+                      <div class="d-flex align-items-center">
+                        <img src="<?= $person['profile_pic'] ?? 'uploads/profile_pics/Footballer_shooting_b&w.jpg' ?>"
+                          width="35" height="35" class="rounded-circle me-2">
+                        <div>
+                          <strong><?= $person['name'] ?></strong><br>
+                          <small>@<?= $person['username'] ?></small><br>
+                          <small class="text-muted"><?= $person['mutual_count'] ?> mutual
+                            follower<?= $person['mutual_count'] > 1 ? 's' : '' ?></small>
+
+                          </div>
+                      </div>
+                    </a>
+                  </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <p>No suggestions right now.</p>
+              <?php endif; ?>
             </div>
-            <div class="right-bar p-3">
-              <h5>Another Section</h5>
-              <p>Some additional widget or ads, etc.</p>
-            </div>
-          </div> <!-- end col-md-4 -->
-        </div> <!-- end row -->
+
+
+          </div>
+        </div>
 
       </div>
-    </div> <!-- end container -->
+    </div>
 
   </div>
 
