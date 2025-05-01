@@ -199,10 +199,10 @@ function fetchReplies($conn, $parentID)
   <div class="main-content container pt-5 mt-5">
 
     <!--Nav Bar-->
-    <?php 
+    <?php
     // $currentPage = 'profile';
     include 'navbar.php'; ?>
-  
+
 
     <div class="row justify-content-center">
       <div class="col-md-8">
@@ -382,45 +382,6 @@ function fetchReplies($conn, $parentID)
 
 
 
-          <!-- Share Post Modal -->
-          <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <form id="shareForm" method="POST" action="send_post.php">
-                <input type="hidden" name="post_id" id="modalPostId">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="shareModalLabel">Send Post</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <p>Select a user to send this post to:</p>
-                    <div class="form-group">
-                      <select class="form-control" name="recipient_id" required>
-                        <?php
-                        $loggedId = $_SESSION['user_id'] ?? 0;
-                        $followSql = "SELECT u.id, u.username 
-                          FROM users u
-                          JOIN follows f ON f.followed_id = u.id
-                          WHERE f.follower_id = '$loggedId'";
-                        $followRes = $conn->query($followSql);
-                        if ($followRes && $followRes->num_rows > 0) {
-                          while ($f = $followRes->fetch_assoc()) {
-                            echo '<option value="' . $f['id'] . '">' . $f['username'] . '</option>';
-                          }
-                        } else {
-                          echo '<option disabled>No followers found</option>';
-                        }
-                        ?>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Send</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
 
 
 
@@ -564,6 +525,52 @@ function fetchReplies($conn, $parentID)
               });
             });
           </script>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Share Post Modal -->
+  <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="shareForm" method="POST" action="send_post.php">
+        <input type="hidden" name="post_id" id="modalPostId">
+        <div class="modal-content text-dark bg-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="shareModalLabel">Send Post</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Select a user to send this post to:</p>
+            <div class="form-group">
+              <select class="form-control" name="recipient_id" required>
+                <!-- Options inserted by PHP -->
+                <?php
+                $loggedId = $_SESSION['user_id'] ?? 0;
+                $followSql = "SELECT u.id, u.username 
+                            FROM users u
+                            JOIN follows f ON f.followed_id = u.id
+                            WHERE f.follower_id = '$loggedId'";
+                $followRes = $conn->query($followSql);
+                if ($followRes && $followRes->num_rows > 0) {
+                  while ($f = $followRes->fetch_assoc()) {
+                    echo '<option value="' . $f['id'] . '">' . $f['username'] . '</option>';
+                  }
+                } else {
+                  echo '<option disabled>No followers found</option>';
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Send</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
 
 
