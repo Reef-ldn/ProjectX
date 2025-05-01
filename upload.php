@@ -108,7 +108,6 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
   <style>
- 
     .upload-container {
       max-width: 600px;
       margin: 60px auto;
@@ -146,7 +145,6 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
       border-color: #009e42;
       background-color: #f0fff3;
     }
-
   </style>
 </head>
 
@@ -171,7 +169,6 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
 
 
     <style>
-   
       body {
         background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
         background-size: cover;
@@ -194,17 +191,37 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
 
 
       /* Container that holds the form */
-.upload-container {
-  position: relative;
-  z-index: 2;
-  max-width: 600px;
-  margin: 100px auto;
-  background-color: rgba(30, 30, 30, 0.85);
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0, 255, 100, 0.2);
-  color: white;
-}
+      .upload-container {
+        position: relative;
+        z-index: 2;
+        max-width: 600px;
+        margin: 100px auto;
+        background-color: rgba(30, 30, 30, 0.85);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 255, 100, 0.2);
+        color: white;
+
+      }
+
+      .upload-container .form-control {
+        background-color: rgba(30, 30, 30, 0.85);
+        color: white;
+        border: 1px solid #444;
+      }
+
+      .upload-container .form-control::placeholder,
+      .upload-container textarea::placeholder {
+        color: #aaa;
+        opacity: 1;
+      }
+
+      .upload-container .form-control:focus {
+        border-color: #0f0;
+        background-color: #111;
+        color: white;
+        box-shadow: none;
+      }
 
 
       /* Style for the drag & drop box */
@@ -233,13 +250,11 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
         max-width: 100%;
         border-radius: 8px;
       }
-
-    
     </style>
   </head>
 
   <body>
-  <div class="bg-blur-overlay"></div>
+    <div class="bg-blur-overlay"></div>
 
 
     <!--Nav Bar-->
