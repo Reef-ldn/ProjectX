@@ -156,7 +156,6 @@ function fetchReplies($conn, $parentID)
     .text-muted,
     .small {
       color: rgba(240, 240, 240, 0.95);
-      !important;
     }
 
     .comment-box {
