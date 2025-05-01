@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-  die("Unauthorized access");
+  die("Unauthorised access");
 }
 
 $conn = new mysqli("localhost", "root", "", "projectx_db");

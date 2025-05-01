@@ -1,12 +1,21 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) die("Unauthorized");
+if (!isset($_SESSION['user_id'])) {
+  die("Unauthorised access");
+}
 
 $conn = new mysqli("localhost", "root", "", "projectx_db");
-$team_id = (int) $_POST['team_id'];
-$user_id = $_SESSION['user_id'];
+if ($conn->connect_error) {
+  die("Connection failed: " . $conn->connect_error);
+}
 
-$conn->query("DELETE FROM previous_teams WHERE id = '$team_id' AND user_id = '$user_id'");
-header("Location: edit_profile.php");
-exit;
+
+if (isset($_GET['team_id'])) {
+  $teamId = (int) $_GET['team_id'];
+  $userId = $_SESSION['user_id'];
+  $conn->query("DELETE FROM previous_teams WHERE id = $teamId AND user_id = $userId");
+  header("Location: edit_profile.php");
+  exit;
+}
+
 ?>

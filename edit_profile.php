@@ -396,10 +396,10 @@ if (isset($_POST['update_profile'])) {
                     <div class="mb-2 d-flex align-items-center">
                       <input type="text" name="prev_teams_existing[]" class="form-control me-2"
                         value="<?= htmlspecialchars($team['team_name']) ?>" readonly>
-                      <form method="POST" action="delete_team.php" onsubmit="return confirm('Delete this team?');">
-                        <input type="hidden" name="team_id" value="<?= $team['id'] ?>">
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                      </form>
+                        <a href="delete_team.php?team_id=<?= $team['id'] ?>"
+   onclick="return confirm('Delete this team?');"
+   class="btn btn-sm btn-danger">Delete</a>
+
                     </div>
                   <?php endwhile; ?>
 
@@ -458,7 +458,7 @@ if (isset($_POST['update_profile'])) {
 
 
 
-        <!-- Right Column: Upload Profile Pic (Static) -->
+        <!-- Right side ( Upload Profile Pic ) -->
         <div class="col-md-5 d-flex flex-column justify-content-start">
           <form action="upload_profile_pic.php" method="POST" enctype="multipart/form-data">
             <label class="form-label">Upload Profile Picture:</label>
