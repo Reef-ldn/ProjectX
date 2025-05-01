@@ -74,7 +74,8 @@ if (isset($_POST['update_profile'])) {
                       current_team = '$newTeam',
                       current_league = '$newLeague',
                       awards = '$newAwards',
-                      country = '$newCountry' ";
+                      country = '$newCountry' 
+                  WHERE user_id = '$user_id' ";
   $conn->query($updateSql);
 
   //Reload the page to show the updated values
