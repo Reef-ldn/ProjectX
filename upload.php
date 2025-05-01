@@ -108,11 +108,7 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
   <style>
-    body {
-      background-color: #f4f6f9;
-      transition: background-color 0.3s ease;
-    }
-
+ 
     .upload-container {
       max-width: 600px;
       margin: 60px auto;
@@ -151,15 +147,6 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
       background-color: #f0fff3;
     }
 
-    .dark-mode #drop-area {
-      background-color: #2c2c2c;
-      border-color: #555;
-    }
-
-    .dark-mode #drop-area.dragging {
-      background-color: #333;
-      border-color: #0f0;
-    }
   </style>
 </head>
 
@@ -184,20 +171,41 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
 
 
     <style>
+   
       body {
-        background-color: #f4f6f9;
+        background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
       }
 
-      /* Container that holds the form */
-      .upload-container {
-        max-width: 600px;
-        margin: 60px auto;
-        background: white;
-        padding: 30px;
-        /* Space inside the box */
-        border-radius: 12px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+      .bg-blur-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1;
       }
+
+
+      /* Container that holds the form */
+.upload-container {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  margin: 100px auto;
+  background-color: rgba(30, 30, 30, 0.85);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 255, 100, 0.2);
+  color: white;
+}
+
 
       /* Style for the drag & drop box */
       #drop-area {
@@ -225,10 +233,14 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
         max-width: 100%;
         border-radius: 8px;
       }
+
+    
     </style>
   </head>
 
   <body>
+  <div class="bg-blur-overlay"></div>
+
 
     <!--Nav Bar-->
     <?php

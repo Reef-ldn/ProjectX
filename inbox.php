@@ -56,21 +56,47 @@ $users = $conn->query($sql);
   <!--Font Awesome Icons-->
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
-  
+
   <!--Navbar stylesheet-->
   <link rel="stylesheet" href="/ProjectX/css/navbar.css">
 
 
   <style>
     body {
-      background: #f8f9fa;
+      background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      color: white;
     }
+
+    .bg-blur-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(4px);
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+
 
     /* Makes the inbox take up the full screen height */
     .inbox-wrapper {
       display: flex;
       height: 100vh;
       overflow: hidden;
+  background-color: rgba(30, 30, 30, 0.88);
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 255, 100, 0.1);
+  margin: 40px auto;
+  max-width: 1100px;
+  color:black;
+
+
+
     }
 
     /* Left Panel: List of users messaged */
@@ -102,7 +128,7 @@ $users = $conn->query($sql);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: background 0.2s;
+      transition:  0.2s;
     }
 
     .user-item img {
@@ -143,27 +169,44 @@ $users = $conn->query($sql);
       border: none;
       width: 100%;
       height: 100%;
+      min-height: 100vh;
+
     }
 
     /* Hide right panel on smaller screens */
     @media (max-width: 768px) {
       .chat-viewer {
-        display: none;
+        width: 100%;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        background: white;
       }
 
       .sidebar {
-        width: 100%;
+        display: none;
       }
+
+      .sidebar,
+.chat-viewer {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
     }
   </style>
 </head>
 
 <body>
-  <div class="inbox-wrapper mt-5">
+  <div class="bg-blur-overlay"></div>
 
-   <!--Nav Bar-->
-   <?php 
-     $currentPage = 'inbox';
+  <div class="main-content-wrapper position-relative z-2">
+  <div class="inbox-wrapper mt-5">
+    <!--Nav Bar-->
+    <?php
+    $currentPage = 'inbox';
     include 'navbar.php'; ?>
 
     <!-- Left panel: List of Users messaged -->
@@ -204,6 +247,7 @@ $users = $conn->query($sql);
       <iframe name="chatFrame" src="" title="Conversation"></iframe>
     </div>
   </div>
+  </div>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -223,6 +267,7 @@ $users = $conn->query($sql);
         // Highlight the one that was clicked
         item.classList.add('active');
 
+        // Mobile: redirect to chat page
         // Mobile: redirect to chat page
         if (window.innerWidth <= 768) {
           window.location.href = `conversation.php?other_id=${userId}`;
