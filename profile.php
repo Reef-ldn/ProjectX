@@ -192,6 +192,54 @@ $sqlLikes = "SELECT p.id AS postID,
             ";
 $resLikesTab = $conn->query($sqlLikes);
 
+//Logic for previous teams
+$teamsSql = "SELECT team_name, start_year, end_year 
+                    FROM previous_teams 
+                    WHERE user_id = '$profileUserId' 
+                    ORDER BY start_year DESC";
+$teamsResult = $conn->query($teamsSql);
+
+//Stored in an array
+$teams = [];
+if ($teamsResult && $teamsResult->num_rows > 0) {
+  while ($row = $teamsResult->fetch_assoc()) {
+    $teams[] = $row;
+  }
+}
+
+//Logic for trophies
+$trophiesSql = "SELECT trophy_name, year_awarded 
+                       FROM trophies 
+                       WHERE user_id = '$profileUserId' 
+                       ORDER BY year_awarded DESC";
+$trophiesResult = $conn->query($trophiesSql);
+
+//store in an array
+$trophies = [];
+if ($trophiesResult && $trophiesResult->num_rows > 0) {
+  while ($row = $trophiesResult->fetch_assoc()) {
+    $trophies[] = $row;
+  }
+}
+
+//Logic for people you amy know
+$peopleSql = "SELECT u.id, u.username, u.name, u.profile_pic
+                     FROM users u
+                     JOIN players p ON u.id = p.user_id
+                     WHERE u.id != '$loggedUserId'
+                     AND u.id NOT IN (
+              SELECT followed_id FROM follows WHERE follower_id = '$loggedUserId')
+              LIMIT 3";
+//store in an array
+$people = [];
+$peopleResult = $conn->query($peopleSql);
+if ($peopleResult && $peopleResult->num_rows > 0) {
+  while ($row = $peopleResult->fetch_assoc()) {
+    $people[] = $row;
+  }
+}
+
+
 ?>
 
 <!--Front-end to display the profile-->
@@ -835,21 +883,59 @@ $resLikesTab = $conn->query($sqlLikes);
                 <div class="right-bar-wrapper">
                   <div class="right-bar p-3">
                     <h5>Previous Teams</h5>
-                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                    <?php if (!empty($teams)): ?>
+                      <?php foreach ($teams as $team): ?>
+                        <p><?= htmlspecialchars($team['team_name']) ?>
+                          <small>(<?= $team['start_year'] ?>/01 - <?= $team['end_year'] ?>/03)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <p>No previous teams found.</p>
+                    <?php endif; ?>
+
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>Trophies</h5>
-                    <p>Trophy 1 <small>(2003/01)</small></p>
-                    <p>Trophy 2 <small>(2003/01)</small></p>
-                    <p>Trophy 3 <small>(2003/01)</small></p>
+                    <?php if (!empty($trophies)): ?>
+                      <?php foreach ($trophies as $trophy): ?>
+                        <p><?= htmlspecialchars($trophy['trophy_name']) ?>
+                          <?php
+                          $startYear = (int) $trophy['year_awarded'];
+                          $endYear = $startYear + 1;
+                          ?>
+                          <small>(<?= $startYear ?>/<?= substr($endYear, -2) ?>)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php endif; ?>
+
+
+
+
+
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>People You May Know</h5>
-                    <p>User 1 <small>@handle</small></p>
-                    <p>User 2 <small>@handle</small></p>
-                    <p>User 3 <small>@handle</small></p>
+                    <?php foreach ($people as $person): ?>
+                      <?php
+                      $personPic = !empty($person['profile_pic'])
+                        ? $person['profile_pic']
+                        : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
+                      ?>
+                      <div class="d-flex align-items-center mb-2">
+                        <img src="<?= $personPic ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                        <div>
+                          <p class="mb-0"><?= htmlspecialchars($person['name']) ?></p>
+                          <small>@<?= htmlspecialchars($person['username']) ?></small>
+                        </div>
+
+                      </div>
+                    <?php endforeach; ?>
+
+
+
+
                   </div>
                 </div>
               </div> <!-- end col-md-4 -->
@@ -1080,21 +1166,56 @@ $resLikesTab = $conn->query($sqlLikes);
                 <div class="right-bar-wrapper">
                   <div class="right-bar p-3">
                     <h5>Previous Teams</h5>
-                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                    <?php if (!empty($teams)): ?>
+                      <?php foreach ($teams as $team): ?>
+                        <p><?= htmlspecialchars($team['team_name']) ?>
+                          <small>(<?= $team['start_year'] ?>/01 - <?= $team['end_year'] ?>/03)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <p>No previous teams found.</p>
+                    <?php endif; ?>
+
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>Trophies</h5>
-                    <p>Trophy 1 <small>(2003/01)</small></p>
-                    <p>Trophy 2 <small>(2003/01)</small></p>
-                    <p>Trophy 3 <small>(2003/01)</small></p>
+                    <?php if (!empty($trophies)): ?>
+                      <?php foreach ($trophies as $trophy): ?>
+                        <p><?= htmlspecialchars($trophy['trophy_name']) ?>
+                          <?php
+                          $startYear = (int) $trophy['year_awarded'];
+                          $endYear = $startYear + 1;
+                          ?>
+                          <small>(<?= $startYear ?>/<?= substr($endYear, -2) ?>)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php endif; ?>
+
+
+
+
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>People You May Know</h5>
-                    <p>User 1 <small>@handle</small></p>
-                    <p>User 2 <small>@handle</small></p>
-                    <p>User 3 <small>@handle</small></p>
+                    <?php foreach ($people as $person): ?>
+                      <?php
+                      $personPic = !empty($person['profile_pic'])
+                        ? $person['profile_pic']
+                        : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
+                      ?>
+                      <div class="d-flex align-items-center mb-2">
+                        <img src="<?= $personPic ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                        <div>
+                          <p class="mb-0"><?= htmlspecialchars($person['name']) ?></p>
+                          <small>@<?= htmlspecialchars($person['username']) ?></small>
+                        </div>
+                      </div>
+                    <?php endforeach; ?>
+
+
+
                   </div>
                 </div>
               </div> <!-- end col-md-4 -->
@@ -1321,21 +1442,57 @@ $resLikesTab = $conn->query($sqlLikes);
                 <div class="right-bar-wrapper">
                   <div class="right-bar p-3">
                     <h5>Previous Teams</h5>
-                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                    <?php if (!empty($teams)): ?>
+                      <?php foreach ($teams as $team): ?>
+                        <p><?= htmlspecialchars($team['team_name']) ?>
+                          <small>(<?= $team['start_year'] ?>/01 - <?= $team['end_year'] ?>/03)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <p>No previous teams found.</p>
+                    <?php endif; ?>
+
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>Trophies</h5>
-                    <p>Trophy 1 <small>(2003/01)</small></p>
-                    <p>Trophy 2 <small>(2003/01)</small></p>
-                    <p>Trophy 3 <small>(2003/01)</small></p>
+                    <?php if (!empty($trophies)): ?>
+                      <?php foreach ($trophies as $trophy): ?>
+                        <p><?= htmlspecialchars($trophy['trophy_name']) ?>
+                          <?php
+                          $startYear = (int) $trophy['year_awarded'];
+                          $endYear = $startYear + 1;
+                          ?>
+                          <small>(<?= $startYear ?>/<?= substr($endYear, -2) ?>)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php endif; ?>
+
+
+
+
+
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>People You May Know</h5>
-                    <p>User 1 <small>@handle</small></p>
-                    <p>User 2 <small>@handle</small></p>
-                    <p>User 3 <small>@handle</small></p>
+                    <?php foreach ($people as $person): ?>
+                      <?php
+                      $personPic = !empty($person['profile_pic'])
+                        ? $person['profile_pic']
+                        : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
+                      ?>
+                      <div class="d-flex align-items-center mb-2">
+                        <img src="<?= $personPic ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                        <div>
+                          <p class="mb-0"><?= htmlspecialchars($person['name']) ?></p>
+                          <small>@<?= htmlspecialchars($person['username']) ?></small>
+                        </div>
+                      </div>
+                    <?php endforeach; ?>
+
+
+
                   </div>
                 </div>
               </div> <!-- end col-md-4 -->
@@ -1566,21 +1723,52 @@ $resLikesTab = $conn->query($sqlLikes);
                 <div class="right-bar-wrapper">
                   <div class="right-bar p-3">
                     <h5>Previous Teams</h5>
-                    <p>Team 1 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 2 <small>(2000/01 - 2002/03)</small></p>
-                    <p>Team 3 <small>(2000/01 - 2002/03)</small></p>
+                    <?php if (!empty($teams)): ?>
+                      <?php foreach ($teams as $team): ?>
+                        <p><?= htmlspecialchars($team['team_name']) ?>
+                          <small>(<?= $team['start_year'] ?>/01 - <?= $team['end_year'] ?>/03)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <p>No previous teams found.</p>
+                    <?php endif; ?>
+
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>Trophies</h5>
-                    <p>Trophy 1 <small>(2003/01)</small></p>
-                    <p>Trophy 2 <small>(2003/01)</small></p>
-                    <p>Trophy 3 <small>(2003/01)</small></p>
+                    <?php if (!empty($trophies)): ?>
+                      <?php foreach ($trophies as $trophy): ?>
+                        <p><?= htmlspecialchars($trophy['trophy_name']) ?>
+                          <?php
+                          $startYear = (int) $trophy['year_awarded'];
+                          $endYear = $startYear + 1;
+                          ?>
+                          <small>(<?= $startYear ?>/<?= substr($endYear, -2) ?>)</small>
+                        </p>
+                      <?php endforeach; ?>
+                    <?php endif; ?>
+
                   </div>
                   <div class="right-bar p-3">
                     <h5>People You May Know</h5>
-                    <p>User 1 <small>@handle</small></p>
-                    <p>User 2 <small>@handle</small></p>
-                    <p>User 3 <small>@handle</small></p>
+                    <?php foreach ($people as $person): ?>
+                      <?php
+                      $personPic = !empty($person['profile_pic'])
+                        ? $person['profile_pic']
+                        : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
+                      ?>
+                      <div class="d-flex align-items-center mb-2">
+                        <img src="<?= $personPic ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                        <div>
+                          <p class="mb-0"><?= htmlspecialchars($person['name']) ?></p>
+                          <small>@<?= htmlspecialchars($person['username']) ?></small>
+                        </div>
+                      </div>
+                    <?php endforeach; ?>
+
+
+
                   </div>
                 </div>
               </div> <!-- end col-md-4 -->
@@ -1666,9 +1854,10 @@ $resLikesTab = $conn->query($sqlLikes);
       });
     </script>
 
+    <?php
+    $conn->close();
+    ?>
 
 </body>
 
 </html>
-<?php
-$conn->close();

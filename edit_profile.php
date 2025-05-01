@@ -17,7 +17,9 @@ if ($conn->connect_error) {
 }
 
 //Check the user's user type using the 'users' table
-$userSql = "SELECT username, name, user_type FROM users WHERE id = '$user_id'";
+$userSql = "SELECT username, name, user_type 
+            FROM users 
+            WHERE id = '$user_id'";
 $userResult = $conn->query($userSql);
 if ($userResult->num_rows == 0) {        //if no users exist.
   die("No user found with the ID $user_id.");
@@ -32,9 +34,24 @@ if ($userRow['user_type'] != 'player') {
 }
 
 //If the user is a player, load their info (from the 'players' row)
-$playerSql = "SELECT * FROM players where user_id='$user_id' ";
+$playerSql = "SELECT * FROM players 
+              where user_id='$user_id' ";
 $playerResult = $conn->query($playerSql);
 $playerData = $playerResult->fetch_assoc();   //if there's no row, this may be null
+
+// Fetch previous teams
+$prevTeamsSql = "SELECT * FROM previous_teams 
+                 WHERE user_id = '$user_id' 
+                 ORDER BY start_year DESC";
+$prevTeamsResult = $conn->query($prevTeamsSql);
+
+// Fetch trophies
+$trophiesSql = "SELECT * 
+                FROM trophies 
+                WHERE user_id = '$user_id' 
+                ORDER BY year_awarded DESC";
+$trophiesResult = $conn->query($trophiesSql);
+
 
 //If the form is submitted, overwrite previous data
 if (isset($_POST['update_profile'])) {
@@ -56,7 +73,9 @@ if (isset($_POST['update_profile'])) {
   $newAwards = $_POST['awards'];
   $newCountry = $_POST['country'];
 
-  $conn->query("UPDATE users SET name = '$newName', username = '$newUsername' WHERE id = '$user_id'");
+  $conn->query("UPDATE users 
+                       SET name = '$newName', username = '$newUsername' 
+                       WHERE id = '$user_id'");
 
 
   //Update and overwrite
@@ -77,6 +96,26 @@ if (isset($_POST['update_profile'])) {
                       country = '$newCountry' 
                   WHERE user_id = '$user_id' ";
   $conn->query($updateSql);
+
+  // Add a new previous team if data is provided
+  if (!empty($_POST['new_team_name']) && !empty($_POST['new_team_start']) && !empty($_POST['new_team_end'])) {
+    $teamName = $conn->real_escape_string($_POST['new_team_name']);
+    $startYear = (int) $_POST['new_team_start'];
+    $endYear = (int) $_POST['new_team_end'];
+
+    $conn->query("INSERT INTO previous_teams (user_id, team_name, start_year, end_year)
+                VALUES ('$user_id', '$teamName', '$startYear', '$endYear')");
+  }
+
+  // Add a new trophy if data is provided
+  if (!empty($_POST['new_trophy_name']) && !empty($_POST['new_trophy_year'])) {
+    $trophyName = $conn->real_escape_string($_POST['new_trophy_name']);
+    $yearAwarded = (int) $_POST['new_trophy_year'];
+
+    $conn->query("INSERT INTO trophies (user_id, trophy_name, year_awarded)
+                VALUES ('$user_id', '$trophyName', '$yearAwarded')");
+  }
+
 
   //Reload the page to show the updated values
   header("Location: edit_profile.php");
@@ -294,7 +333,8 @@ if (isset($_POST['update_profile'])) {
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Matches Played</label>
-                  <input type="number" name="appearances" value="<?= htmlspecialchars($playerData['appearances']) ?>" class="form-control">
+                  <input type="number" name="appearances" value="<?= htmlspecialchars($playerData['appearances']) ?>"
+                    class="form-control">
 
                 </div>
 
@@ -347,7 +387,67 @@ if (isset($_POST['update_profile'])) {
                       value="<?= htmlspecialchars($playerData[$key]) ?>" class="form-control">
                   </div>
                 <?php endforeach; ?>
+
+                <hr>
+                <!--Previous Teams-->
+                <h5 class="text-success">Previous Teams</h5>
+                <?php if ($prevTeamsResult && $prevTeamsResult->num_rows > 0): ?>
+                  <?php while ($team = $prevTeamsResult->fetch_assoc()): ?>
+                    <div class="mb-2 d-flex align-items-center">
+                      <input type="text" name="prev_teams_existing[]" class="form-control me-2"
+                        value="<?= htmlspecialchars($team['team_name']) ?>" readonly>
+                      <form method="POST" action="delete_team.php" onsubmit="return confirm('Delete this team?');">
+                        <input type="hidden" name="team_id" value="<?= $team['id'] ?>">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                      </form>
+                    </div>
+                  <?php endwhile; ?>
+
+                <?php else: ?>
+                  <small class="text-muted">No teams added yet.</small>
+                <?php endif; ?>
+
+                <!-- New team input -->
+                <div class="mb-3">
+                  <label class="form-label">Add New Team</label>
+                  <input type="text" name="new_team_name" class="form-control mb-1" placeholder="Team Name">
+                  <input type="number" name="new_team_start" class="form-control mb-1" placeholder="Start Year">
+                  <input type="number" name="new_team_end" class="form-control" placeholder="End Year">
+                </div>
+
+                <hr>
+                <!--Trophies-->
+                <h5 class="text-success">Trophies</h5>
+                <?php if ($trophiesResult && $trophiesResult->num_rows > 0): ?>
+                  <?php while ($trophy = $trophiesResult->fetch_assoc()): ?>
+                    <div class="mb-2 d-flex align-items-center">
+                      <div class="flex-grow-1">
+                        <input type="text" class="form-control mb-1" value="<?= htmlspecialchars($trophy['trophy_name']) ?>"
+                          readonly>
+                        <small>Year: <?= $trophy['year_awarded'] ?></small>
+                      </div>
+                      <form action="delete_trophy.php" method="POST" class="ms-2"
+                        onsubmit="return confirm('Delete this trophy?');">
+                        <input type="hidden" name="trophy_id" value="<?= $trophy['id'] ?>">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                      </form>
+                    </div>
+                  <?php endwhile; ?>
+
+                <?php else: ?>
+                  <small class="text-muted">No trophies added yet.</small>
+                <?php endif; ?>
+
+                <!-- New trophy input -->
+                <div class="mb-3">
+                  <label class="form-label">Add New Trophy</label>
+                  <input type="text" name="new_trophy_name" class="form-control mb-1" placeholder="Trophy Name">
+                  <input type="number" name="new_trophy_year" class="form-control" placeholder="Year Awarded">
+                </div>
+
               </div><!--Form fields-->
+
+
 
             </form>
           <?php else: ?>
