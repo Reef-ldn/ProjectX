@@ -273,6 +273,7 @@ if (isset($_POST['update_profile'])) {
       padding-bottom: 100px;
       /* reserve space for sticky bar */
     }
+    
   </style>
 
 </head>
@@ -396,9 +397,8 @@ if (isset($_POST['update_profile'])) {
                     <div class="mb-2 d-flex align-items-center">
                       <input type="text" name="prev_teams_existing[]" class="form-control me-2"
                         value="<?= htmlspecialchars($team['team_name']) ?>" readonly>
-                        <a href="delete_team.php?team_id=<?= $team['id'] ?>"
-   onclick="return confirm('Delete this team?');"
-   class="btn btn-sm btn-danger">Delete</a>
+                      <a href="delete_team.php?team_id=<?= $team['id'] ?>" onclick="return confirm('Delete this team?');"
+                        class="btn btn-sm btn-danger">Delete</a>
 
                     </div>
                   <?php endwhile; ?>

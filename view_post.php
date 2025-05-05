@@ -109,8 +109,6 @@ function fetchReplies($conn, $parentID)
       z-index: 2;
     }
 
-    
-
     .card {
       background-color: rgba(30, 30, 30, 0.90);
       color: rgba(240, 240, 240, 0.95);
