@@ -44,7 +44,7 @@ if ($loggedIn) {
                   SELECT followed_id FROM follows WHERE follower_id = $loggedUserId)
                       GROUP BY f2.followed_id
                       ORDER BY mutual_count DESC
-                  LIMIT 5";
+                  LIMIT 5"; //only show 5 mutuals
     //Store the result as a variable
     $mutualRes = $conn->query($mutualSql);
     //If a result is found, store it in the array
@@ -65,11 +65,15 @@ $sql = "SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.creat
           JOIN users u ON p.user_id = u.id 
           ORDER BY p.created_at DESC";
 $result = $conn->query($sql); //Fetch all posts
-//The "JOIN" gives the foreigner key of the user's name from the user's table
-//The select count is a sub query of likes and acts as a like counter.
+//Select all post information with the same ID as the Post ID
+// Then join it with the users table
+// "JOIN" gives the foreigner key of the user's name from the user's table
+//The select count is a sub query for likes and acts as a like counter.
+//Another sub query to get comments for this post
 //for each row in 'posts', the 'likes' table is also checked to see how many rows there is 
 // for posts with that id and  keeps a count of it
 //This count result is the 'like_count'
+//Order is reverse chronological order (Last oost first)
 ?>
 
 <!--Front End-->
@@ -654,7 +658,7 @@ $result = $conn->query($sql); //Fetch all posts
 
         const postId = this.dataset.postId;   //get the post ID from the data-post-id attribute
         //Check if the user has already liked this post (using the data-liked attirbute)
-        const liked = this.dataset.liked === '1'; 
+        const liked = this.dataset.liked === '1';
 
         try {
           //Send a request to toggle_lile.php with the correct action (either like or unlike)
@@ -690,14 +694,12 @@ $result = $conn->query($sql); //Fetch all posts
     });
   </script>
 
-
-
   <!--Timeout the pop up message after a few seconds-->
   <script>
     setTimeout(() => {
       const alert = document.querySelector('.alert');
       if (alert) {
-        alert.classList.remove('show'); 
+        alert.classList.remove('show');
         alert.classList.add('fade');
       }
     }, 3000);
@@ -707,8 +709,6 @@ $result = $conn->query($sql); //Fetch all posts
   <?php
   $conn->close();
   ?>
-
-
 
 </body>
 

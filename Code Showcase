@@ -16,125 +16,23 @@
  16
  17
  18
- 19
- 20
- 21
- 22
- 23
- 24
- 25
- 26
- 27
- 28
- 29
- 30
- 31
- 32
- 33
- 34
- 35
- 36
- 37
- 38
- 39
- 40
- 41
- 42
- 43
- 44
- 45
- 46
- 47
- 48
- 49
- 50
- 51
- 52
- 53
- 54
- 55
- 56
- 57
- 58
- 59
- 60
- 61
- 62
- 63
- 64
- 65
- 66
- 67
- 68
- 69
- 70</pre></td><td><pre style="margin: 0; line-height: 125%">&lt;!-- This page handles Registration using a form that Creates an account--&gt;
+ 19</pre></td><td><pre style="margin: 0; line-height: 125%"><span style="color: #008800">&lt;?php</span>
+ <span style="color: #008800; font-style: italic">//Fetch all videos from newest to oldest (LIFO)</span>
+ <span style="color: #B8860B">$sql</span> <span style="color: #666666">=</span> <span style="color: #BB4444">&quot;SELECT p.id AS postID, p.post_type, p.file_path, p.text_content, p.created_at, p.is_highlight, u.id </span>
+ <span style="color: #BB4444">        AS user_owner_id, u.username, u.name, u.profile_pic,</span>
+ <span style="color: #BB4444">          (SELECT COUNT(*) FROM likes l where l.post_id = p.id) AS like_count,</span>
+ <span style="color: #BB4444">          (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count</span>
+ <span style="color: #BB4444">          from posts p</span>
+ <span style="color: #BB4444">          JOIN users u ON p.user_id = u.id </span>
+ <span style="color: #BB4444">          ORDER BY p.created_at DESC&quot;</span>;
+ <span style="color: #B8860B">$result</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">query</span>(<span style="color: #B8860B">$sql</span>); <span style="color: #008800; font-style: italic">//Fetch all posts</span>
  
- &lt;!--Backend--&gt;
- <span style="color: #008800">&lt;?php</span>
- <span style="color: #008800; font-style: italic">//Checks if the form has been submitted through the submit button</span>
- <span style="color: #AA22FF; font-weight: bold">if</span> (<span style="color: #AA22FF">isset</span>(<span style="color: #B8860B">$_POST</span>[<span style="color: #BB4444">&#39;submit&#39;</span>])) {
- 
-   <span style="color: #008800; font-style: italic">//Gets the user inputted data from the form (reads it and parses into PHP variables)</span>
-   <span style="color: #B8860B">$username</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$_POST</span>[<span style="color: #BB4444">&#39;username&#39;</span>];
-   <span style="color: #B8860B">$email</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$_POST</span>[<span style="color: #BB4444">&#39;email&#39;</span>];
-   <span style="color: #B8860B">$password</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$_POST</span>[<span style="color: #BB4444">&#39;password&#39;</span>];
-   <span style="color: #B8860B">$user_type</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$_POST</span>[<span style="color: #BB4444">&#39;user_type&#39;</span>];   <span style="color: #008800; font-style: italic">//Gets the user&#39;s account type</span>
- 
- 
-   <span style="color: #008800; font-style: italic">//Connects the mySQL database</span>
-   <span style="color: #B8860B">$conn</span> <span style="color: #666666">=</span> <span style="color: #AA22FF; font-weight: bold">new</span> mysqli(<span style="color: #BB4444">&quot;localhost&quot;</span>, <span style="color: #BB4444">&quot;root&quot;</span>, <span style="color: #BB4444">&quot;&quot;</span>, <span style="color: #BB4444">&quot;projectx_db&quot;</span>);
-   <span style="color: #008800; font-style: italic">//Checks connection to the database</span>
-   <span style="color: #AA22FF; font-weight: bold">if</span> (<span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">connect_error</span>) {
-     <span style="color: #AA22FF; font-weight: bold">die</span>(<span style="color: #BB4444">&quot;Failed to connect to the database: &quot;</span> <span style="color: #666666">.</span> <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">connect_error</span>);    <span style="color: #008800; font-style: italic">//stops everything if there&#39;s an error</span>
-   }
- 
-   <span style="color: #008800; font-style: italic">//Hashing the password for security</span>
-   <span style="color: #B8860B">$hashed_password</span> <span style="color: #666666">=</span> password_hash(<span style="color: #B8860B">$password</span>, PASSWORD_DEFAULT);
- 
-   <span style="color: #008800; font-style: italic">//Inserts the new user into the &#39;users&#39; table as a column</span>
-   <span style="color: #B8860B">$sql</span> <span style="color: #666666">=</span> <span style="color: #BB4444">&quot;INSERT INTO users (username, email, password, created_at, user_type) </span>
- <span style="color: #BB4444">          VALUES (&#39;</span><span style="color: #BB6688; font-weight: bold">$username</span><span style="color: #BB4444">&#39;, &#39;</span><span style="color: #BB6688; font-weight: bold">$email</span><span style="color: #BB4444">&#39;, &#39;</span><span style="color: #BB6688; font-weight: bold">$hashed_password</span><span style="color: #BB4444">&#39;, NOW(), &#39;</span><span style="color: #BB6688; font-weight: bold">$user_type</span><span style="color: #BB4444">&#39;)&quot;</span>;
-   <span style="color: #B8860B">$result</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">query</span>(<span style="color: #B8860B">$sql</span>);
- 
-   <span style="color: #008800; font-style: italic">//If the user was created successfully, insert into respective role table</span>
-   <span style="color: #AA22FF; font-weight: bold">if</span> (<span style="color: #B8860B">$result</span> <span style="color: #666666">==</span> <span style="color: #AA22FF; font-weight: bold">TRUE</span>) {
-     <span style="color: #B8860B">$newUserId</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">insert_id</span>;    <span style="color: #008800; font-style: italic">//the newly created user&#39;s id</span>
- 
-     <span style="color: #008800; font-style: italic">//If the user_type is &#39;player&#39;, insert a row in the &#39;players&#39; table in the db</span>
-     <span style="color: #AA22FF; font-weight: bold">if</span> (<span style="color: #B8860B">$user_type</span> <span style="color: #666666">==</span> <span style="color: #BB4444">&#39;player&#39;</span>) {
-       <span style="color: #B8860B">$playerSql</span> <span style="color: #666666">=</span> <span style="color: #BB4444">&quot;INSERT INTO players (user_id, height, weight, age, goals, assists)</span>
- <span style="color: #BB4444">              VALUES (&#39;</span><span style="color: #BB6688; font-weight: bold">$newUserId</span><span style="color: #BB4444">&#39;, 0 ,0 , 0, 0, 0)&quot;</span>;
-       <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">query</span>(<span style="color: #B8860B">$playerSql</span>);
-     }
- 
-     <span style="color: #008800; font-style: italic">//If the user_type is &#39;scout&#39;, insert a row in the &#39;scouts&#39; table in the db</span>
-     <span style="color: #AA22FF; font-weight: bold">if</span> (<span style="color: #B8860B">$user_type</span> <span style="color: #666666">==</span> <span style="color: #BB4444">&#39;scout&#39;</span>) {
-       <span style="color: #B8860B">$scoutSql</span> <span style="color: #666666">=</span> <span style="color: #BB4444">&quot;INSERT INTO scouts (user_id)</span>
- <span style="color: #BB4444">              VALUES (&#39;</span><span style="color: #BB6688; font-weight: bold">$newUserId</span><span style="color: #BB4444">&#39;)&quot;</span>;
-       <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">query</span>(<span style="color: #B8860B">$scoutSql</span>);
-     }
- 
-     <span style="color: #008800; font-style: italic">//If the user_type is &#39;manager&#39;, insert a row in the &#39;managers&#39; table in the db</span>
-     <span style="color: #AA22FF; font-weight: bold">if</span> (<span style="color: #B8860B">$user_type</span> <span style="color: #666666">==</span> <span style="color: #BB4444">&#39;manager&#39;</span>) {
-       <span style="color: #B8860B">$managerSql</span> <span style="color: #666666">=</span> <span style="color: #BB4444">&quot;INSERT INTO managers (user_id, age)</span>
- <span style="color: #BB4444">              VALUES (&#39;</span><span style="color: #BB6688; font-weight: bold">$newUserId</span><span style="color: #BB4444">&#39;, 0)&quot;</span>;
-       <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">query</span>(<span style="color: #B8860B">$managerSql</span>);
-     }
- 
-     <span style="color: #008800; font-style: italic">//Gives Feedback to the user (Not shown due to redirect)</span>
-     <span style="color: #AA22FF; font-weight: bold">echo</span> <span style="color: #BB4444">&quot;Registration Successful!&quot;</span>;
- 
-     <span style="color: #008800; font-style: italic">//redirects to login page.</span>
-     header(<span style="color: #BB4444">&quot;Location: login.php&quot;</span>);
-     <span style="color: #AA22FF; font-weight: bold">exit</span>;
-   } <span style="color: #AA22FF; font-weight: bold">else</span> {
-     <span style="color: #AA22FF; font-weight: bold">echo</span> <span style="color: #BB4444">&quot;Error: &quot;</span> <span style="color: #666666">.</span> <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">error</span>; <span style="color: #008800; font-style: italic">//Show a db error if the connection fails</span>
-   }
- 
-   <span style="color: #008800; font-style: italic">//Closes the db connection</span>
-   <span style="color: #B8860B">$conn</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">close</span>();
- 
- }
+ <span style="color: #008800; font-style: italic">//Loop for the post itself (Snippet From different areas of code)</span>
+  <span style="color: #AA22FF; font-weight: bold">while</span> (<span style="color: #B8860B">$row</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$result</span><span style="color: #666666">-&gt;</span><span style="color: #BB4444">fetch_assoc</span>()) {
+               <span style="color: #008800; font-style: italic">// Variables</span>
+               <span style="color: #B8860B">$postID</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$row</span>[<span style="color: #BB4444">&#39;postID&#39;</span>]; <span style="color: #008800; font-style: italic">//Fetch the post ID</span>
+               <span style="color: #B8860B">$likeCount</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$row</span>[<span style="color: #BB4444">&#39;like_count&#39;</span>]; <span style="color: #008800; font-style: italic">//Fetch the like count</span>
+               <span style="color: #B8860B">$commentCount</span> <span style="color: #666666">=</span> <span style="color: #B8860B">$row</span>[<span style="color: #BB4444">&#39;comment_count&#39;</span>]; <span style="color: #008800; font-style: italic">//Fetch the comment count</span>
  
  <span style="color: #008800">?&gt;</span>
  </pre></td></tr></table></div>
