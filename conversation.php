@@ -79,21 +79,21 @@ $result = $conn->query($sql);
     }
 
     body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  color: white;
-  font-family: sans-serif;
-  position: relative;
-}
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: url('/ProjectX/uploads/people-soccer-stadium.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: white;
+      font-family: sans-serif;
+      position: relative;
+    }
 
     .bg-blur-overlay {
       position: fixed;
@@ -107,17 +107,17 @@ $result = $conn->query($sql);
     }
 
     .main-wrapper {
-  z-index: 2;
-  width: 100%;
-  max-width: 700px;
-  height: 90vh;
-  display: flex;
-  flex-direction: column;
-  background: rgba(30, 30, 30, 0.92);
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(0, 255, 100, 0.2);
-  overflow: hidden;
-}
+      z-index: 2;
+      width: 100%;
+      max-width: 700px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      background: rgba(30, 30, 30, 0.92);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 100, 0.2);
+      overflow: hidden;
+    }
 
     .chat-container {
       width: 100%;
@@ -158,17 +158,17 @@ $result = $conn->query($sql);
       align-items: flex-end;
     }
 
-.msg-content p {
-  margin: 0;
-  padding: 5px 0 0 0;
-}
-/* Reduce unnecessary bottom space */
-.msg-content small {
-  display: block;
-  margin-top: 5px;
-  font-size: 0.75rem;
-  opacity: 0.7;
-}
+    .msg-content p {
+      margin: 0;
+      padding: 5px 0 0 0;
+    }
+
+    .msg-content small {
+      display: block;
+      margin-top: 5px;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
 
     .message .msg-content {
       padding: 10px 15px;
@@ -200,10 +200,11 @@ $result = $conn->query($sql);
       background: rgba(30, 30, 30, 0.9);
       color: #e9ecef;
     }
+
     .message-form textarea::placeholder {
-  color: #ccc;
-  opacity: 1;
-}
+      color: #ccc;
+      opacity: 1;
+    }
 
     .message-form textarea {
       flex: 1;

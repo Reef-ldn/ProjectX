@@ -218,27 +218,29 @@ if (isset($_POST['submit_post'])) {    //if the post button is pressed.
 
       .upload-container .form-control:focus {
         border-color: #0f0;
-        background-color: rgba(30, 30, 30, 0.85);;
+        background-color: rgba(30, 30, 30, 0.85);
+        ;
         color: white;
         box-shadow: none;
       }
 
-.upload-container select.form-select {
-  background-color: rgba(30, 30, 30, 0.85);;
-  color: white;
-  border: 1px solid #444;
-}
+      .upload-container select.form-select {
+        background-color: rgba(30, 30, 30, 0.85);
+        ;
+        color: white;
+        border: 1px solid #444;
+      }
 
-.upload-container select.form-select option[disabled] {
-  color: #aaa;
-}
+      .upload-container select.form-select option[disabled] {
+        color: #aaa;
+      }
 
-.upload-container select.form-select:focus {
-  border-color: #0f0;
-  background-color: #111;
-  color: white;
-  box-shadow: none;
-}
+      .upload-container select.form-select:focus {
+        border-color: #0f0;
+        background-color: #111;
+        color: white;
+        box-shadow: none;
+      }
 
 
       /* Style for the drag & drop box */
