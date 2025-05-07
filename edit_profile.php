@@ -28,10 +28,28 @@ $userRow = $userResult->fetch_assoc();
 $username = $userRow['username'];
 $name = $userRow['name'];
 
-//If the user isn't a player, deny them edit permissions.
-if ($userRow['user_type'] != 'player') {
-  die("You are not a player, so you can not edit the player profile info.");
+//Get the user type
+$userType = $userRow['user_type'];
+
+//if the user is a fan, deny them access to the edit.
+if (!in_array($userRow['user_type'], ['player', 'manager', 'scout'])) {
+  die("Profile edits are not allowed on this profile type.");
 }
+
+
+
+//If the user is a manager
+if ($userType === 'manager') {
+  $mgrSql = "SELECT * FROM managers WHERE user_id = '$user_id'";
+  $mgrResult = $conn->query($mgrSql);
+  $mgrData = ($mgrResult && $mgrResult->num_rows > 0) ? $mgrResult->fetch_assoc() : null;
+  //if the user is a scout
+} elseif ($userType === 'scout') {
+  $scoutSql = "SELECT * FROM scouts WHERE user_id = '$user_id'";
+  $scoutResult = $conn->query($scoutSql);
+  $scoutData = ($scoutResult && $scoutResult->num_rows > 0) ? $scoutResult->fetch_assoc() : null;
+}
+
 
 //If the user is a player, load their info (from the 'players' row)
 $playerSql = "SELECT * FROM players 
@@ -55,31 +73,34 @@ $trophiesResult = $conn->query($trophiesSql);
 
 //If the form is submitted, overwrite previous data
 if (isset($_POST['update_profile'])) {
-  //Read the new data from the form
+  //Name and username variables
   $newName = $_POST['name'];
   $newUsername = $_POST['username'];
-  $newHeight = $_POST['height'];
-  $newWeight = $_POST['weight'];
-  $newAge = $_POST['age'];
-  $newMatches = $_POST['appearances'];
-  $newPosition = $_POST['preferred_position'];
-  $newFoot = $_POST['preferred_foot'];
-  $newGoals = $_POST['goals'];
-  $newAssists = $_POST['assists'];
-  $newMotm = $_POST['motm'];
-  $newPotm = $_POST['potm'];
-  $newTeam = $_POST['current_team'];
-  $newLeague = $_POST['current_league'];
-  $newAwards = $_POST['awards'];
-  $newCountry = $_POST['country'];
 
+  //Update the name and username for all account types
   $conn->query("UPDATE users 
-                       SET name = '$newName', username = '$newUsername' 
-                       WHERE id = '$user_id'");
+  SET name = '$newName', username = '$newUsername' 
+  WHERE id = '$user_id'");
 
+  if ($userType === 'player') {
+    //Read the new data from the form
+    $newHeight = $_POST['height'];
+    $newWeight = $_POST['weight'];
+    $newAge = $_POST['age'];
+    $newMatches = $_POST['appearances'];
+    $newPosition = $_POST['preferred_position'];
+    $newFoot = $_POST['preferred_foot'];
+    $newGoals = $_POST['goals'];
+    $newAssists = $_POST['assists'];
+    $newMotm = $_POST['motm'];
+    $newPotm = $_POST['potm'];
+    $newTeam = $_POST['current_team'];
+    $newLeague = $_POST['current_league'];
+    $newAwards = $_POST['awards'];
+    $newCountry = $_POST['country'];
 
-  //Update and overwrite
-  $updateSql = "UPDATE players
+    //Update and overwrite
+    $updateSql = "UPDATE players
                   SET height = '$newHeight',
                       weight = '$newWeight',
                       age = '$newAge',
@@ -95,26 +116,74 @@ if (isset($_POST['update_profile'])) {
                       awards = '$newAwards',
                       country = '$newCountry' 
                   WHERE user_id = '$user_id' ";
-  $conn->query($updateSql);
+    $conn->query($updateSql);
 
-  // Add a new previous team if data is provided
-  if (!empty($_POST['new_team_name']) && !empty($_POST['new_team_start']) && !empty($_POST['new_team_end'])) {
-    $teamName = $conn->real_escape_string($_POST['new_team_name']);
-    $startYear = (int) $_POST['new_team_start'];
-    $endYear = (int) $_POST['new_team_end'];
+    // Add a new previous team if data is provided
+    if (!empty($_POST['new_team_name']) && !empty($_POST['new_team_start']) && !empty($_POST['new_team_end'])) {
+      $teamName = $conn->real_escape_string($_POST['new_team_name']);
+      $startYear = (int) $_POST['new_team_start'];
+      $endYear = (int) $_POST['new_team_end'];
 
-    $conn->query("INSERT INTO previous_teams (user_id, team_name, start_year, end_year)
+      $conn->query("INSERT INTO previous_teams (user_id, team_name, start_year, end_year)
                 VALUES ('$user_id', '$teamName', '$startYear', '$endYear')");
-  }
+    }
 
-  // Add a new trophy if data is provided
-  if (!empty($_POST['new_trophy_name']) && !empty($_POST['new_trophy_year'])) {
-    $trophyName = $conn->real_escape_string($_POST['new_trophy_name']);
-    $yearAwarded = (int) $_POST['new_trophy_year'];
+    // Add a new trophy if data is provided
+    if (!empty($_POST['new_trophy_name']) && !empty($_POST['new_trophy_year'])) {
+      $trophyName = $conn->real_escape_string($_POST['new_trophy_name']);
+      $yearAwarded = (int) $_POST['new_trophy_year'];
 
-    $conn->query("INSERT INTO trophies (user_id, trophy_name, year_awarded)
+      $conn->query("INSERT INTO trophies (user_id, trophy_name, year_awarded)
                 VALUES ('$user_id', '$trophyName', '$yearAwarded')");
+    }
+
+  } elseif ($userType === 'manager') {
+    // update managers table
+    $newTeam = $_POST['current_team'];
+    $newLeague = $_POST['current_league'];
+    $newLang = $_POST['spoken_language'];
+    $newMatches = $_POST['matches_managed'];
+    $newAge = $_POST['age'];
+    $newCountry = $_POST['country'];
+    $newMotm = $_POST['motm'];
+    $newMoty = $_POST['moty'];
+    $newCS = $_POST['clean_sheets'];
+    $newAwards = $_POST['awards'];
+
+    $conn->query("UPDATE managers SET
+    current_team = '$newTeam',
+    current_league = '$newLeague',
+    spoken_language = '$newLang',
+    matches_managed = '$newMatches',
+    age = '$newAge',
+    country = '$newCountry',
+    motm = '$newMotm',
+    moty = '$newMoty',
+    `clean sheets` = '$newCS',
+    awards = '$newAwards'
+    WHERE user_id = '$user_id'");
+  } elseif ($userType === 'scout') {
+    // update scouts table
+    $newTeam = $_POST['current_team'];
+    $newLeague = $_POST['current_league'];
+    $newLang = $_POST['spoken_language'];
+    $newCountry = $_POST['country'];
+    $newPrevTeams = $_POST['previous_teams'];
+    $newDuration = $_POST['duration'];
+    $newAchievements = $_POST['achievements'];
+
+    $conn->query("UPDATE scouts SET
+    current_team = '$newTeam',
+    current_league = '$newLeague',
+    spoken_language = '$newLang',
+    Country = '$newCountry',
+    previous_teams = '$newPrevTeams',
+    duration = '$newDuration',
+    achievements = '$newAchievements'
+    WHERE user_id = '$user_id'");
   }
+
+
 
 
   //Reload the page to show the updated values
@@ -273,7 +342,6 @@ if (isset($_POST['update_profile'])) {
       padding-bottom: 100px;
       /* reserve space for sticky bar */
     }
-    
   </style>
 
 </head>
@@ -297,41 +365,44 @@ if (isset($_POST['update_profile'])) {
       </div>
 
 
-      <!-- Flexbox for Left/Right sides -->
+      <!-- Container -->
       <div class="row flex-grow-1 gx-5 overflow-auto" style="min-height: 0;">
 
-        <!-- Left Form: Scrollable -->
+        <!-- Left form -->
         <div class="col-md-7">
-          <?php if ($playerData): ?>
+          <?php if ($userType === 'player' && $playerData): ?>
             <form id="editForm" action="edit_profile.php" method="POST" class="d-flex flex-column h-100">
               <!--  fields  -->
               <div class="form-scroll">
-                <div class="mb-3">
 
+                <div class="mb-3">
                   <label class="form-label">Name</label>
                   <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" class="form-control">
                 </div>
+
                 <div class="mb-3">
                   <label class="form-label">Username</label>
                   <input type="text" name="username" value="<?= htmlspecialchars($username) ?>" class="form-control">
                 </div>
 
                 <div class="mb-3">
-
                   <label class="form-label">Height (cm)</label>
                   <input type="number" name="height" value="<?= htmlspecialchars($playerData['height']) ?>"
                     class="form-control">
                 </div>
+
                 <div class="mb-3">
                   <label class="form-label">Weight (kg)</label>
                   <input type="number" name="weight" value="<?= htmlspecialchars($playerData['weight']) ?>"
                     class="form-control">
                 </div>
+
                 <div class="mb-3">
                   <label class="form-label">Age</label>
                   <input type="number" name="age" value="<?= htmlspecialchars($playerData['age']) ?>"
                     class="form-control">
                 </div>
+
                 <div class="mb-3">
                   <label class="form-label">Matches Played</label>
                   <input type="number" name="appearances" value="<?= htmlspecialchars($playerData['appearances']) ?>"
@@ -368,7 +439,7 @@ if (isset($_POST['update_profile'])) {
                   </select>
                 </div>
 
-                <!-- More Inputs -->
+                <!-- The rest of the Inputs -->
                 <?php
                 $fields = [
                   'goals' => 'Goals',
@@ -446,13 +517,92 @@ if (isset($_POST['update_profile'])) {
                 </div>
 
               </div><!--Form fields-->
+            <?php elseif ($userType === 'manager' && $mgrData): ?>
+              <form id="editForm" action="edit_profile.php" method="POST" class="d-flex flex-column h-100">
+                <div class="form-scroll">
+                  <div class="mb-3"><label>Name</label>
+                    <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Username</label>
+                    <input type="text" name="username" value="<?= htmlspecialchars($username) ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Current Team</label>
+                    <input type="text" name="current_team" value="<?= $mgrData['current_team'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>League</label>
+                    <input type="text" name="current_league" value="<?= $mgrData['current_league'] ?>"
+                      class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Language</label>
+                    <input type="text" name="spoken_language" value="<?= $mgrData['spoken_language'] ?>"
+                      class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Age</label>
+                    <input type="number" name="age" value="<?= $mgrData['age'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Country</label>
+                    <input type="text" name="country" value="<?= $mgrData['country'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Matches Managed</label>
+                    <input type="number" name="matches_managed" value="<?= $mgrData['matches_managed'] ?>"
+                      class="form-control">
+                  </div>
+                  <div class="mb-3"><label>MOTM</label>
+                    <input type="number" name="motm" value="<?= $mgrData['motm'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>MOTY</label>
+                    <input type="number" name="moty" value="<?= $mgrData['moty'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Clean Sheets</label>
+                    <input type="number" name="clean_sheets" value="<?= $mgrData['clean sheets'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Awards</label>
+                    <textarea name="awards" class="form-control"><?= $mgrData['awards'] ?></textarea>
+                  </div>
+                </div>
+              </form>
+
+            <?php elseif ($userType === 'scout' && $scoutData): ?>
+              <form id="editForm" action="edit_profile.php" method="POST" class="d-flex flex-column h-100">
+                <div class="form-scroll">
+                  <div class="mb-3"><label>Name</label>
+                    <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Username</label>
+                    <input type="text" name="username" value="<?= htmlspecialchars($username) ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Current Team</label>
+                    <input type="text" name="current_team" value="<?= $scoutData['current_team'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>League</label>
+                    <input type="text" name="current_league" value="<?= $scoutData['current_league'] ?>"
+                      class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Language</label>
+                    <input type="text" name="spoken_language" value="<?= $scoutData['spoken_language'] ?>"
+                      class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Country</label>
+                    <input type="text" name="country" value="<?= $scoutData['Country'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Previous Teams</label>
+                    <input type="text" name="previous_teams" value="<?= $scoutData['previous_teams'] ?>"
+                      class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Duration (Years)</label>
+                    <input type="number" name="duration" value="<?= $scoutData['duration'] ?>" class="form-control">
+                  </div>
+                  <div class="mb-3"><label>Achievements</label>
+                    <textarea name="achievements" class="form-control"><?= $scoutData['achievements'] ?></textarea>
+                  </div>
+                </div>
+              </form>
+            <?php else: ?>
+              <p>No data found.</p>
+            <?php endif; ?>
 
 
 
-            </form>
-          <?php else: ?>
-            <p>No player data found.</p>
-          <?php endif; ?>
         </div>
 
 
@@ -469,7 +619,7 @@ if (isset($_POST['update_profile'])) {
         </div>
       </div>
 
-      <!-- Sticky full-width bottom action bar -->
+      <!-- action bar -->
       <div class="action-bar">
         <a href="profile.php?user_id=<?= $user_id ?>" class="btn btn-outline-light w-50">← Back to Profile</a>
         <button form="editForm" type="submit" name="update_profile" class="btn btn-success w-50">Save
@@ -483,7 +633,7 @@ if (isset($_POST['update_profile'])) {
 
 
 
-
+  <!--Script to preview the image in the drag and drop-->
   <script>
     function previewImage(event) {
       const reader = new FileReader();

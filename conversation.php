@@ -26,10 +26,10 @@ $userRes = $conn->query($userSql);
 if ($userRes && $userRes->num_rows > 0) {
   $userRow = $userRes->fetch_assoc();
   $other_username = $userRow['username'];
-  $other_profile_pic = $userRow['profile_pic'] ?? 'uploads/profile_pics/default_profile_pic.jpg';
+  $other_profile_pic = $userRow['profile_pic'] ?? 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
 } else {
   $other_username = "Unknown User";
-  $other_profile_pic = 'uploads/profile_pics/default_profile_pic.jpg';
+  $other_profile_pic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
 }
 
 
