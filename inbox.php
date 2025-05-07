@@ -223,7 +223,7 @@ $users = $conn->query($sql);
               <div class="user-info">
                 <div>
                   <!--profile pic-->
-                  <img src="<?php echo $row['profile_pic'] ?? 'uploads/profile_pics/default_profile_pic.jpg'; ?>" alt="">
+                  <img src="<?php echo $row['profile_pic'] ?? 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; ?>" alt="">
                   <!--username-->
                   <strong><?php echo $row['username']; ?></strong>
                   <!--Show a preview of the last message in the chat-->
