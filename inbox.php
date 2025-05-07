@@ -172,10 +172,12 @@ $users = $conn->query($sql);
 
     /* Chat viewer for smaller screens */
     @media (max-width: 768px) {
+
       /* Hide sidebar completely */
       .sidebar {
         display: none !important;
       }
+
       /* Expand chat view to take full width */
       .chat-viewer {
         width: 100%;
@@ -195,10 +197,10 @@ $users = $conn->query($sql);
   <!--Wrapper-->
   <div class="main-content-wrapper position-relative z-2">
 
-  <!--Inbox Wrapper-->
+    <!--Inbox Wrapper-->
     <div class="inbox-wrapper mt-5">
-      
-    <!--Nav Bar-->
+
+      <!--Nav Bar-->
       <?php
       $currentPage = 'inbox';
       include 'navbar.php'; ?>

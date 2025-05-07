@@ -10,8 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 
 <!--Backend to handle post  -->
 <?php
- //if the post button is pressed from the upload form.
-if (isset($_POST['submit_post'])) {   
+//if the post button is pressed from the upload form.
+if (isset($_POST['submit_post'])) {
 
   //Get data from the form
   $user_id = $_SESSION['user_id'];  //User ID
@@ -29,7 +29,8 @@ if (isset($_POST['submit_post'])) {
   $file_path = null;      //defailt is null for text posts
 
   //Check if the user uploaded a file (only if the post_type is an image/vid)
-  if ( ($post_type == "image" || $post_type == "video")   //if the post is an image or a video, we expect an uploaded file
+  if (
+    ($post_type == "image" || $post_type == "video")   //if the post is an image or a video, we expect an uploaded file
     && isset($_FILES['media_file'])
     && $_FILES['media_file']['error'] == 0
   ) {        //also check for errors
@@ -38,7 +39,7 @@ if (isset($_POST['submit_post'])) {
     $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'];
 
     // Get the MIME type of the uploaded file
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);  
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimeType = finfo_file($finfo, $_FILES['media_file']['tmp_name']);  //Check the upload's type
     finfo_close($finfo);
 
@@ -72,9 +73,9 @@ if (isset($_POST['submit_post'])) {
   //file_path = string or null (s) - Pass a string if not null
   //text_content = string(s)
   $stmt->bind_param("issss", $user_id, $post_type, $title, $file_path, $text_content); //"isss" represents the above
-  
+
   //if the statement is executed successfully
-  if ($stmt->execute()) {          
+  if ($stmt->execute()) {
     echo "Post uploaded successfully!";
   } else {  //Error occured
     echo "Error uploading your post: " . $stmt->error;
@@ -133,6 +134,7 @@ if (isset($_POST['submit_post'])) {
       max-width: 100%;
       max-height: 300px;
     }
+
     /* Preview drop area */
     #drop-area {
       border: 2px dashed #ccc;
@@ -141,6 +143,7 @@ if (isset($_POST['submit_post'])) {
       cursor: pointer;
       transition: border 0.3s ease;
     }
+
     #drop-area.dragging {
       border-color: #009e42;
       background-color: #f0fff3;
@@ -176,6 +179,7 @@ if (isset($_POST['submit_post'])) {
         background-attachment: fixed;
         color: white;
       }
+
       /* Blur Background */
       .bg-blur-overlay {
         position: fixed;
@@ -200,17 +204,20 @@ if (isset($_POST['submit_post'])) {
         box-shadow: 0 0 15px rgba(0, 255, 100, 0.2);
         color: white;
       }
+
       /* Form input Fields */
       .upload-container .form-control {
         background-color: rgba(30, 30, 30, 0.85);
         color: white;
         border: 1px solid #444;
       }
+
       .upload-container .form-control::placeholder,
       .upload-container textarea::placeholder {
         color: #aaa;
         opacity: 1;
       }
+
       .upload-container .form-control:focus {
         border-color: #0f0;
         background-color: rgba(30, 30, 30, 0.85);
@@ -218,15 +225,18 @@ if (isset($_POST['submit_post'])) {
         color: white;
         box-shadow: none;
       }
+
       .upload-container select.form-select {
         background-color: rgba(30, 30, 30, 0.85);
         ;
         color: white;
         border: 1px solid #444;
       }
+
       .upload-container select.form-select option[disabled] {
         color: #aaa;
       }
+
       .upload-container select.form-select:focus {
         border-color: #0f0;
         background-color: #111;
@@ -242,6 +252,7 @@ if (isset($_POST['submit_post'])) {
         cursor: pointer;
         transition: border 0.3s ease;
       }
+
       /* Change appearance when a file is being dragged over */
       #drop-area.dragging {
         border-color: #009e42;
@@ -253,6 +264,7 @@ if (isset($_POST['submit_post'])) {
         margin-top: 15px;
         max-height: 300px;
       }
+
       .preview-box img,
       .preview-box video {
         max-width: 100%;
@@ -335,7 +347,7 @@ if (isset($_POST['submit_post'])) {
       dropArea.addEventListener('click', () => mediaInput.click());
 
       // When a file is dragged over the drop area 
-      ['dragenter', 'dragover'].forEach(event => {    
+      ['dragenter', 'dragover'].forEach(event => {
         dropArea.addEventListener(event, e => {   //Listen for the file being dragged over
           e.preventDefault(); //Stop original action
           e.stopPropagation();
@@ -379,7 +391,7 @@ if (isset($_POST['submit_post'])) {
             preview.appendChild(img);   //Preview image
             //If file is a video
           } else if (file.type.startsWith('video/')) {
-            const video = document.createElement('video');  
+            const video = document.createElement('video');
             video.src = e.target.result;
             video.controls = true;
             preview.appendChild(video); //Preview Video

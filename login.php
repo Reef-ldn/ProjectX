@@ -39,7 +39,8 @@ if (isset($_POST['submit'])) {   //checks if the login button was pressed
   //close the db connection
   $conn->close();
   //redirect the user to the feed page, whether they are successful or not (needs working on for deployment)
-  header("Location: feed.php"); exit;
+  header("Location: feed.php");
+  exit;
 
 }
 /*Session just means to remember the user's ID in the background 
@@ -99,9 +100,11 @@ so the next time they visit the page, they will be remembered*/
       color: white;
       border: 1px solid #444;
     }
+
     .form-control::placeholder {
       color: #aaa;
     }
+
     .form-control:focus {
       border-color: #0f0;
       background-color: #111;
@@ -114,6 +117,7 @@ so the next time they visit the page, they will be remembered*/
       background-color: #009e42;
       border-color: #009e42;
     }
+
     .btn-success:hover {
       background-color: #00c55b;
     }
@@ -130,11 +134,13 @@ so the next time they visit the page, they will be remembered*/
       text-align: center;
       margin-top: 20px;
     }
+
     .signup-text a {
       color: #00ff88;
       text-decoration: none;
       font-weight: bold;
     }
+
     .signup-text a:hover {
       text-decoration: underline;
     }
@@ -144,11 +150,11 @@ so the next time they visit the page, they will be remembered*/
 <body>
   <!--Blurred Background-->
   <div class="bg-blur-overlay"></div>
-   <!--Nav Bar-->
-   <?php 
-    // $currentPage = 'profile';
-    include 'navbar.php'; ?>
-  
+  <!--Nav Bar-->
+  <?php
+  // $currentPage = 'profile';
+  include 'navbar.php'; ?>
+
   <!--Form Container-->
   <div class="login-box">
     <h1 class="text-center mb-4">Log In</h1>
@@ -184,9 +190,7 @@ so the next time they visit the page, they will be remembered*/
     </div>
   </div>
 
- 
+
 </body>
 
 </html>
-
-    

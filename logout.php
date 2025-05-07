@@ -11,6 +11,6 @@ session_destroy(); //clears the session
 echo "You have logged out"; //Not visible due to redirect
 
 //redirects to login page.
-header("Location: login.php"); 
+header("Location: login.php");
 exit;
 ?>

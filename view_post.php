@@ -1,3 +1,5 @@
+<!-- This page handles viewing a post once the comment icon is selecte -->
+
 <?php
 
 //Ensure the user is logged in

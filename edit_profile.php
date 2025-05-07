@@ -1,4 +1,4 @@
-<!--This script allows users to handle editing their profiles-->
+<!--This Page allows users to handle editing their profiles-->
 
 <!--Backend-->
 <?php
@@ -643,7 +643,7 @@ if (isset($_POST['update_profile'])) {
       </div>
 
     </div> <!--Container-->
-  </div>  
+  </div>
 
   <!--JavaScript Script to preview the profile pic image -->
   <script>

@@ -1,5 +1,4 @@
 <?php
-// This script allows the user to comment on posts
 session_start();
 header('Content-Type: application/json'); //Tells the browser we're returning JSON
 

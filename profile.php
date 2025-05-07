@@ -426,6 +426,10 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
       position: sticky;
       top: 70px;
     }
+
+    .bi-three-dots {
+      color: #fff;
+    }
   </style>
 </head>
 
@@ -1030,7 +1034,8 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
                             <!--Left -  User profile pic, name, handle and time-->
                             <div class="d-flex align-items-center">
                               <!--User's Profile Pic-->
-                              <img src="<?php echo $ownerPic ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
+                              <img src="<?php echo $ownerPic ?>" alt="Profile" width="40" height="40"
+                                class="rounded-circle me-2">
                               <div>
                                 <!--User account name-->
                                 <strong><?php echo $row['name']; ?></strong>
@@ -1046,22 +1051,28 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
                             <!-- Right -  3-dot dropdown menu -->
                             <div class="dropdown">
                               <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots"></i> 
+                                <i class="bi bi-three-dots"></i>
                               </button>
                               <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="#">Save Post</a></li> <!--Not Functional-->
                                 <!--Only show this if the PostOwner is the logged in user-->
                                 <?php if ($postOwnerID == $loggedUserID): ?>
                                   <!--If it's a highlight, let them remove-->
-                                  <?php if ($row['is_highlight'] == 1): ?> 
-                                    <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from Highlights</a> </li>
+                                  <?php if ($row['is_highlight'] == 1): ?>
+                                    <li><a class="dropdown-item"
+                                        href="highlight_post.php?post_id=<?php echo $postID; ?>&action=remove">Remove from
+                                        Highlights</a> </li>
                                   <?php else: ?>
                                     <!--If it's not highlighted already, let them add-->
-                                    <li><a class="dropdown-item" href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add to Highlights</a></li>
+                                    <li><a class="dropdown-item"
+                                        href="highlight_post.php?post_id=<?php echo $postID; ?>&action=add">Add to
+                                        Highlights</a></li>
                                   <?php endif; ?>
                                   <!--Delete Post-->
-                                  <li><a class="dropdown-item text-danger" href="delete_post.php?post_id=<?php echo $postID; ?>" 
-                                  onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a> </li>
+                                  <li><a class="dropdown-item text-danger"
+                                      href="delete_post.php?post_id=<?php echo $postID; ?>"
+                                      onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</a>
+                                  </li>
                                 <?php endif; ?>
                                 <li>
                                   <hr class="dropdown-divider"> <!--Divider-->
@@ -1156,7 +1167,7 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
                           </form>
 
                         </div> <!-- end card-body -->
-                      </div> 
+                      </div>
 
                       <?php
                     } // end while
@@ -1214,11 +1225,11 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
                         </div>
                       <?php endforeach; ?>
                     </div>
-                    
+
                   </div>
                 </div> <!--Side Bar-->
 
-              </div> 
+              </div>
             </div>
           </div> <!--Media-->
 
@@ -1410,7 +1421,7 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
                             <button class="btn btn-sm btn-primary" type="submit">Comment</button>
                           </form>
                         </div>
-                      </div> 
+                      </div>
 
                       <?php
                     } // end while
@@ -1453,7 +1464,7 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
                     <div class="right-bar p-3">
                       <h5>People You May Know</h5>
                       <?php foreach ($people as $person): ?>
-                        <?php $personPic = !empty($person['profile_pic']) ? $person['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';?>
+                        <?php $personPic = !empty($person['profile_pic']) ? $person['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; ?>
                         <div class="d-flex align-items-center mb-2">
                           <img src="<?= $personPic ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                           <div>
@@ -1697,7 +1708,7 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
                     <div class="right-bar p-3">
                       <h5>People You May Know</h5>
                       <?php foreach ($people as $person): ?>
-                        <?php $personPic = !empty($person['profile_pic']) ? $person['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg';?>
+                        <?php $personPic = !empty($person['profile_pic']) ? $person['profile_pic'] : 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; ?>
                         <div class="d-flex align-items-center mb-2">
                           <img src="<?= $personPic ?>" alt="Profile" width="40" height="40" class="rounded-circle me-2">
                           <div>
@@ -1710,7 +1721,7 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
 
                   </div>
                 </div> <!--Side Bar-->
-              </div> 
+              </div>
             </div>
           </div> <!--Likes-->
 

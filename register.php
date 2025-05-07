@@ -123,9 +123,11 @@ if (isset($_POST['submit'])) {
       color: white;
       border: 1px solid #444;
     }
+
     .form-control::placeholder {
       color: #aaa;
     }
+
     .form-control:focus,
     .form-select:focus {
       border-color: #00ff88;
@@ -139,6 +141,7 @@ if (isset($_POST['submit'])) {
       background-color: #009e42;
       border-color: #009e42;
     }
+
     .btn-success:hover {
       background-color: #00c55b;
     }
@@ -155,11 +158,13 @@ if (isset($_POST['submit'])) {
       text-align: center;
       margin-top: 20px;
     }
+
     .login-text a {
       color: #00ff88;
       text-decoration: none;
       font-weight: bold;
     }
+
     .login-text a:hover {
       text-decoration: underline;
     }
@@ -178,7 +183,7 @@ if (isset($_POST['submit'])) {
   <!--Container-->
   <div class="register-box">
     <h1 class="text-center mb-4">Sign Up</h1>
-    
+
     <!--The Registration Form-->
     <form method="POST" action="register.php">
       <div class="mb-3">

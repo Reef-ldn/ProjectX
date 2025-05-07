@@ -1,8 +1,5 @@
 /* style.css - global styles for Next XI */
 
-
-
-/* Ensure videos and images are contained nicely */
 video,
 img {
   max-width: 100%;
@@ -10,7 +7,7 @@ img {
   object-fit: contain;
 }
 
-/* consistent comment box spacing */
+/*  comment box spacing */
 .comment-box {
   padding: 10px;
   border: 1px solid #ddd;
@@ -19,13 +16,11 @@ img {
   background-color: white;
 }
 
-/*  reply button tweak */
 .show-reply-btn {
   scale: 90%;
   font-weight: 600;
 }
 
-/*  prevent layout shifting on comment header/footer */
 .sticky-header,
 .sticky-footer {
   position: sticky;

@@ -19,10 +19,11 @@ if (!isset($conn)) {
 }
 ?>
 
+<!-- If the user is logged in, show the Nav Bar -->
 <?php if ($loggedIn) {
-  // Get user's profile pic if needed from DB
-  $loggedInPic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
 
+  // Get user's profile pic  from DB
+  $loggedInPic = 'uploads/profile_pics/Footballer_shooting_b&w.jpg';
   $query = $conn->query("SELECT profile_pic FROM users WHERE id = $loggedUserId");
   if ($query && $query->num_rows > 0) {
     $profilePicData = $query->fetch_assoc();
