@@ -6,6 +6,7 @@ if (!isset($_SESSION['user_id'])) {
   die("Please log in to see comments!");
 }
 
+//Variables
 $userID = $_SESSION['user_id'];
 $postID = (int) $_GET['post_id']; //id of the post we're viewing
 
@@ -15,48 +16,45 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
-
-//Fetch details about the post + the poster's username
+//Fetch details about the post and the poster's username
 $postSql = "SELECT p.*, u.username, u.name, u.profile_pic,
-            (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
-            (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
+            (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count, /*Like Count */
+            (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count /*Comment Count*/
             FROM posts p
-            JOIN users u ON p.user_id = u.id
+            JOIN users u ON p.user_id = u.id    /*Join the users table and the posts table*/
             WHERE p.id = $postID";
 $postRes = $conn->query($postSql);
 $postRow = $postRes->fetch_assoc();
 
+/*Check if the logged in user has already liked this post*/
 $likeQuery = $conn->query("SELECT * FROM likes WHERE post_id = $postID AND user_id = $userID");
 $alreadyLiked = $likeQuery->num_rows > 0;
-
+//SQL query to fetch the like count
 $countQuery = $conn->query("SELECT COUNT(*) as total FROM likes WHERE post_id = $postID");
 $likeCount = $countQuery->fetch_assoc()['total'];
 
-
-// Fetch all top level comments for this post
-$commentSql = "SELECT c.*, u.username, u.name, u.profile_pic, c.created_at
-               FROM comments c
-               JOIN users u ON c.user_id = u.id
-               WHERE c.post_id= $postID AND c.parent_id IS NULL
-               ORDER BY c.created_at ASC";
+// Fetch all comments for this post
+$commentSql = "SELECT c.*, u.username, u.name, u.profile_pic, c.created_at FROM comments c
+                      JOIN users u ON c.user_id = u.id /*Join users table and comments table*/
+                      WHERE c.post_id= $postID AND c.parent_id IS NULL
+                ORDER BY c.created_at ASC"; /*Order by latest comment goes last*/
 $commentRes = $conn->query($commentSql);
 
+/*Allow Nested Replies for comments - Still in the works*/
 function fetchReplies($conn, $parentID)
 {
-  $stmt = $conn->prepare("SELECT c.*, u.username , u.name, u.profile_pic
-                          FROM comments c 
-                          JOIN users u ON c.user_id = u.id 
-                          WHERE c.parent_id = ? 
-                          ORDER BY c.created_at ASC");
-  $stmt->bind_param("i", $parentID);
+  //Prepare statement to allow this
+  $stmt = $conn->prepare("SELECT c.*, u.username , u.name, u.profile_pic FROM comments c 
+                                JOIN users u ON c.user_id = u.id WHERE c.parent_id = ? 
+                                ORDER BY c.created_at ASC");
+  $stmt->bind_param("i", $parentID);  //i for integer
   $stmt->execute();
   return $stmt->get_result();
 }
 
 ?>
 
-
-
+<!--FrontEnd-->
 <!DOCTYPE html>
 <html>
 
@@ -78,7 +76,7 @@ function fetchReplies($conn, $parentID)
   <!--Navbar stylesheet-->
   <link rel="stylesheet" href="/ProjectX/css/navbar.css">
 
-
+  <!--CSS-->
   <style>
     body {
       background-image: url('/ProjectX/uploads/Trophy_wallpaper_cropped.jpg');
@@ -93,6 +91,7 @@ function fetchReplies($conn, $parentID)
       overflow-x: hidden;
     }
 
+    /* Background Blur */
     .bg-blur-overlay {
       position: fixed;
       top: 0;
@@ -104,16 +103,19 @@ function fetchReplies($conn, $parentID)
       z-index: 1;
     }
 
+    /* Main Wrapper */
     .main-content {
       position: relative;
       z-index: 2;
     }
 
+    /* Post Card */
     .card {
       background-color: rgba(30, 30, 30, 0.90);
       color: rgba(240, 240, 240, 0.95);
     }
 
+    /* Comments Styling */
     .comment {
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
@@ -121,6 +123,7 @@ function fetchReplies($conn, $parentID)
       margin-bottom: 10px;
     }
 
+    /* Reply Styling */
     .reply {
       margin-left: 20px;
       margin-top: 5px;
@@ -128,6 +131,7 @@ function fetchReplies($conn, $parentID)
       padding-left: 15px;
     }
 
+    /* Actual post size */
     .post-media {
       max-width: 100%;
       max-height: 400px;
@@ -141,7 +145,7 @@ function fetchReplies($conn, $parentID)
       object-fit: contain;
     }
 
-
+    /* Comment Section */
     .comment-section {
       flex: 1;
       max-height: 90vh;
@@ -152,12 +156,14 @@ function fetchReplies($conn, $parentID)
       padding-left: 15px;
     }
 
+    /* Text Style */
     .custom-muted,
     .text-muted,
     .small {
       color: rgba(240, 240, 240, 0.95);
     }
 
+    /* Comment Box */
     .comment-box {
       position: relative;
       padding: 10px;
@@ -167,6 +173,7 @@ function fetchReplies($conn, $parentID)
       background-color: white;
     }
 
+    /* Replies */
     .show-reply-btn {
       font-weight: 600;
       font-size: 0.8rem;
@@ -183,6 +190,7 @@ function fetchReplies($conn, $parentID)
       display: none;
     }
 
+    /* Video and image scaling */
     video,
     img {
       max-width: 100%;
@@ -195,6 +203,8 @@ function fetchReplies($conn, $parentID)
 
 <body>
   <div class="bg-blur-overlay"></div>
+
+  <!--Main content Wrapper-->
   <div class="main-content container pt-5 mt-5">
 
     <!--Nav Bar-->
@@ -202,30 +212,34 @@ function fetchReplies($conn, $parentID)
     // $currentPage = 'profile';
     include 'navbar.php'; ?>
 
-
+    <!--Centralise content-->
     <div class="row justify-content-center">
+
+      <!-- Container -->
       <div class="col-md-8">
         <div class="card p-4">
 
           <!--  link back to feed -->
-          <a href="feed.php" class="btn btn-secondary">Back to Feed</a>
-          <br>
+          <a href="feed.php" class="btn btn-secondary">Back to Feed</a><br>
 
           <!-- Display  details about the post -->
           <?php if ($postRow): ?>
             <div class="d-flex align-items-center mb-3">
+              <!--Poster's profile pic-->
               <img src="<?= $postRow['profile_pic'] ?? 'uploads/profile_pics/Footballer_shooting_b&w.jpg' ?>" width="40"
                 height="40" class="rounded-circle me-2">
               <div>
+                <!--Name, username, and caption-->
                 <strong><?= $postRow['name'] ?></strong>
                 <small class="custom-muted"> @<?= $postRow['username'] ?> <br>
                   Posted <?= date('d M, Y H:i', strtotime($postRow['created_at'])) ?></small>
                 <!-- <p><?= htmlspecialchars($postRow['text_content']) ?></p> -->
               </div>
             </div>
-
+            <!--If the post is an image-->
             <?php if ($postRow['post_type'] === 'image'): ?>
               <img src="<?= $postRow['file_path'] ?>" class="img-fluid rounded mb-3">
+              <!--If a video-->
             <?php elseif ($postRow['post_type'] === 'video'): ?>
               <video class="w-100 mb-3" controls>
                 <source src="<?= $postRow['file_path'] ?>" type="video/mp4">
@@ -233,7 +247,7 @@ function fetchReplies($conn, $parentID)
               </video>
             <?php endif; ?>
 
-            <!-- Like / Comment / Share Buttons -->
+            <!-- Like and Share Buttons -->
             <div class="d-flex align-items-center mb-2">
 
               <!-- Like Heart Icon -->
@@ -241,95 +255,106 @@ function fetchReplies($conn, $parentID)
                 data-liked="<?= $alreadyLiked ? '1' : '0' ?>" id="like-btn-<?= $postID ?>">
                 <i class="bi <?= $alreadyLiked ? 'bi-heart-fill text-danger' : 'bi-heart' ?>"></i>
               </a>
+              <!--Show Like Count-->
               <span id="like-count-<?= $postID ?>"><strong><?= $likeCount ?>
                   <?= $likeCount == 1 ? 'like' : 'likes' ?></strong></span>
 
-
-
-              <!-- Share Icon -->
+              <!-- Share Icon - Opens the Modal when clicked -->
               <button class="btn btn-link text-decoration-none me-3 share-btn" data-bs-toggle="modal"
                 data-bs-target="#shareModal" data-post-id="<?= $postID ?>">
                 <i class="bi bi-send"></i>
               </button>
-
             </div>
 
+            <!-- If the post is text show that text -->
             <p class="ms-4"><?= htmlspecialchars($postRow['text_content']) ?></p>
             <hr>
+            <!-- COmment section -->
             <h5>Comments</h5>
-
             <!--Leave a comment area-->
             <hr>
+            <!-- Comment Form -->
             <form action="comments.php" method="POST" class="d-flex align-items-start gap-2">
               <input type="hidden" name="post_id" value="<?= $postID ?>">
-
               <!-- Comment input -->
               <textarea name="comment_text" class="form-control" placeholder="Comment something..." rows="1"
                 style="flex-grow: 1;"></textarea>
-
               <!-- Submit button -->
               <button type="submit" class="btn btn-primary">Comment</button>
             </form>
 
-
-            <!--Comment Section-->
+            <!--Show all comments (Loop through all comments)-->
             <?php while ($comment = $commentRes->fetch_assoc()): ?>
+              <!--Display-->
               <div class="comment-box mt-3 p-3 rounded bg-dark text-light">
-                <!-- Header -->
+                <!-- Centralise Content -->
                 <div class="d-flex justify-content-between align-items-center">
+                  <!-- Comment Box -->
                   <div class="d-flex align-items-start">
+                    <!--Profile Pic-->
                     <img src="<?= $comment['profile_pic'] ?? 'uploads/profile_pics/Footballer_shooting_b&w.jpg' ?>"
                       width="35" height="35" class="rounded-circle me-2">
+                    <!--Show the comment and users details (username and when they commented it)-->
                     <div>
                       <a href="profile.php?user_id=<?= $comment['user_id'] ?>" class="text-decoration-none text-light">
                         <strong><?= $comment['name'] ?></strong>
                       </a>
                       <span class="custom-muted">@<?= $comment['username'] ?></span><br>
                       <small class="custom-muted"><?= date('d M, Y H:i', strtotime($comment['created_at'])) ?></small>
-
                     </div>
                   </div>
 
-
-                  <!-- Dropdown -->
+                  <!-- Dropdown (3 dots) -->
                   <div class="dropdown">
+                    <!--hamburger button-->
                     <button class="btn btn-sm text-light" type="button" data-bs-toggle="dropdown">
                       <i class="bi bi-three-dots-vertical"></i>
                     </button>
+                    <!--Dropdown Options-->
                     <ul class="dropdown-menu dropdown-menu-end">
                       <?php if ($comment['user_id'] == $userID): ?>
+                        <!-- Edit and Delete Comment -->
                         <li><a class="dropdown-item edit-comment" href="#" data-id="<?= $comment['id'] ?>">Edit</a></li>
                         <li><a class="dropdown-item delete-comment text-danger" href="#"
                             data-id="<?= $comment['id'] ?>">Delete</a></li>
                       <?php endif; ?>
+                      <!-- Report Comment (For Future scalability) -->
                       <li><a class="dropdown-item" href="#">Report</a></li>
                     </ul>
                   </div>
+
                 </div>
 
-                <!-- Comment Content -->
+                <!-- Comment Content (Actual Comment Text)-->
                 <p class="comment-text mt-2" data-id="<?= $comment['id'] ?>">
                   <?= htmlspecialchars($comment['comment_text']) ?>
                 </p>
 
-                <!-- Replies -->
+                <!-- Replies (Still in the works)-->
                 <div class="reply-box" id="replies-<?= $comment['id'] ?>">
                   <?php
+                  // Get all replies
                   $replies = fetchReplies($conn, $comment['id']);
+                  // Loop through replied
                   while ($reply = $replies->fetch_assoc()):
                     ?>
+                    <!-- Display the replies in a box -->
                     <div class="reply-box ms-3 mt-2 ps-3 border-start border-secondary">
+                      <!-- Container -->
                       <div class="d-flex justify-content-between align-items-center">
                         <div>
+                          <!-- Commenter's details -->
                           <strong><?= $reply['username'] ?></strong>
                           <small class="custom-muted ms-2">(<?= $reply['created_at'] ?>)</small>
                         </div>
-
+                        <!-- Hamburger dropdown for replies (Still in the works) -->
                         <?php if ($reply['user_id'] == $userID): ?>
                           <div class="dropdown">
+                            <!-- Hamburger Icon -->
                             <button class="btn btn-sm text-light" type="button" data-bs-toggle="dropdown">
                               <i class="bi bi-three-dots-vertical"></i>
                             </button>
+                            <!-- Dropdown option for delete and edit -->
                             <ul class="dropdown-menu dropdown-menu-end">
                               <li><a class="dropdown-item edit-comment" href="#" data-id="<?= $reply['id'] ?>">Edit</a></li>
                               <li><a class="dropdown-item delete-comment text-danger" href="#"
@@ -338,7 +363,7 @@ function fetchReplies($conn, $parentID)
                           </div>
                         <?php endif; ?>
                       </div>
-
+                      <!-- Actual Comment Content -->
                       <p class="comment-text mt-1" data-id="<?= $reply['id'] ?>">
                         <?= htmlspecialchars($reply['comment_text']) ?>
                       </p>
@@ -354,76 +379,60 @@ function fetchReplies($conn, $parentID)
 
                 <!-- Reply Form -->
                 <form class="reply-form mt-2 ms-2" data-parent-id="<?= $comment['id'] ?>" style="display: none;">
+                  <!-- Hidden inputs to get the commenter's details and parent id for comment hierarchy -->
                   <input type="hidden" name="post_id" value="<?= $postID ?>">
                   <input type="hidden" name="parent_id" value="<?= $comment['id'] ?>">
                   <input type="text" name="reply_text" class="form-control form-control-sm mb-2"
                     placeholder="Write your reply...">
+                  <!-- Submit Button -->
                   <button class="btn btn-sm btn-success ms-2" type="submit">Send</button>
                 </form>
-              </div>
+              </div> <!--Display Comment-->
 
             <?php endwhile; ?>
           <?php endif; ?>
 
-
-
-
-
-
-
           <!--  link back to feed -->
           <br>
           <a href="feed.php" class="btn btn-secondary">Back to Feed</a>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           <br>
-
-
 
           <!--Bootstrap JavaScript-->
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
             </script>
 
-
+          <!--Script to display the nested replies and delete/edit them-->
           <script>
             // Show reply form on click
             document.querySelectorAll('.show-reply-btn').forEach(button => {
               button.addEventListener('click', () => {
-                const parentId = button.dataset.id;
+                const parentId = button.dataset.id; //Check the parentID
+                //Show the reply form or hide it
                 const form = document.querySelector(`.reply-form[data-parent-id="${parentId}"]`);
+                //Display
                 form.style.display = form.style.display === 'block' ? 'none' : 'block';
               });
             });
 
-            // Handle reply submission
+            // Handle reply submission (AJAX)
             document.querySelectorAll('.reply-form').forEach(form => {
+              //Checks the submit button was pushed and calls the reply_comment.php file
               form.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 const formData = new FormData(this);
                 const parentId = this.dataset.parentId;
-
+                //Uses fetch so the page doesn't reload
                 const res = await fetch('reply_comment.php', {
                   method: 'POST',
                   body: formData
                 });
-
+                //Add the reply text under the post
                 const data = await res.json();
                 if (data.status === 'success') {
                   const replyBox = document.querySelector(`#replies-${parentId}`);
                   const replyEl = document.createElement('p');
+                  //Show the reply
                   replyEl.classList.add('ms-2');
                   replyEl.textContent = 'You: ' + formData.get('reply_text');
                   replyBox.appendChild(replyEl);
@@ -435,19 +444,23 @@ function fetchReplies($conn, $parentID)
 
             // Edit comment 
             document.querySelectorAll('.edit-comment').forEach(link => {
-              link.addEventListener('click', async e => {
-                e.preventDefault();
+              link.addEventListener('click', async e => { //Checks if the edit button was clicked
+                e.preventDefault();   //Don't let the default play out
                 const id = link.dataset.id;
+                //Get's the comment text
                 const textEl = document.querySelector(`.comment-text[data-id="${id}"]`);
-                const oldText = textEl.textContent;
-                const newText = prompt("Edit your comment:", oldText);
-                if (!newText || newText === oldText) return;
+                const oldText = textEl.textContent;   //The old Comment
+                const newText = prompt("Edit your comment:", oldText);  //The new comment
 
-                const res = await fetch('edit_comment.php', {
+                //If the old comment is not the same as the new comment
+                if (!newText || newText === oldText) return;
+                //Use the edit_comment.php file
+                const res = await fetch('edit_comment.php', { //Fetch so the page doesn't reload
                   method: 'POST',
+                  //Display the comment
                   body: new URLSearchParams({ comment_id: id, comment_text: newText })
                 });
-
+                //Show the comment
                 const data = await res.json();
                 if (data.status === 'success') textEl.textContent = newText;
               });
@@ -455,16 +468,20 @@ function fetchReplies($conn, $parentID)
 
             // Delete comment
             document.querySelectorAll('.delete-comment').forEach(link => {
+              //Check if the delete was clicked
               link.addEventListener('click', async e => {
-                e.preventDefault();
+                e.preventDefault(); //Prevent original action
                 const id = link.dataset.id;
-                if (!confirm("Delete this comment?")) return;
 
+                //Ask the user to confirm before deleting
+                if (!confirm("Delete this comment?")) return;
+                //Call the delete_comment.php file
                 const res = await fetch('delete_comment.php', {
                   method: 'POST',
                   body: new URLSearchParams({ comment_id: id })
                 });
 
+                //Remove the comment from the DOM without refreshing
                 const data = await res.json();
                 if (data.status === 'success') {
                   link.closest('.comment-box').remove();
@@ -476,6 +493,7 @@ function fetchReplies($conn, $parentID)
 
           <!--Script to share posts-->
           <script>
+            //Once the share button is clicked, open the modal
             document.querySelectorAll('.share-btn').forEach(button => {
               button.addEventListener('click', function () {
                 const postId = this.dataset.postId;
@@ -486,38 +504,45 @@ function fetchReplies($conn, $parentID)
 
           <!--Script to allow liking posts dynamically without refreshing the page-->
           <script>
+            //Once the like is clicked
             document.querySelectorAll('.toggle-like').forEach(button => {
               button.addEventListener('click', async (e) => {
                 e.preventDefault();
 
-                const postId = button.dataset.postId;
-                const isLiked = button.dataset.liked === "1";
-                const action = isLiked ? 'unlike' : 'like';
-                const icon = button.querySelector('i');
+                //Check the variables
+                const postId = button.dataset.postId;     //post ID
+                const isLiked = button.dataset.liked === "1"; //Already liked
+                const action = isLiked ? 'unlike' : 'like';   //Like or Unlike
+                const icon = button.querySelector('i');   //Icon display
 
                 try {
+                  //Call the toggle_ligke.php script to handle 
+                  //Uses fetch so the page doesn't reload
                   const res = await fetch(`toggle_like.php?post_id=${postId}&action=${action}`);
                   const data = await res.json();
 
+                  //If the action is successful
                   if (data.status === 'success') {
                     // Toggle icon
-                    if (action === 'like') {
-                      icon.classList.remove('bi-heart');
-                      icon.classList.add('bi-heart-fill', 'text-danger');
-                      button.dataset.liked = "1";
-                    } else {
-                      icon.classList.remove('bi-heart-fill', 'text-danger');
-                      icon.classList.add('bi-heart');
-                      button.dataset.liked = "0";
+                    if (action === 'like') {    //If liking
+                      icon.classList.remove('bi-heart');    //Remove the unliked icon
+                      icon.classList.add('bi-heart-fill', 'text-danger'); //Add the liked Icon
+                      button.dataset.liked = "1"; //Update the boolean
+                    } else {  //If unliking
+                      icon.classList.remove('bi-heart-fill', 'text-danger');  //Remove the like icon
+                      icon.classList.add('bi-heart');   //Add the unlike Icon
+                      button.dataset.liked = "0";   //Update the boolean
                     }
 
                     // update like count with another request
-                    const countRes = await fetch(`like_count.php?post_id=${postId}`);
-                    const countData = await countRes.json();
+                    const countRes = await fetch(`like_count.php?post_id=${postId}`);   //fetch so no refresh
+                    const countData = await countRes.json();    //Get the count
+                    //If the count is got successfully, display it
                     if (countData.status === 'success') {
                       document.getElementById(`like-count-${postId}`).innerHTML = `<strong>${countData.like_count} ${countData.like_count == 1 ? 'like' : 'likes'}</strong>`;
                     }
                   }
+                  //Failed to like, show an error
                 } catch (err) {
                   console.error("Failed to toggle like:", err);
                 }
@@ -526,52 +551,60 @@ function fetchReplies($conn, $parentID)
           </script>
 
         </div>
-      </div>
+      </div> <!--Container-->
     </div>
-  </div>
-  <!-- Share Post Modal -->
+
+  </div> <!--Main content wrapper-->
+
+
+  <!-- Share Post Modal - Dispalys when a user clicks the share button-->
   <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <!--Share form-->
     <div class="modal-dialog">
+      <!--uses SEND_POST.PHP-->
       <form id="shareForm" method="POST" action="send_post.php">
-        <input type="hidden" name="post_id" id="modalPostId">
+        <input type="hidden" name="post_id" id="modalPostId"> <!--Hidden input for the postID-->
         <div class="modal-content text-dark bg-white">
+          <!--Header-->
           <div class="modal-header">
             <h5 class="modal-title" id="shareModalLabel">Send Post</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
+          <!--Body-->
           <div class="modal-body">
             <p>Select a user to send this post to:</p>
+            <!--Dropdown of options-->
             <div class="form-group">
               <select class="form-control" name="recipient_id" required>
-                <!-- Options inserted by PHP -->
+                <!-- Options inserted through PHP (followed users) -->
                 <?php
-                $loggedId = $_SESSION['user_id'] ?? 0;
-                $followSql = "SELECT u.id, u.username 
-                            FROM users u
-                            JOIN follows f ON f.followed_id = u.id
-                            WHERE f.follower_id = '$loggedId'";
+                $loggedId = $_SESSION['user_id'] ?? 0;  //Logged in user
+                $followSql = "SELECT u.id, u.username FROM users u /*Fetch all users the logged in user follows*/
+                                     JOIN follows f ON f.followed_id = u.id  /*Join follows table and users table*/
+                                     WHERE f.follower_id = '$loggedId'";
                 $followRes = $conn->query($followSql);
+                //Loop through followers and display
                 if ($followRes && $followRes->num_rows > 0) {
                   while ($f = $followRes->fetch_assoc()) {
                     echo '<option value="' . $f['id'] . '">' . $f['username'] . '</option>';
                   }
-                } else {
+                } else {    //Not following any users
                   echo '<option disabled>No followers found</option>';
                 }
                 ?>
               </select>
             </div>
-          </div>
+          </div> <!-- Body -->
+
+          <!--Submit Button-->
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Send</button>
           </div>
+
         </div>
       </form>
     </div>
-  </div>
-
-
-
+  </div> <!--Modal-->
 
 </body>
 

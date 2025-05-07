@@ -713,6 +713,7 @@ if ($peopleResult && $peopleResult->num_rows > 0) {
               <li class="nav-item me-5"><a class="nav-link" data-bs-toggle="tab" href="#tab-likes">Likes</a></li>
             </ul>
           </div>
+          <!--If a post is deleted, show a success banner-->
           <?php if (isset($_GET['deleted']) && $_GET['deleted'] == 1): ?>
             <div class="alert alert-success alert-dismissible fade show mt-10" role="alert">
               ✅ Post deleted successfully.
