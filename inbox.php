@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 //Get the session ID
-$my_id = $_SESSION['user_id'];          //The ID of the user that sent the text
+$my_id = $_SESSION['user_id'];  //Logged in user's ID
 
 //Connect to the db
 $conn = new mysqli("localhost", "root", "", "projectx_db");
@@ -26,21 +26,23 @@ if ($conn->connect_error) {
 //Select all messages where the receiver_id = me
 $sql = "SELECT m.id, m.sender_id, m.content, m.created_at, u.username AS sender_name
           FROM messages m
-          JOIN users u ON m.sender_id = u.id
+          JOIN users u ON m.sender_id = u.id  /*Join users table and messages table*/
           WHERE m.receiver_id = '$my_id' 
           ORDER BY m.created_at DESC";
 $result = $conn->query($sql);
 
 // Get list of users the logged-in user has conversations with
-$sql = "SELECT u.id, u.username, u.profile_pic, MAX(m.created_at) as last_msg_time,
-        SUBSTRING_INDEX(GROUP_CONCAT(m.content ORDER BY m.created_at DESC), ',', 1) AS last_msg
+$sql = "SELECT u.id, u.username, u.profile_pic, MAX(m.created_at) 
+            as last_msg_time, SUBSTRING_INDEX(GROUP_CONCAT(m.content 
+            ORDER BY m.created_at DESC), ',', 1) 
+            AS last_msg /*Last Message preview (When it was sent too)*/
         FROM messages m
         JOIN users u ON u.id = IF(m.sender_id = '$my_id', m.receiver_id, m.sender_id)
         WHERE m.sender_id = '$my_id' OR m.receiver_id = '$my_id'
         GROUP BY u.id, u.username, u.profile_pic
-        ORDER BY last_msg_time DESC";
-
+        ORDER BY last_msg_time DESC";   /*Last message sent/receieved goes at the top*/
 $users = $conn->query($sql);
+
 ?>
 
 <!--Frontend-->
@@ -56,10 +58,8 @@ $users = $conn->query($sql);
   <!--Font Awesome Icons-->
   <script src="https://kit.fontawesome.com/22c727220d.js" crossorigin="anonymous"></script>
 
-
   <!--Navbar stylesheet-->
   <link rel="stylesheet" href="/ProjectX/css/navbar.css">
-
 
   <style>
     body {
@@ -82,39 +82,35 @@ $users = $conn->query($sql);
       z-index: 1;
     }
 
-
     /* Makes the inbox take up the full screen height */
     .inbox-wrapper {
       display: flex;
       height: 100vh;
       overflow: hidden;
-  background-color: rgba(30, 30, 30, 0.88);
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(0, 255, 100, 0.1);
-  margin: 40px auto;
-  max-width: 1100px;
-  color:black;
-
-
-
+      background-color: rgba(30, 30, 30, 0.88);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 100, 0.1);
+      margin: 40px auto;
+      max-width: 1100px;
+      color: black;
     }
 
     /* Left Panel: List of users messaged */
     .sidebar {
       width: 30%;
-      /* Takes up 30% of the screen */
       background: white;
       border-right: 1px solid #dee2e6;
       overflow-y: auto;
-      /* Allows scrolling if there are lots of users */
     }
 
+    /* Sidebar heading */
     .sidebar h4 {
       padding: 20px;
       border-bottom: 1px solid #ccc;
       text-align: center;
     }
 
+    /* User container for side bar */
     .user-info {
       display: flex;
       align-items: center;
@@ -128,9 +124,10 @@ $users = $conn->query($sql);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition:  0.2s;
+      transition: 0.2s;
     }
 
+    /* Profile pic for side bar */
     .user-item img {
       width: 40px;
       height: 40px;
@@ -148,6 +145,7 @@ $users = $conn->query($sql);
       color: white;
     }
 
+    /* Message Preview in the side bar */
     .user-item.active .msg-preview {
       color: white;
     }
@@ -158,7 +156,7 @@ $users = $conn->query($sql);
       margin-top: 4px;
     }
 
-    /* RIGHT PANEL: Chat conversation iframe */
+    /* Right Panel - Chat conversation iframe */
     .chat-viewer {
       width: 70%;
       background: #fff;
@@ -170,83 +168,82 @@ $users = $conn->query($sql);
       width: 100%;
       height: 100%;
       min-height: 100vh;
-
     }
 
-    /* Hide right panel on smaller screens */
+    /* Chat viewer for smaller screens */
     @media (max-width: 768px) {
+      /* Hide sidebar completely */
+      .sidebar {
+        display: none !important;
+      }
+      /* Expand chat view to take full width */
       .chat-viewer {
         width: 100%;
         display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 10;
-        background: white;
+        position: relative;
+        z-index: 2;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
       }
-
-      .sidebar {
-        display: none;
-      }
-
-      .sidebar,
-.chat-viewer {
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-}
-
     }
   </style>
 </head>
 
 <body>
-  <div class="bg-blur-overlay"></div>
+  <div class="bg-blur-overlay"></div> <!--Background-->
 
+  <!--Wrapper-->
   <div class="main-content-wrapper position-relative z-2">
-  <div class="inbox-wrapper mt-5">
+
+  <!--Inbox Wrapper-->
+    <div class="inbox-wrapper mt-5">
+      
     <!--Nav Bar-->
-    <?php
-    $currentPage = 'inbox';
-    include 'navbar.php'; ?>
+      <?php
+      $currentPage = 'inbox';
+      include 'navbar.php'; ?>
 
-    <!-- Left panel: List of Users messaged -->
-    <div class="sidebar">
-      <h4 class="text-center">Inbox</h4>
+      <!-- Left panel: List of Users messaged -->
+      <div class="sidebar">
+        <h4 class="text-center">Inbox</h4>
 
-      <?php if ($users && $users->num_rows > 0): ?>
-        <!--Loop through each user that has been messaged-->
-        <?php while ($row = $users->fetch_assoc()): ?>
-          <!--Clicking a user loads their chat on the right-->
-          <a href="conversation.php?other_id=<?php echo $row['id']; ?>" target="chatFrame"
-            class="text-decoration-none text-dark">
-            <div class="user-item">
-              <div class="user-info">
-                <div>
-                  <!--profile pic-->
-                  <img src="<?php echo $row['profile_pic'] ?? 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; ?>" alt="">
-                  <!--username-->
-                  <strong><?php echo $row['username']; ?></strong>
-                  <!--Show a preview of the last message in the chat-->
-                  <div class="msg-preview">
-                    <?php echo htmlspecialchars(substr($row['last_msg'], 0, 30)) . '...'; ?>
+        <?php if ($users && $users->num_rows > 0): ?>
+          <!--Loop through each user that has been messaged-->
+          <?php while ($row = $users->fetch_assoc()): ?>
+            <!--Clicking a user loads their chat on the right through an iFrame-->
+            <a href="conversation.php?other_id=<?php echo $row['id']; ?>" target="chatFrame"
+              class="text-decoration-none text-dark">
+              <!-- User's details on the left -->
+              <div class="user-item">
+                <div class="user-info">
+                  <div>
+                    <!--profile pic-->
+                    <img src="<?php echo !empty($row['profile_pic'])
+                      ? $row['profile_pic']
+                      : 'uploads/profile_pics/Footballer_shooting_b&w.jpg'; ?>" alt="">
+                    <!--username-->
+                    <strong><?php echo $row['username']; ?></strong>
+                    <!--Show a preview of the last message in the chat-->
+                    <div class="msg-preview">
+                      <?php echo htmlspecialchars(substr($row['last_msg'], 0, 30)) . '...'; ?>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </a>
-        <?php endwhile; ?>
-      <?php else: ?>
-        <!--if no conversations are found-->
-        <p class="text-muted text-center mt-4">No conversations found.</p>
-      <?php endif; ?>
-    </div>
+              </div> <!--User's Details-->
+            </a>
+          <?php endwhile; ?>
+        <?php else: ?>
+          <!--if no conversations are found-->
+          <p class="text-muted text-center mt-4">No conversations found.</p>
+        <?php endif; ?>
+      </div>
 
-    <!-- Right panel: Chat Viewer - shows all convos -->
-    <div class="chat-viewer">
-      <!-- blank iframe at first. When a user is clicked, the conversation loads here -->
-      <iframe name="chatFrame" src="" title="Conversation"></iframe>
+      <!-- Right panel: Chat Viewer - shows all convos -->
+      <div class="chat-viewer">
+        <!-- blank iframe at first. When a user is clicked, the conversation.php loads here -->
+        <iframe name="chatFrame" src="" title="Conversation"></iframe>
+      </div>
     </div>
-  </div>
   </div>
 
   <!-- Bootstrap JS -->
@@ -257,22 +254,20 @@ $users = $conn->query($sql);
     // Select all the user rows
     const userItems = document.querySelectorAll('.user-item');
 
+    //For each user
     userItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const userId = item.getAttribute('data-user-id');
+      item.addEventListener('click', () => {    //Listen for when they're clicked on
+        const userId = item.getAttribute('data-user-id');   //Get their ID
 
-        // Remove green highlight from all items
-        userItems.forEach(i => i.classList.remove('active'));
+        //Chat highlighting
+        userItems.forEach(i => i.classList.remove('active')); // Remove green highlight from all items
+        item.classList.add('active'); // Highlight the chat that was clicked
 
-        // Highlight the one that was clicked
-        item.classList.add('active');
-
-        // Mobile: redirect to chat page
-        // Mobile: redirect to chat page
+        // On phones, go to the chat directly
         if (window.innerWidth <= 768) {
           window.location.href = `conversation.php?other_id=${userId}`;
         } else {
-          // Desktop: load in iframe
+          // On PC or larger screens, load the chat into an iframe of conversation.php
           document.querySelector('iframe[name="chatFrame"]').src = `conversation.php?other_id=${userId}`;
         }
       });
