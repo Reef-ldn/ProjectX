@@ -251,7 +251,7 @@ $users = $conn->query($sql);
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- JS Behavior -->
+  <!-- Script handles highlighting chats in the left panel -->
   <script>
     // Select all the user rows
     const userItems = document.querySelectorAll('.user-item');
