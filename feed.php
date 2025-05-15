@@ -647,7 +647,7 @@ $result = $conn->query($sql); //Fetch all posts
     });
   </script>
 
-  <!--Script to handle comments without refreshing the page-->
+  <!--Script to handle likes without refreshing the page-->
   <script>
     //Finds all elements with the class "toggle-like" 
     document.querySelectorAll('.toggle-like').forEach(button => {
