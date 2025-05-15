@@ -44,26 +44,34 @@ if ($stmt->execute()) {
   // Get the username of the person who commented
   $userRes = $conn->query("SELECT username FROM users WHERE id = '$user_id'");
   $username = $userRes->fetch_assoc()['username'] ?? 'unknown';
-  // Success — return a valid JSON response
-  echo json_encode(['status' => 'success', 'redirect' => "view_post.php?post_id=$post_id"]);
-} else {
+  // Check if the request is AJAX
+  $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+  //If the response was sent through AJAX, send a JSON response
+  if ($isAjax) {
+    echo json_encode(['status' => 'success', 'redirect' => "view_post.php?post_id=$post_id"]);
+  } else { 
+    //If the request came from a regular form submission, redirect the user back to the post page
+    header("Location: view_post.php?post_id=$post_id");
+  }
+  exit;
+} else {  
   echo json_encode(['status' => 'error', 'message' => 'Failed to save comment']);
 }
 
-  // // Check if the request was sent through JavaScript (AJAX)
-  // if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-  //     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-  //   // Return JSON for AJAX
-  //   echo json_encode([
-  //     'status' => 'success',
-  //     'username' => $username,
-  //     'comment_text' => $comment_text,
-  //     'created_at' => date('Y-m-d H:i')
-  //   ]);
-  // } else {
-  //   // If it's a regular form submission (not AJAX), redirect to view_post.php
-  //   header("Location: view_post.php?post_id=" . $post_id);
-  // }
+// // Check if the request was sent through JavaScript (AJAX)
+// if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+//     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+//   // Return JSON for AJAX
+//   echo json_encode([
+//     'status' => 'success',
+//     'username' => $username,
+//     'comment_text' => $comment_text,
+//     'created_at' => date('Y-m-d H:i')
+//   ]);
+// } else {
+//   // If it's a regular form submission (not AJAX), redirect to view_post.php
+//   header("Location: view_post.php?post_id=" . $post_id);
+// }
 // } else {
 //   echo json_encode(['status' => 'error', 'message' => 'Comment insert failed']);
 // }
